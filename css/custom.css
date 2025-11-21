@@ -1,0 +1,745 @@
+/* =========================
+   Blog Beautification Enhancements
+   ========================= */
+
+/* Enhanced Card Shadows and Hover Effects */
+.card-widget {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.card-widget:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.recent-post-item {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.recent-post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced Header with Gradient */
+#page-header {
+  background: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#page-header::before {
+  display: none;
+}
+
+#page-header.full_page {
+  background-image: url('/img/Azusa.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#page-header.full_page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  #page-header.full_page {
+    background-attachment: scroll;
+  }
+}
+
+@keyframes backgroundMove {
+  0% { background-position: 0 0, 30px 30px; }
+  100% { background-position: 60px 60px, 90px 90px; }
+}
+
+/* Improved Site Title */
+#site-title {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Enhanced Navigation */
+#nav {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] #nav {
+  background: rgba(18, 18, 18, 0.95);
+}
+
+/* Beautiful Buttons */
+#card-info-btn,
+.button,
+button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 25px;
+  padding: 10px 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+#card-info-btn:hover,
+.button:hover,
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Enhanced Avatar */
+.avatar-img img {
+  border: 4px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.avatar-img img:hover {
+  transform: scale(1.05) rotate(5deg);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
+}
+
+/* Improved Article Titles */
+.article-title {
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+.article-title:hover {
+  transform: translateX(5px);
+  filter: brightness(1.2);
+}
+
+/* Enhanced Footer */
+#footer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px 0;
+  position: relative;
+}
+
+#footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f093fb, #f5576c, #ffd140, #667eea);
+  animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Beautify Sidebar Cards */
+.card-announcement {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-left: 4px solid #667eea;
+}
+
+/* Enhanced Links */
+a {
+  transition: color 0.3s ease;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Improved Card Archive List */
+.card-archive-list-item {
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.card-archive-list-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateX(5px);
+}
+
+/* Enhanced Web Info Cards */
+.webinfo-item {
+  transition: transform 0.3s ease;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.webinfo-item:hover {
+  transform: scale(1.05);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Beautiful Scroll Indicator */
+#scroll-down i {
+  animation: scrollBounce 2s infinite;
+  font-size: 2em;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes scrollBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(10px);
+  }
+  60% {
+    transform: translateY(5px);
+  }
+}
+
+/* Enhanced Rightside Buttons */
+#rightside-config-show button,
+#rightside-config-hide button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+#rightside-config-show button:hover,
+#rightside-config-hide button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+/* Content Enhancement */
+.content {
+  line-height: 1.8;
+  color: #333;
+}
+
+[data-theme="dark"] .content {
+  color: #d0d0d0;
+}
+
+/* Improved Meta Information */
+.article-meta-wrap {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.article-meta-wrap i {
+  color: #667eea;
+  margin-right: 5px;
+}
+
+/* Site Data Enhancement */
+.site-data a {
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.site-data a:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-3px);
+}
+
+/* Recent Post Items Layout */
+.recent-post-items {
+  display: grid;
+  gap: 20px;
+}
+
+/* Enhanced Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Glassmorphism effect for dark mode cards */
+[data-theme="dark"] .card-widget {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Loading Animation for Stats */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .card-widget:hover {
+    transform: none;
+  }
+  
+  .recent-post-item:hover {
+    transform: none;
+  }
+}
+
+/* Add subtle animation to page load */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recent-post-item,
+.card-widget {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.recent-post-item:nth-child(1) { animation-delay: 0.1s; }
+.recent-post-item:nth-child(2) { animation-delay: 0.2s; }
+.recent-post-item:nth-child(3) { animation-delay: 0.3s; }
+
+/* Enhanced Item Headlines */
+.item-headline {
+  font-weight: 600;
+  color: #667eea;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .item-headline {
+  color: #8b9cff;
+}
+
+/* ========================================
+   Additional Premium Enhancements
+   ======================================== */
+
+/* Refined Navigation Bar */
+.nav-site-title {
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+}
+
+.nav-site-title:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* Enhanced Post Date Badge */
+.post-meta-date {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.post-meta-date:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  transform: translateY(-2px);
+}
+
+/* Author Info Enhancement */
+.author-info-name {
+  font-size: 1.3em;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 10px 0;
+}
+
+/* Description with Style */
+.author-info-description {
+  color: #666;
+  line-height: 1.6;
+  padding: 10px 0;
+}
+
+[data-theme="dark"] .author-info-description {
+  color: #aaa;
+}
+
+/* Site Data Cards Improvement */
+.site-data {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+  padding: 15px 0;
+  border-top: 2px solid rgba(102, 126, 234, 0.1);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.site-data .headline {
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.site-data .length-num {
+  font-size: 1.5em;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Announcement Card Special Style */
+.announcement_content {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  font-style: italic;
+  color: #555;
+}
+
+[data-theme="dark"] .announcement_content {
+  color: #ccc;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+}
+
+/* Recent Post Title Enhancement */
+.aside-list-item {
+  transition: all 0.3s ease;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Make content area transparent to show background */
+#recent-posts .recent-post-item {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] #recent-posts .recent-post-item {
+  background: rgba(18, 18, 18, 0.9) !important;
+}
+
+.card-widget {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .card-widget {
+  background: rgba(18, 18, 18, 0.9) !important;
+}
+
+/* Set Azusa.jpg as full page background */
+body {
+  background-image: url('/img/Azusa.jpg') !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: -1;
+}
+
+#web_bg,
+canvas#ribbon-canvas,
+#ribbon-canvas,
+canvas {
+  display: none !important;
+}
+
+.aside-list-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  transform: translateX(5px);
+}
+
+.aside-list-item .title {
+  font-weight: 600;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.aside-list-item .title:hover {
+  color: #667eea;
+}
+
+[data-theme="dark"] .aside-list-item .title {
+  color: #ddd;
+}
+
+[data-theme="dark"] .aside-list-item .title:hover {
+  color: #8b9cff;
+}
+
+/* Copyright Section Style */
+.footer-copyright {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.framework-info {
+  opacity: 0.9;
+  font-size: 0.9em;
+}
+
+.framework-info a {
+  color: white;
+  text-decoration: underline;
+  transition: opacity 0.3s ease;
+}
+
+.framework-info a:hover {
+  opacity: 0.8;
+}
+
+/* Webinfo Enhancement */
+.webinfo {
+  display: grid;
+  gap: 12px;
+}
+
+.item-name {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.item-count {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1em;
+}
+
+[data-theme="dark"] .item-count {
+  color: #8b9cff;
+}
+
+/* Card Archive List Enhancement */
+.card-archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card-archive-list-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: #555;
+}
+
+.card-archive-list-link:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: #667eea;
+  transform: translateX(5px);
+}
+
+[data-theme="dark"] .card-archive-list-link {
+  color: #bbb;
+}
+
+[data-theme="dark"] .card-archive-list-link:hover {
+  color: #8b9cff;
+}
+
+.card-archive-list-count {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+/* Nav Fixed Enhancement */
+#nav.nav-fixed {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Post Content Styling */
+.recent-post-info {
+  padding: 20px;
+}
+
+/* Add Subtle Border to Cards */
+.card-widget {
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+[data-theme="dark"] .card-widget {
+  border-color: rgba(139, 156, 255, 0.2);
+}
+
+/* Improve Scroll Percent Display */
+.scroll-percent {
+  font-weight: 600;
+  color: white;
+}
+
+/* Icon Colors */
+.fas, .fab, .far {
+  color: #667eea;
+}
+
+[data-theme="dark"] .fas,
+[data-theme="dark"] .fab,
+[data-theme="dark"] .far {
+  color: #8b9cff;
+}
+
+/* Special Effect for Avatar Container */
+.avatar-img {
+  position: relative;
+  display: inline-block;
+  margin: 20px 0;
+}
+
+.avatar-img::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  filter: blur(15px);
+}
+
+.avatar-img:hover::before {
+  opacity: 0.6;
+}
+
+/* Refined Text Selection */
+::selection {
+  background: #667eea;
+  color: white;
+}
+
+::-moz-selection {
+  background: #667eea;
+  color: white;
+}
+
+/* Scrollbar Styling for Chrome/Edge */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+/* Add Pulse Animation to Follow Button */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+}
+
+#card-info-btn {
+  animation: pulse 2s infinite;
+}
+
+/* Improve Focus States */
+button:focus,
+a:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Add Subtle Shine Effect */
+@keyframes shine {
+  0% {
+    background-position: -100%;
+  }
+  100% {
+    background-position: 200%;
+  }
+}
+
+.card-widget::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 200%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+.card-widget:hover::after {
+  opacity: 1;
+  animation: shine 1.5s;
+}
