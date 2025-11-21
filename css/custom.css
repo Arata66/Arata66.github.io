@@ -1,8 +1,8 @@
 /* =========================
-   Blog Beautification Enhancements
+   博客美化增强
    ========================= */
 
-/* Enhanced Card Shadows and Hover Effects */
+/* 增强的卡片阴影和悬停效果 */
 .card-widget {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -26,7 +26,7 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Enhanced Header with Gradient */
+/* 增强的渐变页头 */
 #page-header {
   background: none;
   position: relative;
@@ -67,14 +67,14 @@
   100% { background-position: 60px 60px, 90px 90px; }
 }
 
-/* Improved Site Title */
+/* 改进的网站标题 */
 #site-title {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   font-weight: 700;
   letter-spacing: 1px;
 }
 
-/* Enhanced Navigation */
+/* 增强的导航栏 */
 #nav {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.95);
@@ -85,7 +85,7 @@
   background: rgba(18, 18, 18, 0.95);
 }
 
-/* Beautiful Buttons */
+/* 美化的按钮 */
 #card-info-btn,
 .button,
 button {
@@ -104,7 +104,7 @@ button:hover {
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-/* Enhanced Avatar */
+/* 增强的头像 */
 .avatar-img img {
   border: 4px solid rgba(102, 126, 234, 0.3);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -116,7 +116,7 @@ button:hover {
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.3);
 }
 
-/* Improved Article Titles */
+/* 改进的文章标题 */
 .article-title {
   transition: color 0.3s ease, transform 0.3s ease;
   display: inline-block;
@@ -132,7 +132,7 @@ button:hover {
   filter: brightness(1.2);
 }
 
-/* Enhanced Footer */
+/* 增强的页脚 */
 #footer {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -156,23 +156,23 @@ button:hover {
   50% { opacity: 0.5; }
 }
 
-/* Beautify Sidebar Cards */
+/* 美化侧边栏卡片 */
 .card-announcement {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
   border-left: 4px solid #667eea;
 }
 
-/* Enhanced Links */
+/* 增强的链接 */
 a {
   transition: color 0.3s ease;
 }
 
-/* Smooth Scrolling */
+/* 平滑滚动 */
 html {
   scroll-behavior: smooth;
 }
 
-/* Improved Card Archive List */
+/* 改进的归档列表 */
 .card-archive-list-item {
   transition: all 0.3s ease;
   padding: 8px;
@@ -184,7 +184,7 @@ html {
   transform: translateX(5px);
 }
 
-/* Enhanced Web Info Cards */
+/* 增强的网站信息卡片 */
 .webinfo-item {
   transition: transform 0.3s ease;
   padding: 10px;
@@ -196,7 +196,7 @@ html {
   background: rgba(102, 126, 234, 0.05);
 }
 
-/* Beautiful Scroll Indicator */
+/* 美化的滚动指示器 */
 #scroll-down i {
   animation: scrollBounce 2s infinite;
   font-size: 2em;
@@ -216,7 +216,7 @@ html {
   }
 }
 
-/* Enhanced Rightside Buttons */
+/* 增强的右侧按钮 */
 #rightside-config-show button,
 #rightside-config-hide button {
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -231,7 +231,7 @@ html {
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
 }
 
-/* Content Enhancement */
+/* 内容增强 */
 .content {
   line-height: 1.8;
   color: #333;
@@ -241,7 +241,7 @@ html {
   color: #d0d0d0;
 }
 
-/* Improved Meta Information */
+/* 改进的元信息 */
 .article-meta-wrap {
   color: #888;
   font-size: 0.9em;
@@ -252,7 +252,7 @@ html {
   margin-right: 5px;
 }
 
-/* Site Data Enhancement */
+/* 网站数据增强 */
 .site-data a {
   transition: all 0.3s ease;
   padding: 10px;
@@ -264,26 +264,26 @@ html {
   transform: translateY(-3px);
 }
 
-/* Recent Post Items Layout */
+/* 最近文章列表布局 */
 .recent-post-items {
   display: grid;
   gap: 20px;
 }
 
-/* Enhanced Typography */
+/* 增强的排版 */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-/* Glassmorphism effect for dark mode cards */
+/* 暗黑模式卡片的毛玻璃效果 */
 [data-theme="dark"] .card-widget {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Loading Animation for Stats */
+/* 统计数据的加载动画 */
 .fa-spinner {
   animation: spin 1s linear infinite;
 }
@@ -293,7 +293,7 @@ h1, h2, h3, h4, h5, h6 {
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments */
+/* 响应式调整 */
 @media screen and (max-width: 768px) {
   .card-widget:hover {
     transform: none;
@@ -304,7 +304,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Add subtle animation to page load */
+/* 添加页面加载时的微妙动画 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -325,7 +325,7 @@ h1, h2, h3, h4, h5, h6 {
 .recent-post-item:nth-child(2) { animation-delay: 0.2s; }
 .recent-post-item:nth-child(3) { animation-delay: 0.3s; }
 
-/* Enhanced Item Headlines */
+/* 增强的项目标题 */
 .item-headline {
   font-weight: 600;
   color: #667eea;
@@ -339,10 +339,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================
-   Additional Premium Enhancements
+   额外的高级增强
    ======================================== */
 
-/* Refined Navigation Bar */
+/* 精致的导航栏 */
 .nav-site-title {
   font-weight: 700;
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -357,7 +357,7 @@ h1, h2, h3, h4, h5, h6 {
   filter: brightness(1.2);
 }
 
-/* Enhanced Post Date Badge */
+/* 增强的文章日期徽章 */
 .post-meta-date {
   display: inline-flex;
   align-items: center;
@@ -372,7 +372,7 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
-/* Author Info Enhancement */
+/* 作者信息增强 */
 .author-info-name {
   font-size: 1.3em;
   font-weight: 700;
@@ -383,7 +383,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 10px 0;
 }
 
-/* Description with Style */
+/* 带样式的描述 */
 .author-info-description {
   color: #666;
   line-height: 1.6;
@@ -394,7 +394,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #aaa;
 }
 
-/* Site Data Cards Improvement */
+/* 网站数据卡片改进 */
 .site-data {
   display: flex;
   justify-content: space-around;
@@ -419,7 +419,7 @@ h1, h2, h3, h4, h5, h6 {
   background-clip: text;
 }
 
-/* Announcement Card Special Style */
+/* 公告卡片特殊样式 */
 .announcement_content {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
   padding: 15px;
@@ -434,7 +434,7 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
 }
 
-/* Recent Post Title Enhancement */
+/* 最近文章标题增强 */
 .aside-list-item {
   transition: all 0.3s ease;
   padding: 12px;
@@ -442,7 +442,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 10px;
 }
 
-/* Make content area transparent to show background */
+/* 使内容区域透明以显示背景 */
 #recent-posts .recent-post-item {
   background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: blur(10px);
@@ -461,7 +461,7 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(18, 18, 18, 0.9) !important;
 }
 
-/* Set Azusa.jpg as full page background */
+/* 设置 Azusa.jpg 为全屏背景 */
 body {
   background-image: url('/img/Azusa.jpg') !important;
   background-size: cover !important;
@@ -512,7 +512,7 @@ canvas {
   color: #8b9cff;
 }
 
-/* Copyright Section Style */
+/* 版权部分样式 */
 .footer-copyright {
   text-align: center;
   padding: 10px 0;
@@ -533,7 +533,7 @@ canvas {
   opacity: 0.8;
 }
 
-/* Webinfo Enhancement */
+/* 网站信息增强 */
 .webinfo {
   display: grid;
   gap: 12px;
@@ -554,7 +554,7 @@ canvas {
   color: #8b9cff;
 }
 
-/* Card Archive List Enhancement */
+/* 归档列表增强 */
 .card-archive-list {
   list-style: none;
   padding: 0;
@@ -594,17 +594,17 @@ canvas {
   font-weight: 600;
 }
 
-/* Nav Fixed Enhancement */
+/* 导航栏固定增强 */
 #nav.nav-fixed {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Post Content Styling */
+/* 文章内容样式 */
 .recent-post-info {
   padding: 20px;
 }
 
-/* Add Subtle Border to Cards */
+/* 为卡片添加微妙边框 */
 .card-widget {
   border: 1px solid rgba(102, 126, 234, 0.1);
 }
@@ -613,13 +613,13 @@ canvas {
   border-color: rgba(139, 156, 255, 0.2);
 }
 
-/* Improve Scroll Percent Display */
+/* 改进滚动百分比显示 */
 .scroll-percent {
   font-weight: 600;
   color: white;
 }
 
-/* Icon Colors */
+/* 图标颜色 */
 .fas, .fab, .far {
   color: #667eea;
 }
@@ -630,7 +630,7 @@ canvas {
   color: #8b9cff;
 }
 
-/* Special Effect for Avatar Container */
+/* 头像容器特效 */
 .avatar-img {
   position: relative;
   display: inline-block;
@@ -656,7 +656,7 @@ canvas {
   opacity: 0.6;
 }
 
-/* Refined Text Selection */
+/* 精致的文本选择 */
 ::selection {
   background: #667eea;
   color: white;
@@ -667,7 +667,7 @@ canvas {
   color: white;
 }
 
-/* Scrollbar Styling for Chrome/Edge */
+/* Chrome/Edge 滚动条样式 */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -690,7 +690,7 @@ canvas {
   background: #1a1a1a;
 }
 
-/* Add Pulse Animation to Follow Button */
+/* 为关注按钮添加脉冲动画 */
 @keyframes pulse {
   0% {
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
@@ -707,14 +707,14 @@ canvas {
   animation: pulse 2s infinite;
 }
 
-/* Improve Focus States */
+/* 改进焦点状态 */
 button:focus,
 a:focus {
   outline: 2px solid #667eea;
   outline-offset: 2px;
 }
 
-/* Add Subtle Shine Effect */
+/* 添加微妙的光泽效果 */
 @keyframes shine {
   0% {
     background-position: -100%;
