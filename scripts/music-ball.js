@@ -62,12 +62,12 @@ var hideAplayer = '<style>.aplayer{display:none!important}</style>';
 hexo.extend.injector.register('head_end', style + hideAplayer);
 hexo.extend.injector.register('body_end', '<script>'
 + '(function(){'
-+ '  var API="https://meting-api.imsyy.top/api?server=netease&type=playlist&id=2690018998";'
++ '  var API="https://api.injahow.cn/meting/?type=playlist&id=2690018998";'
 + '  var songs=[], curIdx=0, audio=new Audio(), playing=false, panelOpen=false;'
 +
 + '  function init(){'
 + '    fetch(API).then(function(r){return r.json()}).then(function(d){'
-+ '      if(d.data)songs=d.data;'
++ '      songs=Array.isArray(d)?d:(d.data||[]);'
 + '      renderPlaylist();'
 + '      if(songs.length>0)loadSong(0);'
 + '    }).catch(function(){'
