@@ -797,13 +797,28 @@ html {
 /* ---------- 音乐播放器位置 ---------- */
 .aplayer {
   left: auto !important;
-  right: 30px !important;
-  bottom: 30px !important;
+  right: 20px !important;
+  bottom: 0 !important;
 }
 
-/* 展开状态贴底 */
+/* narrow 模式（收起的小箭头） */
 .aplayer.aplayer-narrow {
-  bottom: 30px !important;
+  left: auto !important;
+  right: 20px !important;
+  bottom: 0 !important;
+}
+
+/* 播放列表面板：从右下角向上展开 */
+.aplayer-list {
+  left: auto !important;
+  right: 0 !important;
+  bottom: 66px !important;
+}
+
+.aplayer.aplayer-narrow .aplayer-list {
+  right: 0 !important;
+  left: auto !important;
+  bottom: 66px !important;
 }
 
 /* ---------- 标签云美化 ---------- */
@@ -838,5 +853,12 @@ html {
 
 .card-webinfo .webinfo-item:last-child {
   border-bottom: none;
+}
+
+/* 运势弹出动画 */
+@keyframes fortunePop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 }
