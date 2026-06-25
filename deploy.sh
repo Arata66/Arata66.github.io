@@ -38,7 +38,7 @@ if [ -n "$1" ]; then
     echo "▶ 提交到 Git..."
     git add -A
     git commit -m "$1"
-    git push
+    git -c http.proxy=http://127.0.0.1:28839 -c http.sslVerify=false push
     echo "✓ 已推送到 GitHub"
 fi
 

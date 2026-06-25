@@ -793,3 +793,38 @@ html {
 #footer.scroll-reveal.revealed {
   transform: translateY(0);
 }
+
+/* ---------- 标签云美化 ---------- */
+#card-tags .aside-tag a {
+  display: inline-block;
+  padding: 4px 12px;
+  margin: 3px;
+  border-radius: 20px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+#card-tags .aside-tag a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(180, 142, 173, 0.3);
+  border-color: var(--accent);
+}
+
+/* ---------- 站点数据面板美化 ---------- */
+.card-webinfo {
+  background: var(--bg-glass) !important;
+  border-radius: 12px !important;
+}
+
+.card-webinfo .webinfo-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.card-webinfo .webinfo-item:last-child {
+  border-bottom: none;
+}
+}
