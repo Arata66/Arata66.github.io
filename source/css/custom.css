@@ -794,6 +794,18 @@ html {
   transform: translateY(0);
 }
 
+/* ---------- 音乐播放器位置 ---------- */
+.aplayer {
+  left: auto !important;
+  right: 30px !important;
+  bottom: 30px !important;
+}
+
+/* 展开状态贴底 */
+.aplayer.aplayer-narrow {
+  bottom: 30px !important;
+}
+
 /* ---------- 标签云美化 ---------- */
 #card-tags .aside-tag a {
   display: inline-block;
