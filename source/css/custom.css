@@ -341,6 +341,10 @@ button:hover {
 }
 
 /* ---------- 公告卡片 ---------- */
+.card-info {
+  padding-bottom: 80px !important;
+}
+
 .announcement_content {
   background: linear-gradient(135deg, rgba(180, 142, 173, 0.08), rgba(244, 169, 192, 0.05));
   padding: 15px;
@@ -794,33 +798,6 @@ html {
   transform: translateY(0);
 }
 
-/* ---------- 音乐播放器位置 ---------- */
-.aplayer {
-  left: auto !important;
-  right: 20px !important;
-  bottom: 0 !important;
-}
-
-/* narrow 模式（收起的小箭头） */
-.aplayer.aplayer-narrow {
-  left: auto !important;
-  right: 20px !important;
-  bottom: 0 !important;
-}
-
-/* 播放列表面板：从右下角向上展开 */
-.aplayer-list {
-  left: auto !important;
-  right: 0 !important;
-  bottom: 66px !important;
-}
-
-.aplayer.aplayer-narrow .aplayer-list {
-  right: 0 !important;
-  left: auto !important;
-  bottom: 66px !important;
-}
-
 /* ---------- 标签云美化 ---------- */
 #card-tags .aside-tag a {
   display: inline-block;
@@ -830,6 +807,8 @@ html {
   font-size: 12px;
   transition: all 0.3s ease;
   border: 1px solid transparent;
+  color: var(--primary-light) !important;
+  text-shadow: 0 1px 6px rgba(180, 142, 173, 0.3);
 }
 
 #card-tags .aside-tag a:hover {
@@ -861,4 +840,4 @@ html {
   60% { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
 }
-}
+

@@ -20,6 +20,8 @@ echo "▶ 清理旧文件..."
 npx hexo clean
 echo "▶ 构建静态文件..."
 npx hexo g
+echo "▶ 为资源添加版本号（防缓存）..."
+node scripts/cache-bust.js
 
 # 2. 上传到服务器
 echo "▶ 上传到服务器..."
