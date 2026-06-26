@@ -1,6 +1,6 @@
 // 悬浮球音乐播放器 v3 — 黑胶唱片风格 + 音量控制
 (function () {
-  var API = "https://arata66.top/meting/?type=playlist&id=2690018998";
+  var API = "https://api.injahow.cn/meting/?type=playlist&id=2690018998";
   var songs = [];
   var curIdx = 0;
   var audio = new Audio();
@@ -261,11 +261,6 @@
     wasDragged = false;
     startX = e.clientX;
     startY = e.clientY;
-    // 拖拽时关闭面板，避免干扰
-    if (panelOpen) {
-      panelOpen = false;
-      panel.classList.remove("show");
-    }
     var rect = root.getBoundingClientRect();
     origLeft = rect.left;
     origBottom = window.innerHeight - rect.bottom;
