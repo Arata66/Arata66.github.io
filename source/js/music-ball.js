@@ -261,6 +261,11 @@
     wasDragged = false;
     startX = e.clientX;
     startY = e.clientY;
+    // 拖拽时关闭面板，避免干扰
+    if (panelOpen) {
+      panelOpen = false;
+      panel.classList.remove("show");
+    }
     var rect = root.getBoundingClientRect();
     origLeft = rect.left;
     origBottom = window.innerHeight - rect.bottom;
