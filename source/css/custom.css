@@ -641,6 +641,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ---------- 侧边菜单默认隐藏 ---------- */
+#sidebar-menus {
+  display: none !important;
+}
+
+body.sidebar-open #sidebar-menus {
+  display: block !important;
+}
+
 /* ---------- 响应式 ---------- */
 @media screen and (max-width: 768px) {
   .card-widget:hover,
