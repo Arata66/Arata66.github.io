@@ -908,23 +908,86 @@ html {
 }
 
 /* ========================================
-   Preloader — 覆盖为粉紫色系
+   Preloader — 樱花旋转加载动画
    ======================================== */
 :root {
   --preloader-bg: #1a1025;
   --preloader-color: #f0e6f6;
 }
 
-#loading-box .configure-border-1 {
-  background: #c8a9de !important;
+#loading-box {
+  background: var(--preloader-bg) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-#loading-box .configure-border-2 {
-  background: #f4a9c0 !important;
+/* 隐藏默认 spinner */
+#loading-box .configure-border-1,
+#loading-box .configure-border-2,
+#loading-box .configure-center {
+  display: none !important;
 }
 
+/* 樱花旋转容器 */
+.sakura-loader {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.sakura-petal {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50% 0 50% 0;
+  transform-origin: 50% 40px;
+  opacity: 0.85;
+}
+
+.sakura-petal:nth-child(1) { background: #f4a9c0; animation: sakuraSpin 2s linear infinite; }
+.sakura-petal:nth-child(2) { background: #d4b5e0; animation: sakuraSpin 2s linear infinite 0.25s; }
+.sakura-petal:nth-child(3) { background: #c8a9de; animation: sakuraSpin 2s linear infinite 0.5s; }
+.sakura-petal:nth-child(4) { background: #b48ead; animation: sakuraSpin 2s linear infinite 0.75s; }
+.sakura-petal:nth-child(5) { background: #f4a9c0; animation: sakuraSpin 2s linear infinite 1.0s; opacity: 0.6; }
+.sakura-petal:nth-child(6) { background: #d4b5e0; animation: sakuraSpin 2s linear infinite 1.25s; opacity: 0.6; }
+
+@keyframes sakuraSpin {
+  0%   { transform: rotate(0deg) translateY(0); opacity: 0.85; }
+  50%  { opacity: 0.4; }
+  100% { transform: rotate(360deg) translateY(0); opacity: 0.85; }
+}
+
+/* 中心圆点 */
+.sakura-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: var(--accent, #f4a9c0);
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(244, 169, 192, 0.5);
+  animation: sakuraPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sakuraPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(244, 169, 192, 0.5); }
+  50% { transform: scale(1.2); box-shadow: 0 0 25px rgba(244, 169, 192, 0.7); }
+}
+
+/* 加载文字 */
 #loading-box .loading-word {
-  color: #f0e6f6 !important;
+  color: var(--preloader-color) !important;
+  font-size: 0.85em;
+  letter-spacing: 0.15em;
+  margin-top: 20px;
+  opacity: 0.7;
 }
 
 /* ========================================
@@ -1186,4 +1249,71 @@ html {
 .error-float:nth-child(2) { top: 25%; right: 12%; animation-delay: 1.5s; }
 .error-float:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 3s; }
 .error-float:nth-child(4) { bottom: 30%; right: 18%; animation-delay: 4.5s; }
+
+/* ========================================
+   代码块美化
+   ======================================== */
+figure.highlight {
+  background: rgba(13, 8, 20, 0.85) !important;
+  border: 1px solid rgba(180, 142, 173, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1.2em 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+figure.highlight .highlight-tools {
+  background: rgba(180, 142, 173, 0.08);
+  border-bottom: 1px solid rgba(180, 142, 173, 0.1);
+  padding: 6px 12px;
+  border-radius: 12px 12px 0 0;
+}
+
+figure.highlight .highlight-tools .copy-btn {
+  background: rgba(180, 142, 173, 0.15) !important;
+  border: 1px solid rgba(180, 142, 173, 0.2);
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: var(--primary-light) !important;
+  font-size: 0.8em;
+  transition: all 0.3s ease;
+}
+
+figure.highlight .highlight-tools .copy-btn:hover {
+  background: rgba(244, 169, 192, 0.2) !important;
+  border-color: var(--accent);
+  color: var(--accent) !important;
+}
+
+figure.highlight .highlight-tools .copy-btn i {
+  color: inherit !important;
+}
+
+figure.highlight table::-webkit-scrollbar {
+  height: 4px;
+}
+
+figure.highlight table::-webkit-scrollbar-thumb {
+  background: rgba(180, 142, 173, 0.25);
+  border-radius: 2px;
+}
+
+/* 行内 code */
+code {
+  background: rgba(180, 142, 173, 0.12);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--accent);
+  font-size: 0.88em;
+  border: 1px solid rgba(180, 142, 173, 0.1);
+}
+
+/* pre > code 去掉行内背景 */
+figure.highlight code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
 

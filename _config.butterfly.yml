@@ -921,6 +921,7 @@ clickShowText:
 # https://fancyapps.com/fancybox/
 # Leave it empty if you don't need lightbox
 lightbox:
+  use: fancybox
 
 # --------------------------------------
 # Tag Plugins settings
@@ -1070,6 +1071,7 @@ inject:
     - <link rel="stylesheet" href="/css/works-page.css">
     - <link rel="stylesheet" href="/css/music-ball.css?v=20260626">
     - <link rel="stylesheet" href="/css/terminal-home.css">
+    - <script src="/js/preloader-sakura.js"></script>
   bottom:
     - <script src="/js/music-ball.js?v=20260626"></script>
     - <script src="/js/custom-menu.js?v=20260627"></script>
