@@ -825,6 +825,64 @@ html {
   border-color: var(--accent);
 }
 
+/* ---------- 标签页（主区域） ---------- */
+.tag-cloud-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 10px;
+}
+
+.tag-cloud-list a {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 22px;
+  border-radius: 25px;
+  font-size: 0.95em !important;
+  font-weight: 600;
+  color: #fff !important;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tag-cloud-list a::before {
+  content: '#';
+  margin-right: 4px;
+  opacity: 0.6;
+}
+
+.tag-cloud-list a:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35), 0 0 20px rgba(244, 169, 192, 0.25);
+  border-color: rgba(255,255,255,0.35);
+}
+
+/* 标签页动画入场 */
+@keyframes tagDrop {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.85); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tag-cloud-list a {
+  animation: tagDrop 0.5s ease-out both;
+}
+
+.tag-cloud-list a:nth-child(1)  { animation-delay: 0.0s; }
+.tag-cloud-list a:nth-child(2)  { animation-delay: 0.07s; }
+.tag-cloud-list a:nth-child(3)  { animation-delay: 0.14s; }
+.tag-cloud-list a:nth-child(4)  { animation-delay: 0.21s; }
+.tag-cloud-list a:nth-child(5)  { animation-delay: 0.28s; }
+.tag-cloud-list a:nth-child(6)  { animation-delay: 0.35s; }
+.tag-cloud-list a:nth-child(7)  { animation-delay: 0.42s; }
+.tag-cloud-list a:nth-child(8)  { animation-delay: 0.49s; }
+.tag-cloud-list a:nth-child(9)  { animation-delay: 0.56s; }
+.tag-cloud-list a:nth-child(10) { animation-delay: 0.63s; }
+
 /* ---------- 站点数据面板美化 ---------- */
 .card-webinfo {
   background: var(--bg-glass) !important;
@@ -868,4 +926,264 @@ html {
 #loading-box .loading-word {
   color: #f0e6f6 !important;
 }
+
+/* ========================================
+   自定义右键菜单
+   ======================================== */
+#custom-context-menu {
+  position: fixed;
+  z-index: 99999;
+  min-width: 160px;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(26, 16, 37, 0.75);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgba(180, 142, 173, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(244, 169, 192, 0.1);
+  opacity: 0;
+  transform: scale(0.9) translateY(-6px);
+  transform-origin: top left;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  user-select: none;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+#custom-context-menu.show {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  color: var(--text-bright);
+  font-size: 0.88em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ctx-item:hover {
+  background: rgba(180, 142, 173, 0.18);
+  color: var(--accent);
+}
+
+.ctx-item i {
+  width: 16px;
+  text-align: center;
+  color: var(--primary-light);
+  transition: color 0.2s ease;
+}
+
+.ctx-item:hover i {
+  color: var(--accent);
+}
+
+.ctx-sep {
+  height: 1px;
+  margin: 4px 10px;
+  background: rgba(180, 142, 173, 0.15);
+}
+
+/* ========================================
+   公告弹窗
+   ======================================== */
+#announcement-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 99998;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(13, 8, 20, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#announcement-overlay.show {
+  opacity: 1;
+}
+
+#announcement-modal {
+  width: 420px;
+  max-width: 90vw;
+  border-radius: 18px;
+  background: rgba(26, 16, 37, 0.88);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(180, 142, 173, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(244, 169, 192, 0.1);
+  transform: scale(0.88);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+#announcement-overlay.show #announcement-modal {
+  transform: scale(1);
+}
+
+#announcement-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(180, 142, 173, 0.15);
+}
+
+#announcement-icon {
+  color: var(--accent);
+  font-size: 1.15em;
+}
+
+#announcement-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 1.05em;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#announcement-close {
+  background: none !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-size: 1em;
+  padding: 4px !important;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+  box-shadow: none !important;
+}
+
+#announcement-close:hover {
+  color: var(--accent) !important;
+  background: rgba(180, 142, 173, 0.15) !important;
+}
+
+#announcement-body {
+  padding: 20px;
+  color: var(--text-bright);
+  line-height: 1.75;
+  font-size: 0.95em;
+}
+
+#announcement-footer {
+  padding: 14px 20px 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#announcement-confirm {
+  background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+  border: none !important;
+  border-radius: 22px;
+  padding: 9px 28px !important;
+  color: white !important;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(180, 142, 173, 0.3) !important;
+}
+
+#announcement-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(244, 169, 192, 0.45) !important;
+}
+
+/* ========================================
+   404 页面增强
+   ======================================== */
+#error_404 {
+  position: relative;
+  overflow: hidden;
+}
+
+#error_404::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, rgba(180, 142, 173, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#error_404 .error-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+#error_404 .error-title {
+  font-size: 6em;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: errorPulse 3s ease-in-out infinite;
+  letter-spacing: 0.05em;
+}
+
+@keyframes errorPulse {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50%      { filter: brightness(1.2); transform: scale(1.03); }
+}
+
+#error_404 .error-subtitle {
+  color: var(--text-muted);
+  font-size: 1.2em;
+  margin-top: 12px;
+}
+
+#error_404 .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+  padding: 12px 32px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff !important;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.35s ease;
+  box-shadow: 0 4px 20px rgba(180, 142, 173, 0.35);
+}
+
+#error_404 .back-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px var(--accent-glow);
+  filter: brightness(1.1);
+}
+
+/* 漂浮元素动画 */
+@keyframes floatDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-15px) rotate(5deg); }
+}
+
+.error-float {
+  position: absolute;
+  font-size: 2em;
+  opacity: 0.15;
+  animation: floatDrift 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.error-float:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+.error-float:nth-child(2) { top: 25%; right: 12%; animation-delay: 1.5s; }
+.error-float:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 3s; }
+.error-float:nth-child(4) { bottom: 30%; right: 18%; animation-delay: 4.5s; }
 

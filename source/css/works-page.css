@@ -1,0 +1,208 @@
+/* ========================================
+   作品展示页
+   ======================================== */
+.works-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 分类过滤标签 */
+.works-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.works-filter-btn {
+  padding: 7px 20px;
+  border-radius: 22px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-glass);
+  color: var(--text-muted);
+  font-size: 0.88em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.works-filter-btn:hover,
+.works-filter-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(180, 142, 173, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 卡片网格 */
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* 单张卡片 */
+.works-card {
+  background: rgba(26, 16, 37, 0.6);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.works-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.works-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(180, 142, 173, 0.18), 0 0 0 1px rgba(244, 169, 192, 0.12);
+  border-color: rgba(244, 169, 192, 0.2);
+}
+
+.works-card:hover::before {
+  opacity: 1;
+}
+
+.works-card.hidden {
+  display: none;
+}
+
+/* 卡片头部 */
+.works-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.works-card-icon {
+  font-size: 1.6em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(244, 169, 192, 0.3));
+}
+
+.works-card-status {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.works-card-status.done {
+  background: rgba(108, 199, 140, 0.18);
+  color: #6cc78c;
+  border: 1px solid rgba(108, 199, 140, 0.3);
+}
+
+.works-card-status.wip {
+  background: rgba(244, 169, 192, 0.18);
+  color: var(--accent);
+  border: 1px solid rgba(244, 169, 192, 0.3);
+}
+
+.works-card-status.plan {
+  background: rgba(180, 142, 173, 0.15);
+  color: var(--primary-light);
+  border: 1px solid rgba(180, 142, 173, 0.25);
+}
+
+/* 卡片标题 */
+.works-card-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-bright), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 卡片描述 */
+.works-card-desc {
+  color: var(--text-muted);
+  font-size: 0.88em;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* 标签 */
+.works-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.works-card-tag {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72em;
+  font-weight: 600;
+  background: rgba(180, 142, 173, 0.12);
+  color: var(--primary-light);
+  border: 1px solid rgba(180, 142, 173, 0.15);
+  transition: all 0.2s ease;
+}
+
+.works-card:hover .works-card-tag {
+  border-color: rgba(244, 169, 192, 0.2);
+}
+
+/* 入场动画 */
+@keyframes cardReveal {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.works-card {
+  animation: cardReveal 0.45s ease-out both;
+}
+
+.works-card:nth-child(1)  { animation-delay: 0.0s; }
+.works-card:nth-child(2)  { animation-delay: 0.08s; }
+.works-card:nth-child(3)  { animation-delay: 0.16s; }
+.works-card:nth-child(4)  { animation-delay: 0.24s; }
+.works-card:nth-child(5)  { animation-delay: 0.32s; }
+.works-card:nth-child(6)  { animation-delay: 0.40s; }
+
+/* 空状态 */
+.works-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-muted);
+  font-size: 0.95em;
+}
+
+.works-empty-icon {
+  font-size: 2.5em;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+@media screen and (max-width: 600px) {
+  .works-grid {
+    grid-template-columns: 1fr;
+  }
+  .works-filters {
+    gap: 6px;
+  }
+}

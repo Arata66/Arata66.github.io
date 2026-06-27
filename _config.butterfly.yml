@@ -11,7 +11,7 @@
 
 nav:
   # Navigation bar logo image
-  logo:
+  logo: /img/logo.svg
   display_title: true
   display_post_title: true
   # Whether to fix navigation bar
@@ -22,6 +22,7 @@ menu:
   分类: /categories/ || fa-solid fa-folder-open
   标签: /tags/ || fa-solid fa-tags
   归档: /archives/ || fa-solid fa-box-archive
+  作品: /works/ || fa-solid fa-folder-open
   关于: /about/ || fa-solid fa-circle-user
 
 # --------------------------------------
@@ -432,7 +433,7 @@ copy:
 
 # Need to install the hexo-wordcount plugin
 wordcount:
-  enable: false
+  enable: true
   # Display the word count of the article in post meta
   post_wordcount: true
   # Display the time to read the article in post meta
@@ -1065,9 +1066,17 @@ css_prefix: true
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="stylesheet" href="/css/weather-clock.css">
+    - <link rel="stylesheet" href="/css/works-page.css">
     - <link rel="stylesheet" href="/css/music-ball.css?v=20260626">
+    - <link rel="stylesheet" href="/css/terminal-home.css">
   bottom:
     - <script src="/js/music-ball.js?v=20260626"></script>
+    - <script src="/js/custom-menu.js?v=20260627"></script>
+    - <script src="/js/weather-clock.js?v=20260627a"></script>
+    - <script src="/js/works-page.js?v=20260627"></script>
+    - <script src="/js/error-decor.js?v=20260627"></script>
+    - <script src="/js/terminal-home.js"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work

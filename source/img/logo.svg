@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48" width="180" height="48">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4b5e0"/>
+      <stop offset="100%" stop-color="#f4a9c0"/>
+    </linearGradient>
+  </defs>
+  <text x="8" y="35" font-family="'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif" font-size="28" font-weight="700" fill="url(#g1)">あらた</text>
+  <text x="130" y="33" font-family="serif" font-size="20" fill="#f4a9c0">✦</text>
+</svg>

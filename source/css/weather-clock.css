@@ -1,0 +1,108 @@
+/* ========================================
+   天气/时钟侧栏组件
+   ======================================== */
+.weather-clock-card {
+  background: rgba(26, 16, 37, 0.65) !important;
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(180, 142, 173, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-clock-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+}
+
+/* 时钟 */
+.wc-time {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 2.2em;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+/* 日期 */
+.wc-date {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* 分隔线 */
+.wc-divider {
+  height: 1px;
+  margin: 14px 0;
+  background: linear-gradient(90deg, transparent, rgba(180, 142, 173, 0.25), transparent);
+}
+
+/* 天气区域 */
+.wc-weather {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.wc-weather-icon {
+  font-size: 2em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(244, 169, 192, 0.3));
+}
+
+.wc-weather-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wc-weather-temp {
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.wc-weather-desc {
+  font-size: 0.82em;
+  color: var(--text-muted);
+}
+
+/* 加载状态 */
+.wc-loading {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82em;
+  padding: 8px 0;
+}
+
+/* 天气关闭时隐藏分隔线和天气区域 */
+.wc-weather-wrap[data-enabled="false"] {
+  display: none;
+}
+
+.wc-weather-wrap[data-enabled="false"] + .wc-divider {
+  display: none;
+}
+
+/* 移动端仅显示时钟 */
+@media screen and (max-width: 768px) {
+  .wc-weather {
+    display: none;
+  }
+}
