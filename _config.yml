@@ -93,6 +93,12 @@ include:
 exclude:
 ignore:
 
+# Search
+search:
+  path: search.xml
+  content: true
+  format: html
+
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
