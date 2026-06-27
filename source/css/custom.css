@@ -935,7 +935,10 @@ body.sidebar-open #sidebar-menus {
 /* 隐藏默认 spinner */
 #loading-box .configure-border-1,
 #loading-box .configure-border-2,
-#loading-box .configure-center {
+#loading-box .configure-center,
+#loading-box .loading-left-bg,
+#loading-box .loading-right-bg,
+#loading-box .spinner-box {
   display: none !important;
 }
 
