@@ -3,6 +3,9 @@
    粉紫色调 · 毛玻璃 · 角色核心
    ======================================== */
 
+/* 字体 — 使用 loli.net 镜像，国内可访问 */
+@import url('https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&family=Fira+Code&display=swap');
+
 /* ---------- CSS 变量 ---------- */
 :root {
   --primary: #b48ead;
