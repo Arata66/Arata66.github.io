@@ -205,6 +205,9 @@
   }
 
   function init() {
+    // pjax 导航时重置命令历史
+    history = [];
+    historyIdx = -1;
     createTerminal();
   }
 

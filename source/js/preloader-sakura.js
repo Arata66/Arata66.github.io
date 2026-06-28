@@ -30,8 +30,27 @@
     box.insertBefore(loader, word);
   }
 
+  // 页面加载完成后淡出
+  function fadeOut() {
+    var box = document.getElementById('loading-box');
+    if (!box) return;
+    box.classList.add('fade-out');
+    setTimeout(function () {
+      box.style.display = 'none';
+    }, 600);
+  }
+
   // 立即尝试 + 延迟重试
   override();
   setTimeout(override, 100);
   setTimeout(override, 500);
+
+  // 监听页面加载完成
+  if (document.readyState === 'complete') {
+    fadeOut();
+  } else {
+    window.addEventListener('load', function () {
+      setTimeout(fadeOut, 200);
+    });
+  }
 })();

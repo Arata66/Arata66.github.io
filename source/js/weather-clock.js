@@ -82,13 +82,22 @@
     announcementCard.parentNode.insertBefore(card, announcementCard.nextSibling);
   }
 
+  var clockTimer = null;
+  var weatherTimer = null;
+
   function init() {
+    // 去重保护：避免 pjax 回调重复创建卡片和定时器
+    if (document.querySelector('.weather-clock-card')) {
+      updateClock();
+      return;
+    }
     createCard();
     updateClock();
-    setInterval(updateClock, 1000);
+    if (clockTimer) clearInterval(clockTimer);
+    clockTimer = setInterval(updateClock, 1000);
     fetchWeather();
-    // 每 30 分钟刷新一次天气
-    setInterval(fetchWeather, 30 * 60 * 1000);
+    if (weatherTimer) clearInterval(weatherTimer);
+    weatherTimer = setInterval(fetchWeather, 30 * 60 * 1000);
   }
 
   // Pjax 兼容

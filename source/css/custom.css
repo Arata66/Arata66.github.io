@@ -662,10 +662,68 @@ body.sidebar-open #sidebar-menus {
     background-position: center center !important;
   }
 
-  /* 移动端隐藏悬浮角色 */
+  /* 移动端隐藏悬浮角色和樱花粒子 */
   #float-decor {
     display: none !important;
   }
+
+  /* 卡片减小内边距 */
+  .card-widget {
+    border-radius: 12px;
+  }
+
+  /* 标签云移动端紧凑排列 */
+  .tag-cloud-list {
+    gap: 8px;
+    padding: 12px 6px;
+  }
+
+  .tag-cloud-list a {
+    padding: 6px 16px;
+    font-size: 0.85em !important;
+  }
+
+  /* 关于页时间线移动端 */
+  .timeline-item {
+    padding-left: 20px !important;
+  }
+
+  .timeline-item::before {
+    left: 4px !important;
+  }
+
+  /* 导航栏汉堡菜单增大点击区域 */
+  #nav .nav-menu-icon {
+    padding: 8px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 小屏手机进一步优化 */
+  .recent-post-item {
+    border-radius: 10px;
+    margin: 0 4px 12px;
+  }
+
+  .card-widget {
+    border-radius: 10px;
+    margin: 0 4px 10px;
+  }
+
+  /* 移动端隐藏音乐悬浮球面板（保留球体） */
+  #music-panel.show {
+    width: calc(100vw - 32px) !important;
+    right: 16px !important;
+    left: auto !important;
+    bottom: 70px !important;
+  }
+}
+
+/* ---------- Preloader 淡出过渡 ---------- */
+#loading-box.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
 }
 
 /* ========================================

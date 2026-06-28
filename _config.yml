@@ -4,9 +4,9 @@
 
 # Site
 title: Arata66 の Blog
-subtitle: ''
-description: ''
-keywords:
+subtitle: 'Java 学习者 / 二次元爱好者的技术博客'
+description: 'Arata66 的个人博客，分享 Java 开发、Spring Boot、Docker 等后端技术学习笔记与生活随笔'
+keywords: Java, Spring Boot, 后端开发, 技术博客, 二次元
 author: Arata66
 language: zh-CN
 timezone: ''
@@ -71,7 +71,7 @@ tag_map:
 
 # Metadata elements
 ## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
-meta_generator: true
+meta_generator: false
 
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
@@ -103,6 +103,16 @@ search:
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: butterfly
+
+# Sitemap
+sitemap:
+  path: sitemap.xml
+
+# Feed
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

@@ -1054,7 +1054,7 @@ Open_Graph_meta:
 # Structured Data
 # https://developers.google.com/search/docs/guides/intro-structured-data
 structured_data:
-  enable: false
+  enable: true
   # Alternate name for the site, used in structured data
   # Format: ['name1', 'name2']
   alternate_name:
@@ -1071,6 +1071,7 @@ inject:
     - <link rel="stylesheet" href="/css/works-page.css">
     - <link rel="stylesheet" href="/css/music-ball.css?v=20260626">
     - <link rel="stylesheet" href="/css/terminal-home.css">
+    - <link rel="stylesheet" href="/css/visitor-egg.css">
     - <script src="/js/preloader-sakura.js"></script>
   bottom:
     - <script src="/js/music-ball.js?v=20260626"></script>
@@ -1079,6 +1080,7 @@ inject:
     - <script src="/js/works-page.js?v=20260627"></script>
     - <script src="/js/error-decor.js?v=20260627"></script>
     - <script src="/js/terminal-home.js"></script>
+    - <script src="/js/visitor-egg.js"></script>
 
 # CDN Settings
 # Don't modify the following settings unless you know how they work

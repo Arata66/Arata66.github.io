@@ -254,44 +254,75 @@
     panel.classList.toggle("show", panelOpen);
   };
 
-  // ---- 拖动 ----
+  // ---- 拖动（鼠标 + 触屏） ----
   var startX, startY, origLeft, origBottom;
 
-  root.onmousedown = function (e) {
+  function clampPos(left, bottom) {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    left = Math.max(0, Math.min(w - 60, left));
+    bottom = Math.max(0, Math.min(h - 60, bottom));
+    return { left: left, bottom: bottom };
+  }
+
+  function onDragStart(cx, cy) {
     wasDragged = false;
-    startX = e.clientX;
-    startY = e.clientY;
+    startX = cx;
+    startY = cy;
     var rect = root.getBoundingClientRect();
     origLeft = rect.left;
     origBottom = window.innerHeight - rect.bottom;
+  }
 
-    document.onmousemove = function (ev) {
-      var dx = ev.clientX - startX;
-      var dy = ev.clientY - startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) wasDragged = true;
-      if (wasDragged) {
-        var newLeft = Math.max(0, Math.min(window.innerWidth - 60, origLeft + dx));
-        var newBottom = Math.max(0, Math.min(window.innerHeight - 60, origBottom - dy));
-        root.style.left = newLeft + "px";
-        root.style.bottom = newBottom + "px";
-        root.style.top = "auto";
-      }
-    };
+  function onDragMove(cx, cy) {
+    var dx = cx - startX;
+    var dy = cy - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) wasDragged = true;
+    if (wasDragged) {
+      var pos = clampPos(origLeft + dx, origBottom - dy);
+      root.style.left = pos.left + "px";
+      root.style.bottom = pos.bottom + "px";
+      root.style.top = "auto";
+    }
+  }
 
+  function onDragEnd() {
+    if (wasDragged) {
+      localStorage.setItem(
+        "music-ball-pos",
+        JSON.stringify({
+          left: parseInt(root.style.left),
+          bottom: parseInt(root.style.bottom),
+        })
+      );
+    }
+  }
+
+  // 鼠标拖动
+  root.onmousedown = function (e) {
+    onDragStart(e.clientX, e.clientY);
+    document.onmousemove = function (ev) { onDragMove(ev.clientX, ev.clientY); };
     document.onmouseup = function () {
       document.onmousemove = null;
       document.onmouseup = null;
-      if (wasDragged) {
-        localStorage.setItem(
-          "music-ball-pos",
-          JSON.stringify({
-            left: parseInt(root.style.left),
-            bottom: parseInt(root.style.bottom),
-          })
-        );
-      }
+      onDragEnd();
     };
   };
+
+  // 触屏拖动
+  root.addEventListener("touchstart", function (e) {
+    var t = e.touches[0];
+    onDragStart(t.clientX, t.clientY);
+  }, { passive: true });
+
+  root.addEventListener("touchmove", function (e) {
+    var t = e.touches[0];
+    onDragMove(t.clientX, t.clientY);
+  }, { passive: true });
+
+  root.addEventListener("touchend", function () {
+    onDragEnd();
+  });
 
   // 点击外部关闭面板
   document.addEventListener("click", function (e) {
