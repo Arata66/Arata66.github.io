@@ -1,0 +1,28 @@
+- name: Arata66 の Blog
+  desc: Hexo + Butterfly 二次元风格个人博客，自定义开场动画、音乐播放器、光标特效等
+  icon: 🌸
+  tags:
+    - Hexo
+    - CSS
+    - JavaScript
+  status: done
+  statusText: 已完成
+
+- name: 苍穹外卖
+  desc: JavaWeb 课程实战项目，SpringBoot + MyBatis-Plus + Redis，完整餐饮管理系统
+  icon: 🍜
+  tags:
+    - Java
+    - SpringBoot
+    - MySQL
+  status: wip
+  statusText: 进行中
+
+- name: 学习笔记库
+  desc: JavaSE / JavaWeb / 数据库等学习过程中的笔记整理
+  icon: 📚
+  tags:
+    - Java
+    - 学习
+  status: wip
+  statusText: 持续更新

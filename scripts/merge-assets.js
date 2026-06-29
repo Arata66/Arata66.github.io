@@ -24,8 +24,7 @@ const JS_FILES = [
   '/js/works-page.js',
   '/js/error-decor.js',
   '/js/terminal-home.js',
-  '/js/visitor-egg.js',
-  '/js/announcement.js'
+  '/js/visitor-egg.js'
 ];
 
 function mergeFiles(files, outPath) {
