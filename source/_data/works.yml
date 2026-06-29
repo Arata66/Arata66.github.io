@@ -5,8 +5,8 @@
     - Hexo
     - CSS
     - JavaScript
-  status: done
-  statusText: 已完成
+  status: wip
+  statusText: 持续更新
 
 - name: 苍穹外卖
   desc: JavaWeb 课程实战项目，SpringBoot + MyBatis-Plus + Redis，完整餐饮管理系统
@@ -15,8 +15,8 @@
     - Java
     - SpringBoot
     - MySQL
-  status: wip
-  statusText: 进行中
+  status: done
+  statusText: 已完成
 
 - name: OtakuLog
   desc: 基于 Spring Boot 的个人追番管理系统，Bangumi 集成、观看统计、以图搜番、WebDAV 同步
@@ -26,8 +26,8 @@
     - Spring Boot
     - MySQL
     - Thymeleaf
-  status: done
-  statusText: 已完成
+  status: wip
+  statusText: 持续更新
 
 - name: 学习笔记库
   desc: JavaSE / JavaWeb / 数据库等学习过程中的笔记整理
