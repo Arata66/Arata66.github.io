@@ -18,6 +18,17 @@
   status: wip
   statusText: 进行中
 
+- name: OtakuLog
+  desc: 基于 Spring Boot 的个人追番管理系统，Bangumi 集成、观看统计、以图搜番、WebDAV 同步
+  icon: 🎬
+  tags:
+    - Java
+    - Spring Boot
+    - MySQL
+    - Thymeleaf
+  status: done
+  statusText: 已完成
+
 - name: 学习笔记库
   desc: JavaSE / JavaWeb / 数据库等学习过程中的笔记整理
   icon: 📚
