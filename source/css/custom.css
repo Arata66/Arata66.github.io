@@ -1387,3 +1387,14 @@ figure.highlight code {
   font-size: inherit;
 }
 
+/* ---------- 懒加载模糊淡入 ---------- */
+img[data-lazy-src] {
+  filter: blur(8px);
+  transition: filter 0.5s ease, opacity 0.5s ease;
+}
+
+img[data-lazy-src].loaded,
+img[data-lazy-src].error {
+  filter: blur(0);
+}
+

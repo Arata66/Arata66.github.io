@@ -1,0 +1,22 @@
+{
+  "name": "Arata66 の Blog",
+  "short_name": "Arata66",
+  "description": "二次元风格个人技术博客",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#b48ead",
+  "background_color": "#1a1025",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/img/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/img/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

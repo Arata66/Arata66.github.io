@@ -40,5 +40,11 @@ function walk(dir) {
   }
 }
 
-walk(PUBLIC_DIR);
-console.log('[cache-bust] 完成');
+function main() {
+  walk(PUBLIC_DIR);
+  console.log('[cache-bust] 完成');
+}
+
+if (require.main === module) {
+  main();
+}

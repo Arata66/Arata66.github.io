@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: / archives/page/
+Disallow: /archives/page/
 
 Sitemap: https://arata66.top/sitemap.xml

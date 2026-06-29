@@ -20,6 +20,8 @@ echo "▶ 清理旧文件..."
 npx hexo clean
 echo "▶ 构建静态文件..."
 npx hexo g
+echo "▶ 合并自定义静态资源..."
+node scripts/merge-assets.js
 echo "▶ 为资源添加版本号（防缓存）..."
 node scripts/cache-bust.js
 
