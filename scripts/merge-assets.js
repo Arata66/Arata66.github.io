@@ -13,7 +13,8 @@ const CSS_FILES = [
   '/css/works-page.css',
   '/css/music-ball.css',
   '/css/terminal-home.css',
-  '/css/visitor-egg.css'
+  '/css/visitor-egg.css',
+  '/css/flink-card.css'
 ];
 
 const JS_FILES = [
@@ -24,7 +25,8 @@ const JS_FILES = [
   '/js/works-page.js',
   '/js/error-decor.js',
   '/js/terminal-home.js',
-  '/js/visitor-egg.js'
+  '/js/visitor-egg.js',
+  '/js/flink-card.js'
 ];
 
 function mergeFiles(files, outPath) {

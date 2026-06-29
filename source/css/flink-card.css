@@ -1,0 +1,139 @@
+/* ========================================
+   友链侧栏卡片
+   ======================================== */
+
+.flink-list {
+  padding: 8px 12px;
+}
+
+.flink-group {
+  margin-bottom: 8px;
+}
+
+.flink-group:last-child {
+  margin-bottom: 0;
+}
+
+.flink-group-title {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* 单条友链 */
+.flink-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  animation: flinkFadeIn 0.4s ease-out both;
+}
+
+.flink-item:hover {
+  background: rgba(180, 142, 173, 0.1);
+  transform: translateX(3px);
+}
+
+/* 头像 */
+.flink-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-soft);
+  transition: all 0.3s ease;
+}
+
+.flink-item:hover .flink-avatar {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(244, 169, 192, 0.3);
+}
+
+/* 头像加载失败 fallback */
+.flink-avatar-fallback {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: 2px solid var(--border-soft);
+  transition: all 0.3s ease;
+}
+
+.flink-item:hover .flink-avatar-fallback {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(244, 169, 192, 0.3);
+}
+
+/* 文字区域 */
+.flink-info {
+  flex: 1;
+  margin-left: 10px;
+  overflow: hidden;
+}
+
+.flink-name {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.flink-item:hover .flink-name {
+  color: var(--accent);
+}
+
+.flink-desc {
+  font-size: 0.78em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* 入场动画 */
+@keyframes flinkFadeIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .flink-avatar,
+  .flink-avatar-fallback {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+  .flink-item {
+    padding: 6px 8px;
+  }
+
+  .flink-name {
+    font-size: 0.85em;
+  }
+
+  .flink-desc {
+    font-size: 0.72em;
+  }
+}
