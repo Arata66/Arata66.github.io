@@ -7,7 +7,7 @@ tags:
   - 项目
 categories:
   - 技术
-cover: /img/covers/otakulog-cover.png
+cover: /img/covers/31731B9436B7D649CF2D8B7C04C8142A.jpg
 description: 用 Spring Boot 做了一个个人追番管理系统 OtakuLog，集成 Bangumi、观看热力图、以图搜番等功能。
 excerpt: 学了一段时间 Java 后终于做了个像样的项目。OtakuLog 是一个追番管理工具，能记录你看过的番、追踪进度、统计观看习惯，还接入了 Bangumi。
 series: 项目记录
