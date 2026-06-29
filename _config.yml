@@ -119,4 +119,4 @@ feed:
 deploy:
   type: git
   repo: https://github.com/Arata66/Arata66.github.io.git
-  branch: main
+  branch: gh-pages
