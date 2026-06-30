@@ -19,8 +19,7 @@ const CSS_FILES = [
   '/css/flink-card.css',
   '/css/post-pin.css',
   '/css/sakura-petals.css',
-  '/css/site-stats.css',
-  '/css/tape-card.css'
+  '/css/site-stats.css'
 ];
 
 const JS_FILES = [
