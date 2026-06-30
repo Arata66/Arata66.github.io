@@ -1,0 +1,13 @@
+/* 置顶文章 pin badge */
+.recent-post-item .sticky {
+  background: var(--primary, #b48ead);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(180, 142, 173, 0.4);
+}

@@ -348,19 +348,6 @@ button:hover {
   color: var(--primary-light);
 }
 
-/* ---------- 公告卡片 ---------- */
-.card-info {
-  padding-bottom: 80px !important;
-}
-
-.announcement_content {
-  background: linear-gradient(135deg, rgba(180, 142, 173, 0.08), rgba(244, 169, 192, 0.05));
-  padding: 15px;
-  border-radius: 12px;
-  border-left: 3px solid var(--accent);
-  color: var(--text-muted);
-  font-style: italic;
-}
 
 /* ---------- 网站数据 ---------- */
 .site-data {
@@ -1123,115 +1110,6 @@ body.sidebar-open #sidebar-menus {
   background: rgba(180, 142, 173, 0.15);
 }
 
-/* ========================================
-   公告弹窗
-   ======================================== */
-#announcement-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 99998;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(13, 8, 20, 0.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-#announcement-overlay.show {
-  opacity: 1;
-}
-
-#announcement-modal {
-  width: 420px;
-  max-width: 90vw;
-  border-radius: 18px;
-  background: rgba(26, 16, 37, 0.88);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border: 1px solid rgba(180, 142, 173, 0.25);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(244, 169, 192, 0.1);
-  transform: scale(0.88);
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden;
-}
-
-#announcement-overlay.show #announcement-modal {
-  transform: scale(1);
-}
-
-#announcement-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid rgba(180, 142, 173, 0.15);
-}
-
-#announcement-icon {
-  color: var(--accent);
-  font-size: 1.15em;
-}
-
-#announcement-title {
-  flex: 1;
-  font-weight: 700;
-  font-size: 1.05em;
-  background: linear-gradient(135deg, var(--primary-light), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-#announcement-close {
-  background: none !important;
-  border: none !important;
-  color: var(--text-muted) !important;
-  font-size: 1em;
-  padding: 4px !important;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: color 0.2s ease, background 0.2s ease;
-  box-shadow: none !important;
-}
-
-#announcement-close:hover {
-  color: var(--accent) !important;
-  background: rgba(180, 142, 173, 0.15) !important;
-}
-
-#announcement-body {
-  padding: 20px;
-  color: var(--text-bright);
-  line-height: 1.75;
-  font-size: 0.95em;
-}
-
-#announcement-footer {
-  padding: 14px 20px 18px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-#announcement-confirm {
-  background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
-  border: none !important;
-  border-radius: 22px;
-  padding: 9px 28px !important;
-  color: white !important;
-  font-size: 0.9em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(180, 142, 173, 0.3) !important;
-}
-
-#announcement-confirm:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(244, 169, 192, 0.45) !important;
-}
 
 /* ========================================
    404 页面增强

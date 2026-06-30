@@ -1,32 +1,7 @@
 // 友链侧栏卡片
-// 数据与 source/_data/link.yml 保持同步
+// 数据由 merge-assets.js 从 source/_data/link.yml 自动生成到 flink-data.js
 (function () {
-  var FLINK_DATA = [
-    {
-      class_name: '我的链接',
-      class_desc: '本站信息',
-      link_list: [
-        {
-          name: "arata66's Blog",
-          link: 'https://arata66.top',
-          avatar: 'https://arata66.top/img/theme/azusa-sidebar.jpg',
-          descr: 'Java 学习者 | 二次元爱好者'
-        }
-      ]
-    },
-    {
-      class_name: '友链',
-      class_desc: 'friends',
-      link_list: [
-        {
-          name: '鹤川',
-          link: 'https://www.yoseaholic.top/',
-          avatar: '/img/friend_404.gif',
-          descr: '鹤川的博客'
-        }
-      ]
-    }
-  ];
+  var FLINK_DATA = window.__FLINK_DATA || [];
 
   var DEFAULT_AVATAR = '/img/friend_404.gif';
 

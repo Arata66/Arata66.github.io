@@ -1,6 +1,7 @@
 ---
 title: 久违的更新
 date: 2026-06-29 20:30:00
+sticky: true
 tags:
   - 随笔
 categories:

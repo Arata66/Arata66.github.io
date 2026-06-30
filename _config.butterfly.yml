@@ -103,7 +103,7 @@ cover:
   archives_enable: true
   # When cover is not set, the default cover is displayed
   default_cover:
-    # - xxx.jpg
+    - /img/covers/C04BA58002667CE7496F6E47E03194B0.jpg
 
 # Replace Broken Images
 error_img:
@@ -187,7 +187,7 @@ index_layout: 3
 # 3: auto_excerpt (default)
 # false: do not show the article introduction
 index_post_content:
-  method: 3
+  method: 2
   # If you set method to 2 or 3, the length need to config
   length: 500
 
@@ -269,7 +269,7 @@ footer:
   copyright:
     enable: true
     version: true
-  custom_text:
+  custom_text: '<div id="site-stats"><span class="stats-item"><i class="fas fa-pen-nib"></i><span class="stats-num stats-posts">-</span> 篇文章</span><span class="stats-item"><i class="fas fa-heart"></i>已运行 <span class="stats-num stats-days">-</span> 天</span></div>'
 
 # --------------------------------------
 # Aside Settings
@@ -1014,7 +1014,7 @@ snackbar:
 
 # Instant.page
 # https://instant.page/
-instantpage: false
+instantpage: true
 
 # Lazyload
 # https://github.com/verlok/vanilla-lazyload
@@ -1069,6 +1069,8 @@ inject:
     - <link rel="stylesheet" href="/css/custom-bundle.css">
     - <script src="/js/preloader-sakura.js"></script>
   bottom:
+    - <script src="/js/flink-data.js"></script>
+    - <script src="/js/site-stats-data.js"></script>
     - <script src="/js/custom-bundle.js"></script>
 
 # CDN Settings

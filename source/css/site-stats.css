@@ -1,0 +1,30 @@
+/* 页脚站点统计计数器 */
+.footer_custom_text {
+  margin-top: 12px;
+}
+
+#site-stats {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 14px 0;
+  font-size: 0.85rem;
+  color: var(--text-color, #c8b8d4);
+  flex-wrap: wrap;
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-item i {
+  font-size: 0.9rem;
+  color: var(--primary, #b48ead);
+}
+
+.stats-num {
+  font-weight: 600;
+  color: var(--accent, #f4a9c0);
+}
