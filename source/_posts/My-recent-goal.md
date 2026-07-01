@@ -6,7 +6,7 @@ tags:
   - 学习
 categories:
   - 生活
-cover: /img/covers/Azusa.jpg
+cover: /img/covers/CC8A8963B475DA3E16B9E9C1AEC60BD5.jpg
 description: 确立 Java 后端学习路线后，记录短中期目标与心态调整过程。
 excerpt: 前段时间了解到身边好多人都有自己的技术栈，于是确立了走后端 Java 方向，这里记录我的学习目标和思考。
 series: 生活随笔

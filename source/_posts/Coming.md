@@ -6,7 +6,7 @@ tags:
   - 随笔
 categories:
   - 生活
-cover: /img/covers/Azusa2.png
+cover: /img/covers/8729325920EE71369F2010B1676D42A1.jpg
 description: 几个月后的回归，记录重新拾起博客的心情与接下来的打算。
 excerpt: 时隔几个月我又回来了。这几个月没学什么东西，感觉又浪费了很多时间，但想通过博客重新记录自己的成长。
 series: 生活随笔
