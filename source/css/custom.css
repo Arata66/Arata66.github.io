@@ -706,6 +706,45 @@ body.sidebar-open #sidebar-menus {
   }
 }
 
+/* ---------- 移动端文章页浮层隔离 ---------- */
+@media screen and (max-width: 900px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 目录给右侧工具留出固定通道，避免打开后盖住按钮和正文边缘。 */
+  #body-wrap.post #card-toc {
+    left: 12px !important;
+    right: 68px !important;
+    bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: min(52dvh, 420px) !important;
+    overflow: hidden !important;
+    transform-origin: left bottom !important;
+  }
+
+  #body-wrap.post #card-toc.open {
+    transform: scale(1) !important;
+  }
+
+  #body-wrap.post #card-toc .toc-content {
+    max-height: min(38dvh, 300px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Butterfly 默认把 rightside 推出视口，再用 transform 拉回；手机端改为直接定位。 */
+  #rightside,
+  #rightside.rightside-show {
+    right: 8px !important;
+    bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+  }
+}
+
 /* ---------- Preloader 淡出过渡 ---------- */
 #loading-box.fade-out {
   opacity: 0;
