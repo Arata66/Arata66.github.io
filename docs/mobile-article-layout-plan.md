@@ -4,7 +4,7 @@
 
 **目标：** 在不修改 Butterfly 主题源码、不引入新依赖的前提下，让 360/390/430px 手机文章页的导航、目录、右侧工具和访客提示互不遮挡正文。
 
-**方案：** 保留 Butterfly 原有移动目录入口，但将目录限制为可滚动的底部抽屉；文章页关闭会覆盖阅读区域的访客 Toast；移动端收紧右侧工具组和安全区间距；通过自定义 CSS/JS 注入实现，避免修改 `node_modules`。
+**方案：** 保留 Butterfly 原有移动目录入口，但将文章页目录改为可滚动的流式卡片；文章页关闭会覆盖阅读区域的访客 Toast；移动端收紧右侧工具组和安全区间距；通过自定义 CSS/JS 注入实现，避免修改 `node_modules`。
 
 **技术栈：** Hexo 7.3.0、Butterfly 5.5.2、原生 CSS、原生 JavaScript、构建产物 `public/`。
 
@@ -26,7 +26,7 @@
 - 修改：`source/css/visitor-egg.css`
 - 修改：`source/js/visitor-egg.js`
 
-- [x] 在 `custom.css` 的移动端规则中，为文章页 `#card-toc` 增加安全的底部抽屉边界：使用 `left: 12px`、`right: 68px`、`bottom: calc(64px + env(safe-area-inset-bottom))`、`width: auto`、`max-height: min(52dvh, 420px)` 和 `overflow: hidden`，为右侧工具预留通道。
+- [x] 在 `custom.css` 的移动端规则中，将文章页 `#card-toc` 改为文章流内的静态卡片，展开时推动后续内容，避免固定浮层覆盖正文。
 - [x] 为 `#card-toc.open` 增加内部 `.toc-content` 的滚动边界，使用 `max-height: min(38dvh, 300px)`、`overflow-y: auto` 和 `overscroll-behavior: contain`。
 - [x] 在移动端把 `#rightside` 直接固定在视口内，使用 `right: 8px`、`bottom: calc(14px + env(safe-area-inset-bottom))` 和 `transform: none`。
 - [x] 为文章页目录增加高度、溢出和底部间距约束，保证目录与底部工具区保持安全间隔。
@@ -40,7 +40,7 @@
 - [x] 运行 `npm run build`，确认 Hexo 页面和合并资源生成成功。
 - [x] 在 360x800、390x844、430x932 三个视口分别打开文章页，确认 `document.documentElement.scrollWidth <= window.innerWidth`。
 - [x] 确认文章页初始状态没有 `.visitor-toast`，正文、文章头部和固定导航无覆盖。
-- [x] 点击移动目录按钮，确认 `#card-toc.open` 在视口内、目录内容可滚动，点击目录项后目录自动关闭且页面滚到目标位置。
+- [x] 点击移动目录按钮，确认 `#card-toc.open` 作为文章流内卡片展开、目录内容可滚动，点击目录项后目录自动关闭且页面滚到目标位置。
 - [x] 滚动文章页，确认右侧工具按钮保持在视口内，不制造横向溢出。
 - [x] 打开首页和作品页做回归检查，确认文章页专用规则未影响页面布局。
 

@@ -713,27 +713,35 @@ body.sidebar-open #sidebar-menus {
     overflow-x: hidden;
   }
 
-  /* 目录给右侧工具留出固定通道，避免打开后盖住按钮和正文边缘。 */
+  /* 目录改为文章流内的卡片，展开时推动后续内容，避免固定浮层覆盖正文。 */
   #body-wrap.post #card-toc {
-    left: 12px !important;
-    right: 68px !important;
-    bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 16px 12px !important;
     width: auto !important;
     max-width: none !important;
-    max-height: min(52dvh, 420px) !important;
+    max-height: none !important;
     overflow: hidden !important;
-    transform-origin: left bottom !important;
+    transform: none !important;
+    z-index: auto !important;
   }
 
   #body-wrap.post #card-toc.open {
-    transform: scale(1) !important;
+    transform: none !important;
   }
 
   #body-wrap.post #card-toc .toc-content {
-    max-height: min(38dvh, 300px) !important;
-    overflow-y: auto !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  #body-wrap.post #card-toc.open .toc-content {
+    max-height: min(38dvh, 300px) !important;
+    overflow-y: auto !important;
   }
 
   /* Butterfly 默认把 rightside 推出视口，再用 transform 拉回；手机端改为直接定位。 */
