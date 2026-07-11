@@ -750,6 +750,48 @@ body.sidebar-open #sidebar-menus {
     right: 8px !important;
     bottom: calc(14px + env(safe-area-inset-bottom)) !important;
     transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* 手机端默认只保留一个箭头，展开后才显示完整工具组。 */
+  #mobile-rightside-toggle {
+    display: block !important;
+    width: 30px !important;
+    height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 50% !important;
+    background: rgba(26, 16, 37, 0.82) !important;
+    color: var(--text-bright) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+    font-size: 14px !important;
+    line-height: 28px !important;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  #mobile-rightside-toggle i {
+    transition: transform 0.25s ease;
+  }
+
+  #rightside.mobile-tools-collapsed #rightside-config-hide,
+  #rightside.mobile-tools-collapsed #rightside-config-show {
+    display: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #rightside-config-hide {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #mobile-rightside-toggle {
+    background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+  }
+
+  #rightside.mobile-tools-expanded #mobile-rightside-toggle i {
+    transform: rotate(180deg);
   }
 }
 

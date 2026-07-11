@@ -6,6 +6,8 @@
 
 **方案：** 保留 Butterfly 原有移动目录入口，但将文章页目录改为可滚动的流式卡片；文章页关闭会覆盖阅读区域的访客 Toast；移动端收紧右侧工具组和安全区间距；通过自定义 CSS/JS 注入实现，避免修改 `node_modules`。
 
+**补充交互：** 手机端右侧工具默认收起为单个箭头，点击后展开阅读模式、主题、设置、目录、评论和回到顶部等工具，再次点击箭头收起。
+
 **技术栈：** Hexo 7.3.0、Butterfly 5.5.2、原生 CSS、原生 JavaScript、构建产物 `public/`。
 
 ---
@@ -29,6 +31,7 @@
 - [x] 在 `custom.css` 的移动端规则中，将文章页 `#card-toc` 改为文章流内的静态卡片，展开时推动后续内容，避免固定浮层覆盖正文。
 - [x] 为 `#card-toc.open` 增加内部 `.toc-content` 的滚动边界，使用 `max-height: min(38dvh, 300px)`、`overflow-y: auto` 和 `overscroll-behavior: contain`。
 - [x] 在移动端把 `#rightside` 直接固定在视口内，使用 `right: 8px`、`bottom: calc(14px + env(safe-area-inset-bottom))` 和 `transform: none`。
+- [x] 手机端新增右侧工具箭头，默认隐藏完整工具组，点击后展开并同步 `aria-expanded` 状态。
 - [x] 为文章页目录增加高度、溢出和底部间距约束，保证目录与底部工具区保持安全间隔。
 - [x] 在 `visitor-egg.js` 中让 `init()` 检查 `#body-wrap.post`；文章页直接跳过访客 Toast，首页继续保持不显示，其他非文章页面继续保留现有彩蛋。
 - [x] 在 `visitor-egg.css` 中将移动端 Toast 的底部间距设为安全区友好值，避免未来重新启用时挡住工具按钮。
