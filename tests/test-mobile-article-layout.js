@@ -18,7 +18,20 @@ assert.match(visitor, /#body-wrap\.post/);
 assert.match(visitor, /if\s*\(document\.querySelector\('#body-wrap\.post'\)\)\s*return/);
 
 const mobileRightside = fs.readFileSync(path.join(root, 'source/js/mobile-rightside.js'), 'utf8');
+const mobilePerformance = fs.readFileSync(path.join(root, 'source/js/mobile-performance.js'), 'utf8');
 assert.match(mobileRightside, /mobile-tools-collapsed/);
 assert.match(mobileRightside, /mobile-rightside-toggle/);
+assert.match(css, /#body-wrap\.post\s+#article-container[\s\S]*?line-height:\s*1\.8/);
+assert.match(css, /#body-wrap\.post\s+#article-container\s+img[\s\S]*?max-width:\s*100%/);
+assert.match(css, /#body-wrap\.post\s+#article-container\s+figure\.highlight[\s\S]*?overflow-x:\s*auto/);
+assert.match(css, /#body-wrap\.post\s+#page-header\.post-bg[\s\S]*?min-height/);
+assert.match(css, /#mobile-rightside-toggle[\s\S]*?min-width:\s*44px/);
+assert.match(css, /prefers-reduced-motion/);
+assert.match(css, /#recent-posts\s+#?recent-posts?\.recent-post-item|#recent-posts\s+\.recent-post-item/);
+assert.match(css, /object-fit:\s*cover/);
+assert.match(mobileRightside, /mobile-tools-expanded/);
+assert.match(mobileRightside, /scroll/);
+assert.match(mobilePerformance, /loading\s*=\s*'lazy'/);
+assert.match(mobilePerformance, /decoding\s*=\s*'async'/);
 
 console.log('移动端文章页布局回归检查通过');
