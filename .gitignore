@@ -2,3 +2,21 @@ public/
 .deploy*/
 db.json
 node_modules/
+
+# 本地资料和未发表内容不进入公开仓库。
+AGENTS.md
+CLAUDE.md
+.me
+.claude/
+.codex/
+.private/
+docs/
+source/_drafts/
+
+# 发布配置及访问凭据仅在本地保存。
+deploy.sh
+nginx-blog.conf
+.env
+.env.*
+*.pem
+*.key
