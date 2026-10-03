@@ -1067,6 +1067,9 @@ css_prefix: true
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom-bundle.css">
+    - '<link rel="preload" as="image" type="image/webp" href="/img/theme/azusa-hero-desktop.3e9d7461e8.webp" media="not all and (max-width: 900px)">'
+    - '<link rel="preload" as="image" type="image/webp" href="/img/theme/azusa-hero-mobile.371e91a6a5.webp" media="(max-width: 900px)">'
+    - <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&family=Fira+Code&display=swap">
     - <script src="/js/preloader-sakura.js"></script>
   bottom:
     - <script src="/js/flink-data.js"></script>
