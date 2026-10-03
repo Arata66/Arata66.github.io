@@ -35,7 +35,7 @@
     "meting": "^2.0.2"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.5",
+    "@eslint/js": "10.0.1",
     "@types/js-yaml": "4.0.9",
     "@types/jsdom": "21.1.7",
     "@types/node": "22.20.5",
