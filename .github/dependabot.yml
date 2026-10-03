@@ -3,5 +3,13 @@ updates:
 - package-ecosystem: npm
   directory: "/"
   schedule:
-    interval: daily
-  open-pull-requests-limit: 20
+    interval: weekly
+  open-pull-requests-limit: 5
+  commit-message:
+    prefix: build(deps)
+  groups:
+    development-tools:
+      dependency-type: development
+      update-types:
+      - minor
+      - patch

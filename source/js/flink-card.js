@@ -71,6 +71,7 @@
     // 交错动画延迟
     var items = card.querySelectorAll('.flink-item');
     items.forEach(function (item, i) {
+      if (!(item instanceof HTMLElement)) return;
       item.style.animationDelay = (i * 0.06) + 's';
     });
 

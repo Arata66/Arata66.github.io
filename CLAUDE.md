@@ -2,6 +2,8 @@
 
 Hexo 7.3.0 + Butterfly 5.5.2 二次元主题博客，部署在 Azure VM（arata66.top）。
 
+安装与维护入口见 `README.md`。使用 Node.js 22，运行 `npm ci` 恢复依赖；修改后先运行 `npm run check` 和 `npm run build`。GitHub Actions 执行检查与构建，不负责 Azure 发布。
+
 ## 部署流程
 
 ```bash
@@ -13,6 +15,7 @@ bash deploy.sh                           # 仅构建 + 部署，不提交 git
 - deploy.sh 流程：`hexo clean` → `hexo g` → `merge-assets.js`（合并自定义 CSS/JS）→ `cache-bust.js`（资源加版本号）→ SCP 上传到 `/var/www/blog/`
 - Git push 已内置代理 `127.0.0.1:28839`，无需手动设置
 - `deploy.sh` 推送时会自动 `git add -A`，所以不需要额外手动提交
+- 这仍是历史发布脚本；GitHub 维护优先使用分支和 PR。执行带提交信息的发布前检查全部暂存范围。
 
 ## 本地预览
 
@@ -41,6 +44,8 @@ inject:
 
 **不要用 injector 脚本注入复杂 JS**（超过 20 行），字符串拼接会断裂导致函数体粘连。
 
+类型检查覆盖自定义静态脚本、构建脚本、测试和 ESLint 配置，采用非严格 JavaScript 检查；injector 模板字符串内的浏览器代码不属于独立检查范围。
+
 ### 构建管线
 
 `scripts/merge-assets.js` 负责把独立 CSS/JS 文件合并为 `custom-bundle.css` 和 `custom-bundle.js`。新增自定义文件后必须在此注册：
@@ -51,6 +56,8 @@ inject:
 // JS_FILES 数组末尾加
 '/js/xxx.js',
 ```
+
+登记的资源缺失会导致构建失败并指出路径；已有合并包不会被不完整输出覆盖。
 
 ### 图片路径
 
@@ -95,7 +102,7 @@ grep "cover:" source/_posts/*.md | sed 's/.*cover: //'
 | SSH | `Arata66@65.52.173.202`，密钥 `E:/微软云服务器ssh私钥/Arata66.pem` |
 | 系统 | Ubuntu 22.04，1GB RAM，2 vCPU |
 | Web | Nginx，静态文件 `/var/www/blog/`，gzip 已启用 |
-| SSL | Let's Encrypt，到期 2026-09-23 |
+| SSL | Let's Encrypt；历史记录到期日为 2026-09-23，实际续期状态需检查服务器 |
 | DNS | NameSilo，A 记录 → `65.52.173.202` |
 
 ### SSH 连接故障排查

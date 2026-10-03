@@ -33,7 +33,7 @@
 @media screen and (max-width: 768px) {
   .visitor-toast {
     right: 16px;
-    bottom: 20px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
     font-size: 0.82em;
     padding: 10px 18px;
   }

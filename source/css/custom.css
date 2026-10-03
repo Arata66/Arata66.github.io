@@ -644,6 +644,36 @@ body.sidebar-open #sidebar-menus {
     transform: none;
   }
 
+  #recent-posts .recent-post-item {
+    min-height: 0;
+    margin-bottom: 14px;
+  }
+
+  #recent-posts .recent-post-item .post_cover {
+    max-height: 190px;
+  }
+
+  #recent-posts .recent-post-item .post_cover img {
+    width: 100%;
+    max-height: 190px;
+    object-fit: cover;
+  }
+
+  #recent-posts .recent-post-item .content {
+    padding: 16px 14px 18px;
+  }
+
+  #recent-posts .recent-post-item .article-title {
+    font-size: 1.08rem;
+    line-height: 1.45;
+  }
+
+  #recent-posts .recent-post-item .article-meta-wrap,
+  #recent-posts .recent-post-item .content .article-meta-wrap {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
   #page-header.full_page {
     background-size: cover !important;
     background-position: center center !important;
@@ -703,6 +733,105 @@ body.sidebar-open #sidebar-menus {
     right: 16px !important;
     left: auto !important;
     bottom: 70px !important;
+  }
+
+  #recent-posts .recent-post-item .post_cover,
+  #recent-posts .recent-post-item .post_cover img {
+    max-height: 150px;
+  }
+}
+
+/* ---------- 移动端文章页浮层隔离 ---------- */
+@media screen and (max-width: 900px) {
+  body::after {
+    background-attachment: scroll;
+    opacity: 0.12;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 目录改为文章流内的卡片，展开时推动后续内容，避免固定浮层覆盖正文。 */
+  #body-wrap.post #card-toc {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 16px 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    transform: none !important;
+    z-index: auto !important;
+  }
+
+  #body-wrap.post #card-toc.open {
+    transform: none !important;
+  }
+
+  #body-wrap.post #card-toc .toc-content {
+    max-height: 0 !important;
+    overflow: hidden !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #body-wrap.post #card-toc.open .toc-content {
+    max-height: min(38dvh, 300px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Butterfly 默认把 rightside 推出视口，再用 transform 拉回；手机端改为直接定位。 */
+  #rightside,
+  #rightside.rightside-show {
+    right: 8px !important;
+    bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* 手机端默认只保留一个箭头，展开后才显示完整工具组。 */
+  #mobile-rightside-toggle {
+    display: block !important;
+    width: 30px !important;
+    height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 50% !important;
+    background: rgba(26, 16, 37, 0.82) !important;
+    color: var(--text-bright) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+    font-size: 14px !important;
+    line-height: 28px !important;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  #mobile-rightside-toggle i {
+    transition: transform 0.25s ease;
+  }
+
+  #rightside.mobile-tools-collapsed #rightside-config-hide,
+  #rightside.mobile-tools-collapsed #rightside-config-show {
+    display: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #rightside-config-hide {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #mobile-rightside-toggle {
+    background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+  }
+
+  #rightside.mobile-tools-expanded #mobile-rightside-toggle i {
+    transform: rotate(180deg);
   }
 }
 
@@ -1274,5 +1403,85 @@ img[data-lazy-src] {
 img[data-lazy-src].loaded,
 img[data-lazy-src].error {
   filter: blur(0);
+}
+
+/* ---------- 移动端阅读排版 ---------- */
+@media screen and (max-width: 900px) {
+  #body-wrap.post #page-header.post-bg {
+    min-height: 260px;
+    height: auto;
+    padding-bottom: 24px;
+  }
+
+  #body-wrap.post #article-container {
+    font-size: 16px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+
+  #body-wrap.post #article-container p,
+  #body-wrap.post #article-container ul,
+  #body-wrap.post #article-container ol,
+  #body-wrap.post #article-container blockquote {
+    margin: 0 0 1.1em;
+  }
+
+  #body-wrap.post #article-container h2,
+  #body-wrap.post #article-container h3,
+  #body-wrap.post #article-container h4 {
+    margin-top: 1.6em;
+    margin-bottom: 0.7em;
+    line-height: 1.35;
+  }
+
+  #body-wrap.post #article-container img,
+  #body-wrap.post #article-container video,
+  #body-wrap.post #article-container iframe {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1em auto;
+    border-radius: 10px;
+  }
+
+  #body-wrap.post #article-container figure.highlight {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.2em 0;
+  }
+
+  #body-wrap.post #article-container figure.highlight table {
+    min-width: max-content;
+  }
+
+  #body-wrap.post #article-container .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #body-wrap.post #article-container blockquote {
+    padding: 0.75em 1em;
+  }
+
+  #mobile-rightside-toggle {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 42px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 

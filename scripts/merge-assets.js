@@ -24,6 +24,8 @@ const CSS_FILES = [
 ];
 
 const JS_FILES = [
+  '/js/mobile-performance.js',
+  '/js/mobile-rightside.js',
   '/js/music-ball.js',
   '/js/custom-menu.js',
   '/js/float-decor.js',
@@ -37,13 +39,12 @@ const JS_FILES = [
   '/js/site-stats.js'
 ];
 
-function mergeFiles(files, outPath) {
+function mergeFiles(files, outPath, publicDir = PUBLIC_DIR) {
   const parts = [];
   for (const file of files) {
-    const src = path.join(PUBLIC_DIR, file);
+    const src = path.join(publicDir, file);
     if (!fs.existsSync(src)) {
-      console.warn(`[merge-assets] 文件不存在，跳过: ${file}`);
-      continue;
+      throw new Error(`[merge-assets] 必需资源不存在: ${file}`);
     }
     parts.push(`/* === ${file} === */`);
     parts.push(fs.readFileSync(src, 'utf8'));
@@ -51,7 +52,7 @@ function mergeFiles(files, outPath) {
   }
 
   const content = parts.join('\n');
-  const fullOut = path.join(PUBLIC_DIR, outPath);
+  const fullOut = path.join(publicDir, outPath);
   fs.mkdirSync(path.dirname(fullOut), { recursive: true });
   fs.writeFileSync(fullOut, content, 'utf8');
   console.log(`[merge-assets] 已生成 ${outPath} (${(Buffer.byteLength(content) / 1024).toFixed(1)} KB)`);
@@ -91,6 +92,8 @@ function main() {
   mergeFiles(JS_FILES, '/js/custom-bundle.js');
   console.log('[merge-assets] 完成');
 }
+
+module.exports = { mergeFiles };
 
 if (require.main === module) {
   main();

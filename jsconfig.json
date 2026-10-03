@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "moduleDetection": "force",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["scripts/**/*.js", "source/js/**/*.js", "tests/**/*.js", "eslint.config.js", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "public", ".deploy_git"]
+}

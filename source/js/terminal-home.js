@@ -176,7 +176,8 @@
     // 插入到文章容器最前面
     target.insertBefore(term, target.firstChild);
 
-    var input = term.querySelector('.th-input');
+    const input = term.querySelector('.th-input');
+    if (!(input instanceof HTMLInputElement)) return;
 
     // 输出欢迎语
     typeOutput(term, WELCOME);

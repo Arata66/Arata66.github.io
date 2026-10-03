@@ -50,6 +50,8 @@
   function init() {
     // 首页不显示，避免干扰
     if (window.location.pathname === '/' || window.location.pathname === '') return;
+    // 文章页有目录和阅读工具，避免提示覆盖正文。
+    if (document.querySelector('#body-wrap.post')) return;
     setTimeout(show, 1500);
   }
 

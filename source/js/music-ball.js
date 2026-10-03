@@ -100,8 +100,8 @@
 
     // 封面图片
     var cover = s.pic || s.pic_url || "";
-    document.getElementById("mp-cover").src = cover;
-    document.getElementById("ball-cover").src = cover;
+    document.getElementById("mp-cover").setAttribute("src", cover);
+    document.getElementById("ball-cover").setAttribute("src", cover);
 
     updatePlaylistActive();
   }
@@ -151,8 +151,9 @@
     });
     pl.innerHTML = h;
     pl.querySelectorAll(".pl-item").forEach(function (el) {
+      if (!(el instanceof HTMLElement)) return;
       el.onclick = function () {
-        loadSong(parseInt(this.dataset.i));
+        loadSong(parseInt(el.dataset.i));
         audio.play().catch(function () {});
         playing = true;
         syncPlayState();
@@ -202,7 +203,7 @@
 
   function setVolume(v) {
     audio.volume = Math.min(1, Math.max(0, v));
-    localStorage.setItem("music-ball-vol", audio.volume);
+    localStorage.setItem("music-ball-vol", String(audio.volume));
     updateVolumeUI();
   }
 
@@ -211,7 +212,7 @@
 
   // 点击音量条调节
   volumeWrap.onclick = function (e) {
-    var rect = this.getBoundingClientRect();
+    var rect = volumeWrap.getBoundingClientRect();
     setVolume((e.clientX - rect.left) / rect.width);
   };
 
@@ -229,7 +230,7 @@
   // 音量条拖拽
   volumeWrap.onmousedown = function (e) {
     e.stopPropagation();
-    var rect = this.getBoundingClientRect();
+    var rect = volumeWrap.getBoundingClientRect();
     function onMove(ev) {
       setVolume((ev.clientX - rect.left) / rect.width);
     }
@@ -240,9 +241,10 @@
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   };
-  document.getElementById("mp-progress-wrap").onclick = function (e) {
+  var progressWrap = document.getElementById("mp-progress-wrap");
+  progressWrap.onclick = function (e) {
     if (!audio.duration) return;
-    var rect = this.getBoundingClientRect();
+    var rect = progressWrap.getBoundingClientRect();
     audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
   };
 
@@ -326,6 +328,7 @@
 
   // 点击外部关闭面板
   document.addEventListener("click", function (e) {
+    if (!(e.target instanceof Node)) return;
     if (!wasDragged && panelOpen && !root.contains(e.target)) {
       panelOpen = false;
       panel.classList.remove("show");
