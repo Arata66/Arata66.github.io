@@ -3,9 +3,6 @@
    粉紫色调 · 毛玻璃 · 角色核心
    ======================================== */
 
-/* 字体 — 使用 loli.net 镜像，国内可访问 */
-@import url('https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&family=Fira+Code&display=swap');
-
 /* ---------- CSS 变量 ---------- */
 :root {
   --primary: #b48ead;
@@ -52,7 +49,7 @@ body::after {
   content: '';
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-image: url('/img/theme/azusa-hero.jpg');
+  background-image: url('/img/theme/azusa-hero-desktop.3e9d7461e8.webp');
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;
@@ -744,6 +741,7 @@ body.sidebar-open #sidebar-menus {
 /* ---------- 移动端文章页浮层隔离 ---------- */
 @media screen and (max-width: 900px) {
   body::after {
+    background-image: url('/img/theme/azusa-hero-mobile.371e91a6a5.webp');
     background-attachment: scroll;
     opacity: 0.12;
   }
