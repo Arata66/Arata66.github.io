@@ -16,7 +16,7 @@
     if (!toggle) {
       toggle = document.createElement('button');
       toggle.id = 'mobile-rightside-toggle';
-      toggle.type = 'button';
+      toggle.setAttribute('type', 'button');
       toggle.setAttribute('aria-label', '展开阅读工具');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.innerHTML = '<i class="fas fa-chevron-left" aria-hidden="true"></i>';

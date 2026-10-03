@@ -57,6 +57,7 @@
     var cards = document.querySelectorAll('.works-card');
     var visibleCount = 0;
     cards.forEach(function (card) {
+      if (!(card instanceof HTMLElement)) return;
       var tags = card.dataset.tags.split(',').filter(Boolean);
       var show = activeTag === '全部' || tags.indexOf(activeTag) !== -1;
       card.classList.toggle('hidden', !show);

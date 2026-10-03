@@ -8,9 +8,11 @@
 
 ## 必须遵守
 
+- 使用 Node.js 22 与 `npm ci` 安装固定依赖，提交 `package-lock.json`。
+- 代码修改后运行 `npm run check`；它包含 lint、JavaScript 类型检查与行为测试。
 - 修改后先运行 `npm run build`，确认 `custom-bundle.css/js` 已重新生成。
 - 修改 `_config.butterfly.yml` 后必须重启 Hexo server，配置不会热更新。
-- 新增 CSS/JS 必须登记到 `scripts/merge-assets.js`，否则线上合并包不会包含它。
+- 新增 CSS/JS 必须登记到 `scripts/merge-assets.js`；登记资源缺失时构建会报错。
 - 复杂浏览器代码放静态 JS 文件，不写入 Hexo injector 模板字符串。
 - 桌面特效用 `@media (pointer: fine)` 或 `matchMedia('(pointer: fine)')` 判断，不使用 `ontouchstart` 误判设备。
 - 部署前关闭代理梯子；部署使用 `bash deploy.sh`，不要用 `hexo deploy` 覆盖源码。
@@ -33,12 +35,14 @@
 ## 手机端优化基线
 
 - 需要重点验证 360、390、430、768px 视口，以及横屏和安全区。
-- 当前移动规则主要集中在 768px/480px 两档；优先检查导航、首屏、文章卡片、代码块、侧栏、搜索、作品页和横向溢出。
+- 当前移动规则使用 900px、768px、480px 等断点；文章页目录为流式卡片，手机工具默认折叠。
 - 移动端要关注固定背景、`100vh`、大图体积、非必要动画和触摸反馈，不能只做视觉缩放。
 - 本地最终效果必须先 `npm run build`，再用静态服务器或浏览器查看生成的 `public/`。
+- DOM 行为测试与 CSS 规则检查不代表真实手机或视觉验收通过。
 
 ## 参考入口
 
+- 安装、检查与目录入口：`README.md`
 - 详细项目记忆快照：`.me`
 - 旧版经验和部署细节：`CLAUDE.md`
 - 历史优化方案：`docs/optimization-plan-v2.md`

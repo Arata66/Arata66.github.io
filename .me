@@ -6,13 +6,15 @@
 - 技术栈：Hexo 7.3.0、Butterfly 5.5.2、原生 CSS/JavaScript
 - 部署：本地构建后 SCP 到 Azure VM 的 Nginx 静态目录
 - 构建命令：`npm run build`
+- 检查命令：`npm run check`（lint、JavaScript 类型检查、DOM 行为测试与移动端规则检查）
+- 依赖恢复：Node.js 22 + `npm ci`，锁文件纳入版本控制
 - 本地最终产物：`public/`
 
 ## 已知工作流
 
 1. 修改 `source/`、`_config.butterfly.yml` 或 `scripts/`。
 2. 新 CSS/JS 登记到 `scripts/merge-assets.js`。
-3. 运行 `npm run build`，确认合并资源和页面生成成功。
+3. 运行 `npm run check` 和 `npm run build`，确认检查、合并资源和页面生成成功；登记资源缺失会使构建失败。
 4. 配置变更需要重启 Hexo server；最终页面优先检查 `public/`。
 5. 部署前关闭梯子，使用 `bash deploy.sh`；不要直接修改主题源码。
 
@@ -34,6 +36,12 @@
 - 重点视口：360、390、430、768px，另测横屏和安全区。
 - 重点问题：导航与首屏高度、文章卡片密度、侧栏入口、代码块横向滚动、搜索弹层、作品页、固定背景、`100vh`、大图加载和动画性能。
 - 浏览器截图和 DOM 检查能看到本地页面的实际响应式结果，但不能替代真实手机触控和网络测试。
+- 手机文章目录已改为流式卡片；工具默认折叠，操作或滚动后收起。相关行为由 DOM 测试保护。
+
+## 内容边界
+
+- 文章选题保存在 `docs/文章选题.md`，未发表，不虚构学习经历或完成度。
+- OtakuLog 与后续学习用的 OtakuLog Lite 是不同项目，不混用功能描述。
 
 ## 记忆来源
 

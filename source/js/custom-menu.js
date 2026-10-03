@@ -16,8 +16,9 @@
     document.body.appendChild(menu);
 
     menu.addEventListener('click', function (e) {
+      if (!(e.target instanceof Element)) return;
       var item = e.target.closest('.ctx-item');
-      if (!item) return;
+      if (!(item instanceof HTMLElement)) return;
       var action = item.dataset.action;
       if (action === 'top') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -65,6 +66,7 @@
   }
 
   document.addEventListener('contextmenu', function (e) {
+    if (!(e.target instanceof Element)) return;
     // 不拦截输入框、链接、代码块的右键
     if (e.target.closest('input, textarea, a, pre, code')) return;
     e.preventDefault();
