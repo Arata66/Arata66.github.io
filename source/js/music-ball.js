@@ -23,7 +23,7 @@
   // 悬浮球
   root.innerHTML =
     '<div class="ball" id="music-ball-btn">' +
-      '<div class="cover"><img id="ball-cover" src="/img/theme/azusa-sidebar.73c9217b52.webp" alt=""></div>' +
+      '<div class="cover"><img id="ball-cover" src="/img/theme/azusa-sidebar.73c9217b52.webp" alt="" draggable="false"></div>' +
       '<div class="hole"></div>' +
     '</div>';
 

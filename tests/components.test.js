@@ -176,6 +176,17 @@ test('当用户拖动音乐浮球时应该保存位置且不提前加载歌单',
   assert.ok(app.window.localStorage.getItem('music-ball-pos'));
 });
 
+test('当用户从唱片封面开始拖动时应该由播放器控制拖动而不触发原生图片拖动', t => {
+  const app = setup(t, musicScript);
+  const cover = app.document.getElementById('ball-cover');
+  assert.equal(cover.draggable, false);
+  cover.dispatchEvent(new app.window.MouseEvent('mousedown', { bubbles: true, clientX: 10, clientY: 10 }));
+  app.document.dispatchEvent(new app.window.MouseEvent('mousemove', { clientX: 90, clientY: 20 }));
+  app.document.dispatchEvent(new app.window.MouseEvent('mouseup'));
+  assert.ok(app.window.localStorage.getItem('music-ball-pos'));
+  assert.equal(app.requests.length, 0);
+});
+
 test('当天气卡片未接近视口时应该立即显示时钟但不请求天气', (t) => {
   const app = setup(t, weatherScript);
   assert.match(app.document.querySelector('.wc-time').textContent, /^\d{2}:\d{2}:\d{2}$/);
