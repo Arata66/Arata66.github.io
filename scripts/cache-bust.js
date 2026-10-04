@@ -41,7 +41,7 @@ function walk(dir) {
       walk(full);
     } else if (entry.name.endsWith('.html')) {
       const html = fs.readFileSync(full, 'utf8');
-      const updated = addVersionToRefs(deferLightboxScript(deferIconStyles(html)));
+      const updated = addVersionToRefs(asyncNavigationPrefetch(deferLightboxScript(deferIconStyles(html))));
       if (updated !== html) {
         fs.writeFileSync(full, updated, 'utf8');
         console.log(`[cache-bust] ${path.relative(PUBLIC_DIR, full)}`);
@@ -66,4 +66,12 @@ function deferLightboxScript(html) {
   );
 }
 
-module.exports = { deferIconStyles, deferLightboxScript };
+function asyncNavigationPrefetch(html) {
+  // 预取下一页只增强后续导航，不能拖延当前正文就绪。
+  return html.replace(
+    /<script src="([^"]*\/instant\.page[^"]*\/instantpage(?:\.min)?\.js)" type="module"><\/script>/g,
+    (_, source) => `<script async src="${source}" type="module"></script>`
+  );
+}
+
+module.exports = { deferIconStyles, deferLightboxScript, asyncNavigationPrefetch };
