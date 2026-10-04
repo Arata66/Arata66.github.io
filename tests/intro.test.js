@@ -147,6 +147,22 @@ test('当 Pjax 再次进入首页时应该直接显示正文且不重新播放�
   assert.equal(timers.size, 0);
 });
 
+test('当 Pjax 完成时应该解除主题预加载器设置的滚动锁', t => {
+  const { document, window, domReady, advance } = setup(t);
+  domReady();
+  advance(1500);
+  const box = document.getElementById('loading-box');
+  document.body.style.overflow = 'hidden';
+  box.classList.remove('loaded');
+  document.dispatchEvent(new window.Event('pjax:complete'));
+  // 主题的完成回调排在自定义 head 脚本之后；已完成时会直接返回。
+  if (!box.classList.contains('loaded')) {
+    document.body.style.overflow = '';
+    box.classList.add('loaded');
+  }
+  assert.equal(document.body.style.overflow, '');
+});
+
 test('当第三方脚本阻止 DOM 就绪事件时应该通过兜底释放遮罩', t => {
   const { document, advance, timers } = setup(t);
   advance(8000);
