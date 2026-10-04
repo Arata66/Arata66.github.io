@@ -64,5 +64,9 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', release, { once: true });
   else release();
 
-  document.addEventListener('pjax:complete', hide);
+  document.addEventListener('pjax:complete', () => {
+    // 主题在切页开始时锁定滚动，自定义加载层先结束时也要同步释放。
+    document.body.style.overflow = '';
+    hide();
+  });
 })();
