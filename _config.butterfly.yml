@@ -58,7 +58,7 @@ social:
 favicon: /img/favicon.ico
 
 avatar:
-  img: /img/theme/azusa-sidebar.jpg
+  img: /img/theme/azusa-sidebar.73c9217b52.webp
   effect: false
 
 # Disable all banner images
@@ -541,7 +541,7 @@ comments:
   text: true
   # Lazyload: The comment system will be load when comment element enters the browser's viewport.
   # If you set it to true, the comment count will be invalid
-  lazyload: false
+  lazyload: true
   # Display comment count in post's top_img
   count: true
   # Display comment count in Home Page
@@ -920,8 +920,7 @@ clickShowText:
 # https://github.com/francoischalifour/medium-zoom
 # https://fancyapps.com/fancybox/
 # Leave it empty if you don't need lightbox
-lightbox:
-  use: fancybox
+lightbox: fancybox
 
 # --------------------------------------
 # Tag Plugins settings
@@ -1021,7 +1020,7 @@ instantpage: true
 lazyload:
   enable: true
   # Use browser's native lazyload instead of vanilla-lazyload
-  native: false
+  native: true
   # Specify the field to use lazyload (site or post)
   field: site
   placeholder: /img/placeholder.svg
@@ -1069,7 +1068,10 @@ inject:
     - <link rel="stylesheet" href="/css/custom-bundle.css">
     - '<link rel="preload" as="image" type="image/webp" href="/img/theme/azusa-hero-desktop.3e9d7461e8.webp" media="not all and (max-width: 900px)">'
     - '<link rel="preload" as="image" type="image/webp" href="/img/theme/azusa-hero-mobile.371e91a6a5.webp" media="(max-width: 900px)">'
-    - <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&family=Fira+Code&display=swap">
+    - <link rel="preconnect" href="https://fonts.loli.net">
+    - <link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
+    - <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&display=swap" media="print" onload="this.media='all'">
+    - <noscript><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono&display=swap"></noscript>
     - <script src="/js/preloader-sakura.js"></script>
   bottom:
     - <script src="/js/flink-data.js"></script>

@@ -1,7 +1,7 @@
 ---
 title: 手机上的目录为什么挡住了正文
 date: 2026-10-04 00:01:00
-cover: /img/covers/F62C22DD6E30C8D3F9AC80575C3CED5C.jpg
+cover: /img/covers/f62c22dd6e30c8d3f9ac80575c3ced5c.e8f2044751.webp
 tags:
   - 博客
   - CSS

@@ -1,10 +1,15 @@
 // 悬浮球音乐播放器 v3 — 黑胶唱片风格 + 音量控制
 (function () {
+  if (document.getElementById("music-ball")) return;
   var API = "https://api.injahow.cn/meting/?type=playlist&id=2690018998";
   var songs = [];
+  var playlistLoaded = false;
+  var playlistRequest = null;
   var curIdx = 0;
   var audio = new Audio();
+  audio.preload = "none";
   var playing = false;
+  var playbackAttempt = 0;
   var panelOpen = false;
 
   // 音量初始化：从 localStorage 读取，默认 0.8
@@ -18,7 +23,7 @@
   // 悬浮球
   root.innerHTML =
     '<div class="ball" id="music-ball-btn">' +
-      '<div class="cover"><img id="ball-cover" src="" alt=""></div>' +
+      '<div class="cover"><img id="ball-cover" src="/img/theme/azusa-sidebar.73c9217b52.webp" alt="" draggable="false"></div>' +
       '<div class="hole"></div>' +
     '</div>';
 
@@ -29,11 +34,11 @@
     // 封面区域
     '<div class="cover-section">' +
       '<div class="cover-wrap">' +
-        '<img id="mp-cover" src="" alt="">' +
+        '<img id="mp-cover" alt="">' +
         '<div class="cover-placeholder">♪</div>' +
       '</div>' +
       '<div class="track-text">' +
-        '<div class="track-title" id="mp-title">加载中...</div>' +
+        '<div class="track-title" id="mp-title">点击展开加载歌单</div>' +
         '<div class="track-artist" id="mp-artist"></div>' +
       '</div>' +
     '</div>' +
@@ -77,19 +82,36 @@
   }
 
   // ---- 加载歌单 ----
-  fetch(API)
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      songs = Array.isArray(d) ? d : d.data || [];
-      renderPlaylist();
-      if (songs.length > 0) loadSong(0);
-    })
-    .catch(function () {
-      document.getElementById("mp-title").textContent = "歌单加载失败";
-    });
+  function ensurePlaylist() {
+    if (playlistLoaded) return Promise.resolve(true);
+    if (playlistRequest) return playlistRequest;
+    document.getElementById("mp-title").textContent = "加载中...";
+    // 打开面板与播放操作共享请求，失败后保留再次操作重试的入口。
+    playlistRequest = fetch(API)
+      .then(function (r) {
+        if (!r.ok) throw new Error("歌单请求失败");
+        return r.json();
+      })
+      .then(function (d) {
+        songs = Array.isArray(d) ? d : d && Array.isArray(d.data) ? d.data : [];
+        playlistLoaded = true;
+        renderPlaylist();
+        if (songs.length > 0) loadSong(0);
+        else document.getElementById("mp-title").textContent = "暂无歌曲";
+        return true;
+      })
+      .catch(function () {
+        document.getElementById("mp-title").textContent = "歌单加载失败，点击重试";
+        return false;
+      })
+      .finally(function () { playlistRequest = null; });
+    return playlistRequest;
+  }
 
   // ---- 歌曲操作 ----
   function loadSong(i) {
+    if (!songs.length || !songs[i]) return;
+    playbackAttempt++;
     curIdx = i;
     var s = songs[i];
     var titleEl = document.getElementById("mp-title");
@@ -107,15 +129,34 @@
   }
 
   function togglePlay() {
+    if (!playlistLoaded) {
+      ensurePlaylist().then(function (ready) {
+        if (ready && !playing) startPlayback();
+      });
+      return;
+    }
     if (!audio.src) return;
     if (playing) {
+      playbackAttempt++;
       audio.pause();
       playing = false;
     } else {
-      audio.play().catch(function () {});
-      playing = true;
+      startPlayback();
     }
     syncPlayState();
+  }
+
+  function startPlayback() {
+    if (!audio.src) return;
+    var attempt = ++playbackAttempt;
+    playing = true;
+    syncPlayState();
+    audio.play().catch(function () {
+      // 换歌或暂停会中断旧请求，旧失败不能覆盖新的播放状态。
+      if (attempt !== playbackAttempt) return;
+      playing = false;
+      syncPlayState();
+    });
   }
 
   function syncPlayState() {
@@ -126,15 +167,21 @@
   }
 
   function prev() {
-    curIdx = (curIdx - 1 + songs.length) % songs.length;
-    loadSong(curIdx);
-    if (playing) audio.play().catch(function () {});
+    ensurePlaylist().then(function () {
+      if (!songs.length) return;
+      curIdx = (curIdx - 1 + songs.length) % songs.length;
+      loadSong(curIdx);
+      if (playing) startPlayback();
+    });
   }
 
   function next() {
-    curIdx = (curIdx + 1) % songs.length;
-    loadSong(curIdx);
-    if (playing) audio.play().catch(function () {});
+    ensurePlaylist().then(function () {
+      if (!songs.length) return;
+      curIdx = (curIdx + 1) % songs.length;
+      loadSong(curIdx);
+      if (playing) startPlayback();
+    });
   }
 
   // ---- 播放列表 ----
@@ -154,9 +201,7 @@
       if (!(el instanceof HTMLElement)) return;
       el.onclick = function () {
         loadSong(parseInt(el.dataset.i));
-        audio.play().catch(function () {});
-        playing = true;
-        syncPlayState();
+        startPlayback();
       };
     });
   }
@@ -254,6 +299,7 @@
     if (wasDragged) return;
     panelOpen = !panelOpen;
     panel.classList.toggle("show", panelOpen);
+    if (panelOpen) ensurePlaylist();
   };
 
   // ---- 拖动（鼠标 + 触屏） ----

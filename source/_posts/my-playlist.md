@@ -7,7 +7,7 @@ tags:
   - 生活
 categories:
   - 生活
-cover: /img/covers/59318DE0C1751B60F9149F48AD0CEA8E.jpg
+cover: /img/covers/59318de0c1751b60f9149f48ad0cea8e.a77b34a8fc.webp
 description: 从 2023 年到现在积累的 280 首喜欢的歌，以及我的听歌偏好和背后的故事。
 excerpt: 挤出时间整理了一下从 23 年到现在比较喜欢的 280 首歌，发现了很多有意思的东西，写下来分享一下。
 series: 生活随笔

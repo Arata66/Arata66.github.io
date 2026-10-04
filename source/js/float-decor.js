@@ -6,7 +6,7 @@
     var decor = document.createElement('div');
     decor.id = 'float-decor';
     decor.title = '和我互动~';
-    decor.innerHTML = '<img src="/img/theme/azusa-float.png" alt="Azusa" />';
+    decor.innerHTML = '<img src="/img/theme/azusa-float.f84d529b26.webp" alt="Azusa" width="80" height="80" decoding="async" />';
 
     var bubble = document.createElement('div');
     bubble.id = 'float-bubble';

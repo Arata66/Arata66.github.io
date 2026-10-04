@@ -1,0 +1,42 @@
+/* 保留花瓣与标题，正文就绪后尽快让出阅读和操作空间。 */
+#relume-intro {
+  height: 100dvh;
+  transition-duration: 0.35s;
+  animation: intro-safety-exit 8s step-end forwards;
+}
+
+.intro-title,
+.intro-subtitle {
+  transition-duration: 0.2s;
+}
+
+#loading-box.fade-out {
+  transition-duration: 0.35s;
+}
+
+#loading-box {
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  animation: intro-safety-exit 8s step-end forwards;
+}
+
+#loading-box.loaded {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 静态脚本请求失败时也不能永久挡住页面。 */
+@keyframes intro-safety-exit {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #relume-intro,
+  #loading-box {
+    display: none !important;
+  }
+}

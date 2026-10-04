@@ -24,6 +24,16 @@ function addVersionToRefs(html) {
   );
 }
 
+function deferIconStyles(html) {
+  // 图标服务变慢时仍应先显示正文，并保留禁用脚本时的样式。
+  return html.replace(
+    /<noscript\b[^>]*>[\s\S]*?<\/noscript>|<link rel="stylesheet" href="([^"]*\/fontawesome-free[^"]*\.css(?:\?[^"]*)?)">/g,
+    (match, href) => href
+      ? `<link rel="stylesheet" href="${href}" media="print" onload="this.media='all'"><noscript>${match}</noscript>`
+      : match
+  );
+}
+
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -31,7 +41,7 @@ function walk(dir) {
       walk(full);
     } else if (entry.name.endsWith('.html')) {
       const html = fs.readFileSync(full, 'utf8');
-      const updated = addVersionToRefs(html);
+      const updated = addVersionToRefs(deferLightboxScript(deferIconStyles(html)));
       if (updated !== html) {
         fs.writeFileSync(full, updated, 'utf8');
         console.log(`[cache-bust] ${path.relative(PUBLIC_DIR, full)}`);
@@ -48,3 +58,12 @@ function main() {
 if (require.main === module) {
   main();
 }
+
+function deferLightboxScript(html) {
+  return html.replace(
+    /<script src="([^"]*\/@fancyapps\/ui[^"]*\/fancybox\.umd(?:\.min)?\.js)"><\/script>/g,
+    (_, source) => `<script data-fancybox-src="${source}" defer src="/js/lightbox-loader.js"></script>`
+  );
+}
+
+module.exports = { deferIconStyles, deferLightboxScript };
