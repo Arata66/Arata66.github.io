@@ -20,7 +20,8 @@ const CSS_FILES = [
   '/css/post-pin.css',
   '/css/sakura-petals.css',
   '/css/site-stats.css',
-  '/css/tape-card.css'
+  '/css/tape-card.css',
+  '/css/intro-performance.css'
 ];
 
 const JS_FILES = [
@@ -37,6 +38,11 @@ const JS_FILES = [
   '/js/flink-card.js',
   '/js/sakura-petals.js',
   '/js/site-stats.js'
+];
+
+const STANDALONE_JS_FILES = [
+  '/js/preloader-sakura.js',
+  '/js/relume-intro.js'
 ];
 
 function mergeFiles(files, outPath, publicDir = PUBLIC_DIR) {
@@ -86,6 +92,11 @@ function generateSiteStats() {
 }
 
 function main() {
+  for (const file of STANDALONE_JS_FILES) {
+    if (!fs.existsSync(path.join(PUBLIC_DIR, file))) {
+      throw new Error(`[merge-assets] 必需资源不存在: ${file}`);
+    }
+  }
   generateFlinkData();
   generateSiteStats();
   mergeFiles(CSS_FILES, '/css/custom-bundle.css');

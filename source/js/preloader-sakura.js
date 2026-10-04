@@ -1,56 +1,68 @@
-// 樱花加载动画 — 替换 Butterfly 默认 preloader
 (function () {
-  function override() {
-    var box = document.getElementById('loading-box');
-    if (!box) return;
+  const root = document.documentElement;
+  if (root.dataset.sakuraLoaderInitialized) return;
+  root.dataset.sakuraLoaderInitialized = 'true';
 
-    // 只替换一次
-    if (box.querySelector('.sakura-loader')) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let started = false;
+  let finished = false;
+  let fadeTimer;
+  let fallbackTimer;
+  let observer;
 
-    // 移除默认内容
-    var configure = box.querySelector('.configure');
+  function decorate() {
+    const box = document.getElementById('loading-box');
+    if (!box || reduced || box.querySelector('.sakura-loader')) return;
+    const configure = box.querySelector('.configure');
     if (configure) configure.remove();
-
-    // 插入樱花动画
-    var loader = document.createElement('div');
+    const loader = document.createElement('div');
     loader.className = 'sakura-loader';
-    var html = '';
-    for (var i = 0; i < 6; i++) {
-      html += '<div class="sakura-petal"></div>';
-    }
-    html += '<div class="sakura-center"></div>';
-    loader.innerHTML = html;
-
-    // 插到 loading-word 前面
-    var word = box.querySelector('.loading-word');
-    box.style.display = 'flex';
-    box.style.flexDirection = 'column';
-    box.style.alignItems = 'center';
-    box.style.justifyContent = 'center';
-    box.insertBefore(loader, word);
+    loader.innerHTML = '<div class="sakura-petal"></div>'.repeat(6) + '<div class="sakura-center"></div>';
+    const word = box.querySelector('.loading-word');
+    box.appendChild(loader);
+    if (word) box.appendChild(word);
   }
 
-  // 页面加载完成后淡出
-  function fadeOut() {
-    var box = document.getElementById('loading-box');
-    if (!box) return;
-    box.classList.add('fade-out');
-    setTimeout(function () {
+  function hide() {
+    finished = true;
+    clearTimeout(fadeTimer);
+    clearTimeout(fallbackTimer);
+    if (observer) observer.disconnect();
+    const box = document.getElementById('loading-box');
+    if (box) {
+      box.classList.add('loaded');
       box.style.display = 'none';
-    }, 600);
+    }
   }
 
-  // 立即尝试 + 延迟重试
-  override();
-  setTimeout(override, 100);
-  setTimeout(override, 500);
+  function release() {
+    if (started || finished) return;
+    started = true;
+    root.dataset.pageVisited = 'true';
+    clearTimeout(fallbackTimer);
+    // 仅首次退场释放主题的初始锁滚动，切页不干预侧栏等组件。
+    document.body.style.overflow = '';
+    const box = document.getElementById('loading-box');
+    decorate();
+    if (box) box.classList.add('fade-out');
+    // 文章页直接开始阅读，首页的淡出与入场动画同时进行。
+    if (reduced || !box || !document.getElementById('relume-intro')) hide();
+    else fadeTimer = setTimeout(hide, 350);
+  }
 
-  // 监听页面加载完成
-  if (document.readyState === 'complete') {
-    fadeOut();
-  } else {
-    window.addEventListener('load', function () {
-      setTimeout(fadeOut, 200);
+  decorate();
+  // head 执行时正文尚未解析，节点出现后就显示樱花，不等待慢脚本。
+  if (!reduced && !document.getElementById('loading-box')) {
+    observer = new MutationObserver(() => {
+      if (!document.getElementById('loading-box')) return;
+      decorate();
+      observer.disconnect();
     });
+    observer.observe(root, { childList: true, subtree: true });
   }
+  fallbackTimer = setTimeout(release, 6000);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', release, { once: true });
+  else release();
+
+  document.addEventListener('pjax:complete', hide);
 })();
