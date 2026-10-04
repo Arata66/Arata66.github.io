@@ -7,7 +7,7 @@
   let request;
 
   window.btf.loadLightbox = function (images) {
-    if (window.GLOBAL_CONFIG.lightbox !== 'fancybox') return original(images);
+    if (GLOBAL_CONFIG.lightbox !== 'fancybox') return original(images);
     const current = Array.from(images);
     if (!current.length) return;
     if (window.Fancybox) return original(current);

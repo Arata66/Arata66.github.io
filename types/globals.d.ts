@@ -21,12 +21,12 @@ interface Window {
 }
 
 declare const hexo: import('hexo');
+declare const GLOBAL_CONFIG: { lightbox?: string };
 interface Window {
   btf?: {
     lightboxDeferred?: boolean;
     loadLightbox: (images: Iterable<HTMLImageElement>) => void;
     getScript: (source: string) => Promise<unknown>;
   };
-  GLOBAL_CONFIG?: { lightbox?: string };
   Fancybox?: unknown;
 }

@@ -13,7 +13,7 @@ module.exports = [
   },
   {
     files: ['source/js/**/*.js'],
-    languageOptions: { sourceType: 'script', globals: globals.browser }
+    languageOptions: { sourceType: 'script', globals: { ...globals.browser, GLOBAL_CONFIG: 'readonly' } }
   },
   {
     rules: {

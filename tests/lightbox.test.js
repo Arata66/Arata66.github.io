@@ -13,7 +13,6 @@ function setup(t, fail = false) {
   const { window } = dom;
   Object.defineProperty(window.document, 'currentScript', { value: window.document.querySelector('script') });
   const requests = [], galleries = [];
-  window.GLOBAL_CONFIG = { lightbox: 'fancybox' };
   window.btf = {
     loadLightbox: images => galleries.push(images),
     getScript: url => {
@@ -23,7 +22,7 @@ function setup(t, fail = false) {
       return Promise.resolve();
     }
   };
-  if (fs.existsSync(scriptPath)) window.eval(fs.readFileSync(scriptPath, 'utf8'));
+  if (fs.existsSync(scriptPath)) window.eval("const GLOBAL_CONFIG = { lightbox: 'fancybox' };\n" + fs.readFileSync(scriptPath, 'utf8'));
   return { window, requests, galleries, image: window.document.querySelector('img') };
 }
 
