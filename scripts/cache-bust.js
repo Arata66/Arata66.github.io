@@ -41,7 +41,7 @@ function walk(dir) {
       walk(full);
     } else if (entry.name.endsWith('.html')) {
       const html = fs.readFileSync(full, 'utf8');
-      const updated = deferIconStyles(addVersionToRefs(html));
+      const updated = addVersionToRefs(deferLightboxScript(deferIconStyles(html)));
       if (updated !== html) {
         fs.writeFileSync(full, updated, 'utf8');
         console.log(`[cache-bust] ${path.relative(PUBLIC_DIR, full)}`);
@@ -59,4 +59,11 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { deferIconStyles };
+function deferLightboxScript(html) {
+  return html.replace(
+    /<script src="([^"]*\/@fancyapps\/ui[^"]*\/fancybox\.umd(?:\.min)?\.js)"><\/script>/g,
+    (_, source) => `<script data-fancybox-src="${source}" defer src="/js/lightbox-loader.js"></script>`
+  );
+}
+
+module.exports = { deferIconStyles, deferLightboxScript };

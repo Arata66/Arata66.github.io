@@ -21,3 +21,12 @@ interface Window {
 }
 
 declare const hexo: import('hexo');
+interface Window {
+  btf?: {
+    lightboxDeferred?: boolean;
+    loadLightbox: (images: Iterable<HTMLImageElement>) => void;
+    getScript: (source: string) => Promise<unknown>;
+  };
+  GLOBAL_CONFIG?: { lightbox?: string };
+  Fancybox?: unknown;
+}
