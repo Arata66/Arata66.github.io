@@ -630,7 +630,7 @@ html {
   display: none !important;
 }
 
-body.sidebar-open #sidebar-menus {
+#sidebar-menus.open {
   display: block !important;
 }
 

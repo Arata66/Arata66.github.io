@@ -1,0 +1,125 @@
+#nav {
+  --font-color: #f0e6f6;
+}
+
+#page-header #nav .site-page,
+#page-header #nav .site-name {
+  color: #f0e6f6;
+}
+
+#page-header #nav .site-page:hover {
+  color: var(--accent);
+}
+
+#aside-content {
+  --font-color: #dfd2e8;
+  --text-highlight-color: #f3eaf8;
+  --card-meta: #cbbad7;
+  --toc-link-color: #dfd2e8;
+}
+
+#aside-content .card-widget {
+  color: var(--font-color);
+}
+
+#aside-content .item-headline {
+  color: #f3eaf8;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+#aside-content .author-info-description,
+#aside-content .site-data .headline {
+  color: var(--card-meta);
+}
+
+#aside-content .site-data .length-num {
+  color: var(--text-highlight-color);
+  font-variant-numeric: tabular-nums;
+}
+
+#aside-content .aside-list > .aside-list-item .content > .title {
+  color: var(--font-color);
+}
+
+#aside-content .aside-list > .aside-list-item .content > time {
+  color: var(--card-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+#aside-content .card-tag-cloud a {
+  color: #dbc1e5 !important;
+}
+
+#aside-content .card-info-social-icons i {
+  color: #dbc1e5 !important;
+}
+
+.terminal-home .th-input::placeholder {
+  color: #aba2b8;
+  opacity: 1;
+}
+
+#aside-content #card-info-btn,
+#aside-content #card-info-btn i {
+  color: #39233f !important;
+}
+
+#aside-content #card-toc .toc-content .toc-link.active {
+  color: #fff;
+  background: #704a76;
+}
+
+#recent-posts .home-post-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 24px 0 12px;
+  padding-inline: 4px;
+  color: #f0e6f6;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+}
+
+#recent-posts .home-post-heading::after {
+  flex: 1;
+  height: 1px;
+  background: rgba(212, 181, 224, 0.3);
+  content: '';
+}
+
+#recent-posts .post-featured-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 1px 8px;
+  color: #f4c5d4;
+  background: rgba(244, 169, 192, 0.1);
+  border: 1px solid rgba(244, 169, 192, 0.28);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  letter-spacing: 0.08em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #aside-content .aside-list > .aside-list-item .content > .title:hover,
+  #aside-content .card-tag-cloud a:hover {
+    color: var(--accent) !important;
+  }
+
+  #aside-content .card-categories .card-category-list a:hover,
+  #aside-content .card-archives .card-archive-list a:hover {
+    color: #f3eaf8;
+    background: rgba(180, 142, 173, 0.18);
+  }
+}
+
+@media screen and (max-width: 900px) {
+  #recent-posts .home-post-heading {
+    margin-top: 20px;
+    font-size: 1.05rem;
+  }
+}

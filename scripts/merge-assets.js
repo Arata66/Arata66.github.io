@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const { enhanceHomeHtml } = require('./home-post-sections');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -22,6 +23,7 @@ const CSS_FILES = [
   '/css/site-stats.css',
   '/css/tape-card.css',
   '/css/reading-polish.css',
+  '/css/navigation-polish.css',
   '/css/intro-performance.css'
 ];
 
@@ -104,6 +106,8 @@ function main() {
   generateSiteStats();
   mergeFiles(CSS_FILES, '/css/custom-bundle.css');
   mergeFiles(JS_FILES, '/js/custom-bundle.js');
+  const homePath = path.join(PUBLIC_DIR, 'index.html');
+  fs.writeFileSync(homePath, enhanceHomeHtml(fs.readFileSync(homePath, 'utf8')), 'utf8');
   console.log('[merge-assets] 完成');
 }
 
