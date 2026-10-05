@@ -21,6 +21,7 @@ const CSS_FILES = [
   '/css/sakura-petals.css',
   '/css/site-stats.css',
   '/css/tape-card.css',
+  '/css/reading-polish.css',
   '/css/intro-performance.css'
 ];
 
