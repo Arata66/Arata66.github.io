@@ -155,6 +155,7 @@
 
     var target = document.querySelector('.recent-posts');
     if (!target) return;
+    if (target.querySelector('.terminal-home')) return;
 
     var term = document.createElement('div');
     term.className = 'terminal-home';
@@ -169,7 +170,7 @@
         '<div class="th-output"></div>' +
         '<div class="th-input-line">' +
           '<span class="th-prompt">❯</span>' +
-          '<input type="text" class="th-input" autofocus autocomplete="off" spellcheck="false" placeholder="输入 help 查看命令...">' +
+          '<input type="text" class="th-input" aria-label="终端命令" autocomplete="off" spellcheck="false" placeholder="输入 help 查看命令...">' +
         '</div>' +
       '</div>';
 
