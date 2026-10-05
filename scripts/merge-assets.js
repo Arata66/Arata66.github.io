@@ -3,6 +3,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const { enhanceHomeHtml } = require('./home-post-sections');
 const { enhanceContentNavigation } = require('./content-navigation');
+const { composeSearchScript } = require('./search-interface');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -26,6 +27,7 @@ const CSS_FILES = [
   '/css/reading-polish.css',
   '/css/navigation-polish.css',
   '/css/content-navigation.css',
+  '/css/search-polish.css',
   '/css/intro-performance.css'
 ];
 
@@ -107,6 +109,9 @@ function main() {
   }
   generateFlinkData();
   generateSiteStats();
+  const searchPath = path.join(PUBLIC_DIR, 'js/search/local-search.js');
+  const searchController = path.join(SOURCE_DIR, 'js/search-interface.js');
+  fs.writeFileSync(searchPath, composeSearchScript(fs.readFileSync(searchPath, 'utf8'), fs.readFileSync(searchController, 'utf8')), 'utf8');
   mergeFiles(CSS_FILES, '/css/custom-bundle.css');
   mergeFiles(JS_FILES, '/js/custom-bundle.js');
   const homePath = path.join(PUBLIC_DIR, 'index.html');
