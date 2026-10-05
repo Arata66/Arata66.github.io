@@ -4,6 +4,7 @@ const yaml = require('js-yaml');
 const { enhanceHomeHtml } = require('./home-post-sections');
 const { enhanceContentNavigation } = require('./content-navigation');
 const { composeSearchScript } = require('./search-interface');
+const { enhanceArticleSharing } = require('./article-sharing');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -28,6 +29,7 @@ const CSS_FILES = [
   '/css/navigation-polish.css',
   '/css/content-navigation.css',
   '/css/search-polish.css',
+  '/css/article-sharing.css',
   '/css/intro-performance.css'
 ];
 
@@ -45,7 +47,8 @@ const JS_FILES = [
   '/js/flink-card.js',
   '/js/sakura-petals.js',
   '/js/site-stats.js',
-  '/js/subscription.js'
+  '/js/subscription.js',
+  '/js/article-sharing.js'
 ];
 
 const STANDALONE_JS_FILES = [
@@ -122,7 +125,7 @@ function main() {
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceContentNavigation(html), 'utf8');
+        fs.writeFileSync(fullPath, enhanceArticleSharing(enhanceContentNavigation(html)), 'utf8');
       }
     }
   }

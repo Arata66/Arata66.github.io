@@ -9,7 +9,7 @@ description: 'Arata66 的个人博客，分享 Java 开发、Spring Boot、Docke
 keywords: Java, Spring Boot, 后端开发, 技术博客, 二次元
 author: Arata66
 language: zh-CN
-timezone: ''
+timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
@@ -17,7 +17,7 @@ url: https://arata66.top
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
-  trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
+  trailing_index: false # 规范链接统一使用目录地址。
   trailing_html: true # Set to false to remove trailing '.html' from permalinks
 
 # Directory
@@ -80,7 +80,7 @@ meta_generator: false
 date_format: YYYY-MM-DD
 time_format: HH:mm:ss
 ## updated_option supports 'mtime', 'date', 'empty'
-updated_option: 'mtime'
+updated_option: 'date'
 
 # Pagination
 ## Set per_page to 0 to disable pagination

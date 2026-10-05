@@ -1,6 +1,7 @@
 ---
 title: 我做了一个追番管理工具
 date: 2026-06-29 21:00:00
+updated: 2026-10-05 19:44:40
 tags:
   - Java
   - Spring Boot

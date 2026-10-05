@@ -1,6 +1,7 @@
 ---
 title: Hexo 预览时，为什么有些自定义样式没出现
 date: 2026-10-04 00:00:00
+updated: 2026-10-04 19:20:23
 cover: /img/covers/c04ba58002667ce7496f6e47e03194b0.10ff3c47b1.webp
 tags:
   - Hexo
