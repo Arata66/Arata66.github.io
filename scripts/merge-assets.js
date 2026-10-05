@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { enhanceHomeHtml } = require('./home-post-sections');
+const { enhanceContentNavigation } = require('./content-navigation');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -24,6 +25,7 @@ const CSS_FILES = [
   '/css/tape-card.css',
   '/css/reading-polish.css',
   '/css/navigation-polish.css',
+  '/css/content-navigation.css',
   '/css/intro-performance.css'
 ];
 
@@ -40,7 +42,8 @@ const JS_FILES = [
   '/js/visitor-egg.js',
   '/js/flink-card.js',
   '/js/sakura-petals.js',
-  '/js/site-stats.js'
+  '/js/site-stats.js',
+  '/js/subscription.js'
 ];
 
 const STANDALONE_JS_FILES = [
@@ -108,6 +111,17 @@ function main() {
   mergeFiles(JS_FILES, '/js/custom-bundle.js');
   const homePath = path.join(PUBLIC_DIR, 'index.html');
   fs.writeFileSync(homePath, enhanceHomeHtml(fs.readFileSync(homePath, 'utf8')), 'utf8');
+  function enhancePages(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const fullPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) enhancePages(fullPath);
+      else if (entry.isFile() && entry.name.endsWith('.html')) {
+        const html = fs.readFileSync(fullPath, 'utf8');
+        fs.writeFileSync(fullPath, enhanceContentNavigation(html), 'utf8');
+      }
+    }
+  }
+  enhancePages(PUBLIC_DIR);
   console.log('[merge-assets] 完成');
 }
 
