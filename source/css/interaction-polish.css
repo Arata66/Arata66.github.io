@@ -1,0 +1,129 @@
+#rightside .mobile-tool-label {
+  display: none;
+}
+
+#body-wrap.post #article-container a:not(.headerlink):not(.fancybox) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.22em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+#body-wrap.post #article-container a:not(.headerlink):not(.fancybox):focus-visible {
+  outline: 2px solid var(--reading-link);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+#post .article-copy,
+#article-container .subscription-copy {
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #body-wrap.post #article-container a:not(.headerlink):not(.fancybox):hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+#post .article-copy:active:not(:disabled),
+#article-container .subscription-copy:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(180, 142, 173, 0.2);
+}
+
+@media (hover: none) {
+  #post .article-copy:hover,
+  #article-container .subscription-copy:hover {
+    transform: none;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  #rightside.mobile-tools-expanded {
+    display: flex;
+    flex-direction: column;
+    width: 112px;
+    max-height: calc(100dvh - 88px - env(safe-area-inset-bottom));
+    padding: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid rgba(212, 181, 224, 0.35);
+    border-radius: 16px;
+    background: rgba(26, 16, 37, 0.96);
+    box-shadow: 0 6px 24px rgba(13, 8, 20, 0.28);
+  }
+
+  #rightside #rightside-config {
+    display: none !important;
+  }
+
+  #rightside.mobile-tools-expanded > div > :is(button, a) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100% !important;
+    height: 44px !important;
+    margin: 0 0 6px !important;
+    padding: 0 8px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+    color: #35233e !important;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: filter 160ms ease, box-shadow 160ms ease;
+    transform: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #hide-aside-btn,
+  #rightside.mobile-tools-expanded #rightside-config {
+    display: none !important;
+  }
+
+  #rightside.mobile-tools-expanded .mobile-tool-label {
+    display: inline;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #rightside.mobile-tools-expanded > div > :is(button, a) i {
+    color: inherit !important;
+  }
+
+  #rightside.mobile-tools-expanded #go-up .scroll-percent {
+    display: none !important;
+  }
+
+  #rightside.mobile-tools-expanded #go-up i {
+    width: auto;
+    height: auto;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #rightside #mobile-rightside-toggle {
+    order: -1;
+    flex-shrink: 0;
+    margin: 0 0 6px auto !important;
+  }
+
+  #rightside.mobile-tools-expanded :is(button, a):focus-visible {
+    outline: 2px solid #f3eaf8;
+    outline-offset: 2px;
+  }
+
+  #rightside.mobile-tools-expanded > div > :is(button, a):active {
+    filter: brightness(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #post .article-copy,
+  #article-container .subscription-copy,
+  #rightside :is(button, a) {
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -30,6 +30,7 @@ const CSS_FILES = [
   '/css/content-navigation.css',
   '/css/search-polish.css',
   '/css/article-sharing.css',
+  '/css/interaction-polish.css',
   '/css/intro-performance.css'
 ];
 
