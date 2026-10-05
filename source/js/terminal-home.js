@@ -7,8 +7,8 @@
         '可用命令：',
         '  about    - 关于我',
         '  blog     - 最近文章',
-        '  works    - 我的作品',
-        '  tech     - 技术栈',
+        '  works    - 折腾记录',
+        '  tech     - 学习与接触',
         '  social   - 社交链接',
         '  clear    - 清屏',
         '  help     - 显示此帮助'
@@ -22,49 +22,29 @@
         '目标是成为一名后端开发者',
         '喜欢折腾技术，也喜欢看番打游戏',
         '',
-        '输入 tech 查看我的技术栈'
+        '在这里记录学习、兴趣和日常的折腾',
+        { text: '→ 关于我与近况', href: '/about/' }
       ]
     },
-    blog: {
-      output: [
-        '📝 最近文章：',
-        '',
-        '  1. 我的听歌报告（大概） (2026-06-29)',
-        '  2. 我做了一个追番管理工具 (2026-06-29)',
-        '  3. 久违的更新 (2026-06-29)',
-        '  4. 我最近的目标以及思考 (2025-11-13)',
-        '',
-        '更多文章请访问 /archives/'
-      ]
-    },
-    works: {
-      output: [
-        '🚀 我的作品：',
-        '',
-        '  🌸 Arata66 の Blog    [持续更新]',
-        '  🍜 苍穹外卖          [已完成]',
-        '  🎬 OtakuLog          [持续更新]',
-        '  📚 学习笔记库        [持续更新]',
-        '',
-        '更多请访问 /works/'
-      ],
-      link: '/works/'
-    },
+    blog: { output: [] },
+    works: { output: [] },
     tech: {
       output: [
-        '💻 技术栈：',
+        '💻 正在学习与接触：',
         '',
         '  后端：Java / Spring Boot / MySQL / Redis',
         '  前端：CSS / JavaScript / Hexo',
-        '  工具：Docker / Git / Linux'
+        '  工具：Docker / Git / Linux',
+        '',
+        '边学边用，慢慢把想法做出来。'
       ]
     },
     social: {
       output: [
         '🔗 社交链接：',
         '',
-        '  GitHub: https://github.com/Arata66',
-        '  博客:   https://arata66.top'
+        { text: '  GitHub: Arata66', href: 'https://github.com/Arata66' },
+        { text: '  博客: arata66.top', href: '/' }
       ]
     },
     clear: { clear: true }
@@ -72,33 +52,80 @@
 
   var WELCOME = [
     'Welcome to arata66\'s terminal ~',
-    'Type "help" to see available commands.',
+    '输入 help 查看命令，文章和记录可以直接点击。',
     ''
   ];
 
   var history = [];
   var historyIdx = -1;
 
-  function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  var outputVersion = 0;
+
+  function commandOutput(name) {
+    if (name === 'blog') {
+      var lines = [];
+      lines.push('📝 最近文章：', '');
+      var data = document.getElementById('terminal-home-data');
+      var posts = [];
+      try {
+        var parsed = JSON.parse(data ? data.textContent : '[]');
+        if (Array.isArray(parsed)) posts = parsed;
+      } catch {
+        // 构建数据缺失时仍提供归档入口。
+      }
+      posts.forEach(function (post, index) {
+        if (!post || typeof post.title !== 'string' || typeof post.url !== 'string') return;
+        lines.push({ text: '  ' + (index + 1) + '. ' + post.title + ' (' + post.date + ')', href: post.url });
+      });
+      if (!posts.length) lines.push('文章清单暂未载入，可以到归档看看。');
+      lines.push('', { text: '→ 全部文章', href: '/archives/' });
+      return lines;
+    }
+    if (name === 'works') {
+      var projects = [];
+      projects.push('🌱 折腾记录：', '');
+      (window.WORKS_DATA || []).forEach(function (project) {
+        projects.push('  ' + project.name + ' [' + (project.statusText || '记录中') + ']');
+      });
+      projects.push('', { text: '→ 查看记录与相关介绍', href: '/works/' });
+      return projects;
+    }
+    return COMMANDS[name].output;
+  }
+
+  function scrollOutput(container) {
+    var body = container.querySelector('.th-body');
+    body.scrollTop = body.scrollHeight;
   }
 
   function typeOutput(container, lines, callback) {
     var outputDiv = container.querySelector('.th-output');
     var i = 0;
+    var version = outputVersion;
     function printLine() {
+      // 清屏或离开页面后，旧打印任务不再写入。
+      if (version !== outputVersion || !container.isConnected) return;
       if (i >= lines.length) {
         if (callback) callback();
         return;
       }
       var p = document.createElement('div');
       p.className = 'th-line';
-      if (lines[i] === '') {
-        p.innerHTML = '&nbsp;';
+      var line = lines[i];
+      if (typeof line === 'object') {
+        var link = document.createElement('a');
+        link.textContent = line.text;
+        if (/^\/(?!\/)[^\\\s]*$/.test(line.href) || line.href === 'https://github.com/Arata66') {
+          link.href = line.href;
+          p.appendChild(link);
+        } else {
+          p.textContent = line.text;
+        }
       } else {
-        p.textContent = lines[i];
+        p.textContent = line || '\u00a0';
       }
       outputDiv.appendChild(p);
+      scrollOutput(container);
       i++;
       setTimeout(printLine, 30);
     }
@@ -116,24 +143,23 @@
     var outputDiv = container.querySelector('.th-output');
     var inputLine = document.createElement('div');
     inputLine.className = 'th-line';
-    inputLine.innerHTML = '<span class="th-prompt">❯</span> ' + escapeHtml(cmd);
+    var prompt = document.createElement('span');
+    prompt.className = 'th-prompt';
+    prompt.textContent = '❯';
+    inputLine.append(prompt, document.createTextNode(' ' + cmd));
     outputDiv.appendChild(inputLine);
 
     if (trimmed === 'clear') {
+      outputVersion++;
       outputDiv.innerHTML = '';
       return;
     }
 
-    var cmdData = COMMANDS[trimmed];
+    var cmdData = Object.hasOwn(COMMANDS, trimmed) ? COMMANDS[trimmed] : null;
     if (cmdData) {
-      typeOutput(container, cmdData.output, function () {
+      typeOutput(container, commandOutput(trimmed), function () {
         outputDiv.appendChild(document.createElement('div')).className = 'th-line';
-        if (cmdData.link) {
-          var linkLine = document.createElement('div');
-          linkLine.className = 'th-line th-hint';
-          linkLine.textContent = '→ 输入 "' + trimmed + '" 跳转查看';
-          outputDiv.appendChild(linkLine);
-        }
+        scrollOutput(container);
       });
     } else {
       var errLine = document.createElement('div');
@@ -146,7 +172,7 @@
     }
 
     // 滚动到底部
-    container.scrollTop = container.scrollHeight;
+    scrollOutput(container);
   }
 
   function createTerminal() {
@@ -156,6 +182,10 @@
     var target = document.querySelector('.recent-posts');
     if (!target) return;
     if (target.querySelector('.terminal-home')) return;
+
+    history = [];
+    historyIdx = -1;
+    outputVersion++;
 
     var term = document.createElement('div');
     term.className = 'terminal-home';
@@ -207,13 +237,15 @@
     });
 
     // 点击终端区域聚焦输入
-    term.addEventListener('click', function () { input.focus(); });
+    term.addEventListener('click', function (event) {
+      if (event.target instanceof Element && event.target.closest('a')) return;
+      var selection = window.getSelection();
+      if (selection && !selection.isCollapsed) return;
+      input.focus();
+    });
   }
 
   function init() {
-    // pjax 导航时重置命令历史
-    history = [];
-    historyIdx = -1;
     createTerminal();
   }
 

@@ -82,6 +82,7 @@
   font-family: inherit;
   font-size: inherit;
   flex: 1;
+  min-width: 0;
   caret-color: #6ee7b7;
 }
 
@@ -105,11 +106,22 @@
 @media (max-width: 768px) {
   .terminal-home {
     border-radius: 8px;
-    margin: 0 -1rem 1.5rem;
+    margin: 0 0 1.5rem;
   }
   .th-body {
     font-size: 12px;
     max-height: 300px;
     padding: 12px;
   }
+}
+.terminal-home .th-line a {
+  color: #e5b8de;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.terminal-home a:focus-visible {
+  outline: 2px solid #f4a9c0;
+  outline-offset: 4px;
+  border-radius: 3px;
 }

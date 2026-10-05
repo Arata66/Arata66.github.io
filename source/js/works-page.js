@@ -51,6 +51,15 @@
         '</div>';
     });
     container.innerHTML = html;
+    container.querySelectorAll('.works-card').forEach(function (card, index) {
+      var project = PROJECTS[index];
+      if (!project.link || !/^\/(?!\/)[^\\\s]*$/.test(project.link)) return;
+      var link = document.createElement('a');
+      link.className = 'works-card-link';
+      link.href = project.link;
+      link.textContent = project.linkText || '相关记录';
+      card.appendChild(link);
+    });
   }
 
   function filterCards() {
@@ -79,14 +88,16 @@
 
   function init() {
     var page = document.querySelector('.works-page');
-    if (!page) return;
+    if (!(page instanceof HTMLElement) || page.dataset.worksInitialized) return;
 
     var filtersEl = page.querySelector('.works-filters');
     var gridEl = page.querySelector('.works-grid');
     if (!filtersEl || !gridEl) return;
 
+    activeTag = '全部';
     renderFilters(filtersEl);
     renderCards(gridEl);
+    page.dataset.worksInitialized = 'true';
   }
 
   document.addEventListener('pjax:complete', function () { setTimeout(init, 100); });

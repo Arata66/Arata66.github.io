@@ -1,5 +1,5 @@
 - name: Arata66 の Blog
-  desc: Hexo + Butterfly 二次元风格个人博客，自定义开场动画、音乐播放器、光标特效等
+  desc: 我搭建和维护的二次元小站。喜欢折腾页面，也想慢慢留下学习、看番和日常的记录。
   icon: 🌸
   tags:
     - Hexo
@@ -7,19 +7,11 @@
     - JavaScript
   status: wip
   statusText: 持续更新
-
-- name: 苍穹外卖
-  desc: JavaWeb 课程实战项目，SpringBoot + MyBatis-Plus + Redis，完整餐饮管理系统
-  icon: 🍜
-  tags:
-    - Java
-    - SpringBoot
-    - MySQL
-  status: done
-  statusText: 已完成
+  link: /about/
+  linkText: 关于本站
 
 - name: OtakuLog
-  desc: 基于 Spring Boot 的个人追番管理系统，Bangumi 集成、观看统计、以图搜番、WebDAV 同步
+  desc: 采用 vibe coding 搭建的个人追番工具，用来记录番剧、追踪进度和整理观看习惯。
   icon: 🎬
   tags:
     - Java
@@ -28,12 +20,5 @@
     - Thymeleaf
   status: wip
   statusText: 持续更新
-
-- name: 学习笔记库
-  desc: JavaSE / JavaWeb / 数据库等学习过程中的笔记整理
-  icon: 📚
-  tags:
-    - Java
-    - 学习
-  status: wip
-  statusText: 持续更新
+  link: /2026/06/29/otakulog/
+  linkText: 相关记录
