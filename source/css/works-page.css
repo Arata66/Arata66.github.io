@@ -7,6 +7,27 @@
   padding: 20px;
 }
 
+.works-intro {
+  margin: 0 0 28px;
+  color: #493853;
+  line-height: 1.8;
+}
+
+#article-container .works-card-link {
+  align-self: flex-start;
+  color: var(--accent);
+  font-size: 0.9em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 6px 0;
+}
+
+.works-card-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
 /* 分类过滤标签 */
 .works-filters {
   display: flex;
@@ -16,12 +37,13 @@
   margin-bottom: 32px;
 }
 
-.works-filter-btn {
+.works-page .works-filter-btn {
   padding: 7px 20px;
   border-radius: 22px;
   border: 1px solid var(--border-soft);
-  background: var(--bg-glass);
-  color: var(--text-muted);
+  background: rgba(180, 142, 173, 0.12) !important;
+  color: #d9cfe1 !important;
+  box-shadow: none;
   font-size: 0.88em;
   font-weight: 600;
   cursor: pointer;
@@ -29,10 +51,10 @@
   font-family: 'Noto Sans SC', sans-serif;
 }
 
-.works-filter-btn:hover,
-.works-filter-btn.active {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: #fff;
+.works-page .works-filter-btn:hover,
+.works-page .works-filter-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+  color: #34233f !important;
   border-color: transparent;
   box-shadow: 0 4px 15px rgba(180, 142, 173, 0.3);
   transform: translateY(-1px);
@@ -138,7 +160,7 @@
 
 /* 卡片描述 */
 .works-card-desc {
-  color: var(--text-muted);
+  color: #d9cfe1;
   font-size: 0.88em;
   line-height: 1.6;
   flex: 1;
@@ -205,4 +227,33 @@
   .works-filters {
     gap: 6px;
   }
+}
+
+[data-theme="dark"] .works-intro {
+  color: #e5dbea;
+}
+
+[data-theme="light"] .works-card {
+  background: rgba(248, 243, 252, 0.94);
+  border-color: rgba(142, 101, 151, 0.23);
+}
+
+[data-theme="light"] .works-card-title {
+  background: none;
+  -webkit-text-fill-color: #493853;
+  color: #493853;
+}
+
+[data-theme="light"] .works-card-desc {
+  color: #584561;
+}
+
+[data-theme="light"] .works-page .works-filter-btn {
+  color: #584561 !important;
+}
+
+[data-theme="light"] .works-card-tag,
+[data-theme="light"] .works-card-status.wip,
+[data-theme="light"] #article-container .works-card-link {
+  color: #75426a;
 }

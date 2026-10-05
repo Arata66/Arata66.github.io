@@ -5,6 +5,8 @@ interface WorkProject {
   tags?: string[];
   status?: string;
   statusText?: string;
+  link?: string;
+  linkText?: string;
 }
 
 interface FriendLink {
