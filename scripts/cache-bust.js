@@ -41,7 +41,7 @@ function walk(dir) {
       walk(full);
     } else if (entry.name.endsWith('.html')) {
       const html = fs.readFileSync(full, 'utf8');
-      const updated = addVersionToRefs(asyncNavigationPrefetch(deferLightboxScript(deferIconStyles(html))));
+      const updated = addVersionToRefs(guardTypedDestroy(asyncNavigationPrefetch(deferLightboxScript(deferIconStyles(html)))));
       if (updated !== html) {
         fs.writeFileSync(full, updated, 'utf8');
         console.log(`[cache-bust] ${path.relative(PUBLIC_DIR, full)}`);
@@ -74,4 +74,9 @@ function asyncNavigationPrefetch(html) {
   );
 }
 
-module.exports = { deferIconStyles, deferLightboxScript, asyncNavigationPrefetch };
+function guardTypedDestroy(html) {
+  // 快速切页时打字动画可能尚未加载，销毁动作需要允许实例缺席。
+  return html.replace(/\btyped\.destroy\(\)/g, 'window.typed?.destroy()');
+}
+
+module.exports = { deferIconStyles, deferLightboxScript, asyncNavigationPrefetch, guardTypedDestroy };

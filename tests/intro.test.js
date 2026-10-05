@@ -77,12 +77,18 @@ function setup(t, { reduced = false, ready = 'loading', home = true, nested = fa
   };
 }
 
-test('当正文准备好而外部资源仍在加载时应该在一点五秒内结束首页遮挡', t => {
+test('当正文准备好而外部资源仍在加载时应该保留稍舒缓的首页入场并在一点八秒内结束', t => {
   const { document, domReady, advance } = setup(t);
   domReady();
-  advance(1500);
-  assert.equal(document.getElementById('relume-intro').style.display, 'none');
+  advance(1100);
   assert.equal(document.getElementById('intro-title').textContent, 'Arata66 の Blog');
+  const intro = document.getElementById('relume-intro');
+  assert.equal(intro.classList.contains('fade-out'), false);
+  advance(300);
+  assert.equal(intro.classList.contains('fade-out'), true);
+  assert.notEqual(intro.style.display, 'none');
+  advance(400);
+  assert.equal(intro.style.display, 'none');
 });
 
 test('当正文准备好而音乐天气未完成时应该结束加载遮罩并允许滚动', t => {
@@ -100,14 +106,14 @@ test('当慢样式令 DOM 尚未准备好时应该继续遮挡未完成的页面
   assert.notEqual(document.getElementById('relume-intro').style.display, 'none');
   assert.notEqual(document.getElementById('loading-box').style.display, 'none');
   domReady();
-  advance(1500);
+  advance(1800);
   assert.equal(document.getElementById('relume-intro').style.display, 'none');
   assert.equal(document.getElementById('loading-box').style.display, 'none');
 });
 
 test('当静态脚本在 DOM 已准备好后执行时应该正常退场', t => {
   const { document, advance } = setup(t, { ready: 'interactive' });
-  advance(1500);
+  advance(1800);
   assert.equal(document.getElementById('relume-intro').style.display, 'none');
   assert.equal(document.getElementById('loading-box').style.display, 'none');
 });
@@ -137,7 +143,7 @@ test('当脚本重复初始化时应该保持同一场入场且不重复创建�
 test('当 Pjax 再次进入首页时应该直接显示正文且不重新播放入场', t => {
   const { document, window, domReady, advance, runScripts, timers } = setup(t);
   domReady();
-  advance(1500);
+  advance(1800);
   document.getElementById('relume-intro').outerHTML = introMarkup;
   document.dispatchEvent(new window.Event('pjax:complete'));
   runScripts();
@@ -150,7 +156,7 @@ test('当 Pjax 再次进入首页时应该直接显示正文且不重新播放�
 test('当 Pjax 完成时应该解除主题预加载器设置的滚动锁', t => {
   const { document, window, domReady, advance } = setup(t);
   domReady();
-  advance(1500);
+  advance(1800);
   const box = document.getElementById('loading-box');
   document.body.style.overflow = 'hidden';
   box.classList.remove('loaded');
