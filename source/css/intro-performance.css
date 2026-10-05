@@ -1,7 +1,7 @@
 /* 保留花瓣与标题，正文就绪后尽快让出阅读和操作空间。 */
 #relume-intro {
   height: 100dvh;
-  transition-duration: 0.35s;
+  transition-duration: 0.45s;
   animation: intro-safety-exit 8s step-end forwards;
 }
 

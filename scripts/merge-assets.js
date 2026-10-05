@@ -43,7 +43,8 @@ const JS_FILES = [
 const STANDALONE_JS_FILES = [
   '/js/preloader-sakura.js',
   '/js/relume-intro.js',
-  '/js/lightbox-loader.js'
+  '/js/lightbox-loader.js',
+  '/js/vendor/pjax.min.js'
 ];
 
 function mergeFiles(files, outPath, publicDir = PUBLIC_DIR) {

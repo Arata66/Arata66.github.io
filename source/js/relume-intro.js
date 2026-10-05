@@ -33,7 +33,7 @@
   function typeTitle(index) {
     if (finished || !title) return;
     title.textContent = text.slice(0, index);
-    if (index < text.length) timers.push(setTimeout(() => typeTitle(index + 1), 30));
+    if (index < text.length) timers.push(setTimeout(() => typeTitle(index + 1), 40));
   }
 
   function start() {
@@ -53,7 +53,7 @@
         petal.style.setProperty('--dx', (Math.random() * 300 - 150) + 'px');
         petal.style.setProperty('--dy', (80 + Math.random() * 250) + 'px');
         petal.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
-        petal.style.setProperty('--dur', (1 + Math.random() * 0.4) + 's');
+        petal.style.setProperty('--dur', (1.3 + Math.random() * 0.4) + 's');
         petal.style.setProperty('--delay', '0s');
         const size = 6 + Math.random() * 10;
         petal.style.width = size + 'px';
@@ -65,11 +65,11 @@
     typeTitle(0);
     timers.push(setTimeout(() => {
       if (subtitle) subtitle.classList.add('visible');
-    }, 450));
+    }, 600));
     timers.push(setTimeout(() => {
       intro.classList.add('fade-out');
-      timers.push(setTimeout(finish, 350));
-    }, 900));
+      timers.push(setTimeout(finish, 450));
+    }, 1200));
   }
 
   // defer 与 DOM 就绪确保阻塞样式已经准备好，不等待音乐、天气或图片。

@@ -1139,7 +1139,7 @@ CDN:
     # prismjs_autoloader:
     # prismjs_js:
     # prismjs_lineNumber_js:
-    # pjax:
+    pjax: /js/vendor/pjax.min.js
     # sharejs:
     # sharejs_css:
     # snackbar:
