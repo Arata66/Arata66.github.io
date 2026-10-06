@@ -1,0 +1,131 @@
+#article-container figure.highlight .highlight-tools {
+  height: auto;
+  min-height: 52px;
+  padding: 4px 8px;
+  gap: 2px;
+}
+
+#article-container figure.highlight .highlight-tools button {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent !important;
+  color: #dfcfe9 !important;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background .2s ease, border-color .2s ease;
+}
+
+#article-container figure.highlight .highlight-tools .code-copy {
+  font-family: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+#article-container figure.highlight .code-lang {
+  min-width: 0;
+  padding-right: 0;
+  color: #d4c0e4;
+}
+
+#article-container figure.highlight .highlight-tools button:hover {
+  background: rgba(180, 142, 173, .18) !important;
+  border-color: rgba(244, 169, 192, .35);
+  box-shadow: none;
+  filter: none;
+  transform: none;
+}
+
+#article-container figure.highlight .highlight-tools.closed .expand {
+  transform: rotate(90deg);
+}
+
+#article-container figure.highlight .highlight-tools button:focus-visible,
+#article-container figure.highlight > table:focus-visible,
+#article-container figure.highlight .code-copy-fallback:focus-visible {
+  outline: 2px solid #f4a9c0;
+  outline-offset: -3px;
+}
+
+#article-container figure.highlight .highlight-tools button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+#body-wrap.post #article-container figure.highlight {
+  overflow: hidden;
+}
+
+#body-wrap.post #article-container figure.highlight > table {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+
+#article-container figure.highlight .code-copy-status {
+  padding: 6px 12px;
+  color: #dfcfe9;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+#article-container figure.highlight .code-copy-status:empty,
+#article-container figure.highlight .code-copy-fallback[hidden] {
+  display: none;
+}
+
+#article-container figure.highlight .code-copy-fallback {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  padding: 10px;
+  border: 1px solid rgba(180, 142, 173, .4);
+  border-radius: 6px;
+  background: #1c1327;
+  color: #efe4f5;
+  font: 13px/1.7 monospace;
+  white-space: pre;
+  resize: vertical;
+}
+
+#body-wrap.post #article-container figure.highlight.code-fullpage {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  background: #160f20 !important;
+  animation: none;
+}
+
+#body-wrap.post:has(.code-fullpage) #content-inner,
+#body-wrap.post:has(.code-fullpage) #post {
+  animation: none !important;
+  transform: none !important;
+}
+
+#article-container figure.highlight.code-fullpage .highlight-tools,
+#article-container figure.highlight.code-fullpage .code-copy-status {
+  flex: 0 0 auto;
+}
+
+#article-container figure.highlight.code-fullpage .highlight-tools ~ table {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+
+#article-container figure.highlight.code-fullpage .code-copy-fallback {
+  flex: 0 0 auto;
+  max-height: 30dvh;
+}
+
+@media (max-width: 480px) {
+  #article-container figure.highlight .highlight-tools .macStyle > * {
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+  }
+}

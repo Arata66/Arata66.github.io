@@ -31,6 +31,7 @@ const CSS_FILES = [
   '/css/search-polish.css',
   '/css/article-sharing.css',
   '/css/interaction-polish.css',
+  '/css/code-reading.css',
   '/css/intro-performance.css'
 ];
 
@@ -49,7 +50,8 @@ const JS_FILES = [
   '/js/sakura-petals.js',
   '/js/site-stats.js',
   '/js/subscription.js',
-  '/js/article-sharing.js'
+  '/js/article-sharing.js',
+  '/js/code-reading.js'
 ];
 
 const STANDALONE_JS_FILES = [
