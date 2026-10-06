@@ -13,6 +13,9 @@
 #music-ball:active { cursor: grabbing; }
 
 #music-ball .ball {
+  border: 0;
+  padding: 0;
+  cursor: inherit;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -229,8 +232,8 @@
   color: #d4b5e0;
   font-size: 16px;
   cursor: pointer;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -245,8 +248,8 @@
 
 /* 播放/暂停主按钮 */
 #music-panel .ctrl-btn.play-btn {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   font-size: 18px;
   background: linear-gradient(135deg, #b48ead, #f4a9c0);
   color: #fff;
@@ -364,6 +367,12 @@
 }
 
 #music-panel .pl-item {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: inherit;
   display: flex;
   align-items: center;
   padding: 8px 16px;
@@ -414,6 +423,34 @@
 
 /* ---------- 隐藏原生 APlayer ---------- */
 .aplayer { display: none !important; }
+
+#music-panel .load-feedback {
+  padding: 0 20px;
+}
+#mp-status {
+  margin: 0 0 8px;
+  color: #c8b8d4;
+  font-size: 12px;
+  line-height: 1.6;
+}
+#mp-status:empty { display: none; }
+#mp-retry {
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding: 0 12px;
+  border: 1px solid rgba(244, 169, 192, 0.4);
+  border-radius: 8px;
+  background: rgba(180, 142, 173, 0.12);
+  color: #f0e6f6;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+#mp-retry:hover { background: rgba(180, 142, 173, 0.25); }
+#music-ball button:focus-visible {
+  outline: 2px solid #f4a9c0;
+  outline-offset: -3px;
+}
 
 /* ---------- 移动端隐藏 ---------- */
 @media (max-width: 768px) {
