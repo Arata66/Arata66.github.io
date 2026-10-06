@@ -17,6 +17,7 @@ interface FriendLink {
 }
 
 interface Window {
+  globalFn?: { themeChange?: { giscus?: (mode: string) => void } };
   WORKS_DATA?: WorkProject[];
   __FLINK_DATA?: { class_name?: string; link_list?: FriendLink[] }[];
   __SITE_STATS?: { postCount: number };

@@ -32,6 +32,7 @@ const CSS_FILES = [
   '/css/article-sharing.css',
   '/css/interaction-polish.css',
   '/css/code-reading.css',
+  '/css/comment-feedback.css',
   '/css/intro-performance.css'
 ];
 
@@ -51,7 +52,8 @@ const JS_FILES = [
   '/js/site-stats.js',
   '/js/subscription.js',
   '/js/article-sharing.js',
-  '/js/code-reading.js'
+  '/js/code-reading.js',
+  '/js/comment-feedback.js'
 ];
 
 const STANDALONE_JS_FILES = [
