@@ -43,6 +43,7 @@
   --reading-link: #8c3f69;
   --reading-rule: rgba(125, 81, 143, 0.22);
   --reading-soft: rgba(180, 142, 173, 0.09);
+  --reading-selection: #eed9e6;
   background: rgba(252, 248, 253, 0.97);
   border: 1px solid var(--reading-rule);
   border-radius: 16px;
@@ -55,6 +56,7 @@
   --reading-link: #f4a9c0;
   --reading-rule: rgba(212, 181, 224, 0.2);
   --reading-soft: rgba(180, 142, 173, 0.1);
+  --reading-selection: #654558;
   background: rgba(22, 14, 32, 0.96);
 }
 
@@ -80,6 +82,12 @@ body.read-mode #body-wrap.post #post {
   font-size: 16px;
   line-height: 1.9;
   overflow-wrap: anywhere;
+}
+
+#body-wrap.post #article-container::selection,
+#body-wrap.post #article-container ::selection {
+  color: var(--reading-ink);
+  background: var(--reading-selection);
 }
 
 #body-wrap.post #article-container p,
