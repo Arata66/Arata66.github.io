@@ -370,7 +370,11 @@
   width: 100%;
   min-height: 44px;
   border: 0;
-  background: none;
+  background: none !important;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  filter: none;
   text-align: left;
   font-family: inherit;
   display: flex;
@@ -382,11 +386,11 @@
   gap: 10px;
 }
 #music-panel .pl-item:hover {
-  background: rgba(180, 142, 173, 0.1);
+  background: rgba(180, 142, 173, 0.1) !important;
 }
 
 #music-panel .pl-item.active {
-  background: rgba(244, 169, 192, 0.1);
+  background: rgba(244, 169, 192, 0.1) !important;
 }
 #music-panel .pl-item.active .pl-num {
   color: #f4a9c0;
@@ -398,7 +402,7 @@
 #music-panel .pl-item .pl-num {
   width: 18px;
   font-size: 10px;
-  color: #7a6a88;
+  color: #b6a4c4;
   text-align: center;
   flex-shrink: 0;
 }
@@ -413,7 +417,7 @@
 
 #music-panel .pl-item .pl-singer {
   font-size: 10px;
-  color: #7a6a88;
+  color: #b6a4c4;
   white-space: nowrap;
   max-width: 80px;
   overflow: hidden;
@@ -440,13 +444,13 @@
   padding: 0 12px;
   border: 1px solid rgba(244, 169, 192, 0.4);
   border-radius: 8px;
-  background: rgba(180, 142, 173, 0.12);
-  color: #f0e6f6;
+  background: rgba(180, 142, 173, 0.12) !important;
+  color: #f0e6f6 !important;
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-#mp-retry:hover { background: rgba(180, 142, 173, 0.25); }
+#mp-retry:hover { background: rgba(180, 142, 173, 0.25) !important; }
 #music-ball button:focus-visible {
   outline: 2px solid #f4a9c0;
   outline-offset: -3px;
