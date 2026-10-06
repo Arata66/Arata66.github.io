@@ -5,6 +5,7 @@ const { enhanceHomeHtml } = require('./home-post-sections');
 const { enhanceContentNavigation } = require('./content-navigation');
 const { composeSearchScript } = require('./search-interface');
 const { enhanceArticleSharing } = require('./article-sharing');
+const { enhanceThemePreference } = require('./theme-preference');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -57,6 +58,7 @@ const JS_FILES = [
 ];
 
 const STANDALONE_JS_FILES = [
+  '/js/theme-preference.js',
   '/js/preloader-sakura.js',
   '/js/relume-intro.js',
   '/js/lightbox-loader.js',
@@ -130,7 +132,7 @@ function main() {
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceArticleSharing(enhanceContentNavigation(html)), 'utf8');
+        fs.writeFileSync(fullPath, enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html))), 'utf8');
       }
     }
   }
@@ -138,7 +140,7 @@ function main() {
   console.log('[merge-assets] 完成');
 }
 
-module.exports = { mergeFiles };
+module.exports = { mergeFiles, enhanceThemePreference };
 
 if (require.main === module) {
   main();
