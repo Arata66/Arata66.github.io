@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate && node scripts/merge-assets.js && node scripts/cache-bust.js",
+    "build": "hexo generate && node scripts/merge-assets.js && node scripts/cache-bust.js && node scripts/site-integrity.js",
     "clean": "hexo clean",
     "server": "hexo server",
     "lint": "eslint scripts source/js tests eslint.config.js --max-warnings 0",
