@@ -32,9 +32,14 @@
     var dateEl = document.querySelector('.wc-date');
     if (timeEl) timeEl.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
     if (dateEl) dateEl.textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + WEEK_CN[now.getDay()];
+    // 长时间停留也要撤下过旧数据，无需增加额外天气轮询。
+    if (weatherCache && Date.now() - weatherCache.savedAt >= MAX_STALE_TIME) {
+      weatherCache = null;
+      renderWeatherState();
+    }
   }
 
-  function fetchWeather() {
+  function fetchWeather(force) {
     if (!document.querySelector('.weather-clock-card')) return;
     if (!WEATHER_KEY) {
       var wrap = document.querySelector('.wc-weather-wrap');
@@ -42,42 +47,72 @@
       return;
     }
 
-    if (weatherCache && Date.now() - weatherCache.savedAt < CACHE_TIME) {
-      renderWeather(weatherCache.now);
+    if (force !== true && weatherCache && Date.now() - weatherCache.savedAt < CACHE_TIME) {
+      renderWeatherState();
       return;
     }
     if (weatherRequest) return;
 
     var url = 'https://' + API_HOST + '/v7/weather/now?location=' + encodeURIComponent(CITY) + '&key=' + WEATHER_KEY;
-    weatherRequest = fetch(url)
+    weatherState = 'loading';
+    renderWeatherState();
+    var controller = new AbortController();
+    var timedOut = false;
+    var timeout;
+    var deadline = new Promise(function (resolve, reject) {
+      timeout = setTimeout(function () {
+        timedOut = true;
+        reject(new Error('天气请求超时'));
+        controller.abort();
+      }, 15000);
+    });
+    // 解析也可能停住，超时后迟到结果不再更新天气或缓存。
+    var request = fetch(url, { signal: controller.signal })
       .then(function (r) {
         if (!r.ok) throw new Error('天气请求失败');
         return r.json();
-      })
+      });
+    weatherRequest = Promise.race([request, deadline])
       .then(function (data) {
-        if (data.code !== '200' || !validWeather(data.now)) throw new Error('天气暂不可用');
+        if (!data || data.code !== '200' || !validWeather(data.now)) throw new Error('天气暂不可用');
         weatherCache = { savedAt: Date.now(), now: data.now };
         try { localStorage.setItem('weather-clock-cache', JSON.stringify(weatherCache)); } catch (e) {}
-        renderWeather(data.now);
+        weatherState = 'ready';
+        renderWeatherState();
       })
       .catch(function () {
-        var descEl = document.querySelector('.wc-weather-desc');
-        if (descEl) descEl.textContent = '天气暂不可用';
+        weatherState = 'error';
+        weatherError = timedOut ? '更新超时' : '更新失败';
+        renderWeatherState();
       })
-      .finally(function () { weatherRequest = null; });
+      .finally(function () {
+        clearTimeout(timeout);
+        weatherRequest = null;
+      });
   }
 
   function validWeather(now) {
-    return now && typeof now.temp === 'string' && typeof now.text === 'string';
+    return now && typeof now.temp === 'string' && now.temp.trim() && Number.isFinite(Number(now.temp)) && typeof now.text === 'string' && now.text.trim();
   }
 
-  function renderWeather(now) {
-    var iconEl = document.querySelector('.wc-weather-icon');
-    var tempEl = document.querySelector('.wc-weather-temp');
-    var descEl = document.querySelector('.wc-weather-desc');
-    if (iconEl) iconEl.textContent = WEATHER_ICON[now.icon] || '🌤️';
-    if (tempEl) tempEl.textContent = now.temp + '°C';
-    if (descEl) descEl.textContent = now.text;
+  function renderWeatherState() {
+    if (!managedCard || !managedCard.isConnected) return;
+    var cached = weatherCache && Date.now() - weatherCache.savedAt < MAX_STALE_TIME;
+    var now = cached ? weatherCache.now : null;
+    managedCard.querySelector('.wc-weather-icon').textContent = now ? WEATHER_ICON[now.icon] || '🌤️' : '🌤️';
+    managedCard.querySelector('.wc-weather-temp').textContent = now ? now.temp + '°C' : '--°C';
+    managedCard.querySelector('.wc-weather-desc').textContent = now ? now.text : weatherState === 'error' ? '天气暂不可用' : '等待天气更新…';
+    var message = weatherState === 'loading' ? '天气更新中…' : weatherState === 'error' ? weatherError + '，可以刷新重试。' : '';
+    if (cached) {
+      var updated = new Date(weatherCache.savedAt);
+      var time = (updated.getMonth() + 1) + '月' + updated.getDate() + '日 ' + pad(updated.getHours()) + ':' + pad(updated.getMinutes());
+      var stale = weatherState === 'error' || Date.now() - weatherCache.savedAt >= CACHE_TIME;
+      message += (message ? ' ' : '') + (stale ? '上次更新 ' : '更新于 ') + time;
+    }
+    managedCard.querySelector('.wc-weather-status').textContent = message;
+    // 加载期间保留按钮焦点，共享请求仍阻止重复刷新。
+    managedCard.querySelector('.wc-refresh').setAttribute('aria-disabled', String(weatherState === 'loading'));
+    managedCard.querySelector('.wc-weather-wrap').setAttribute('aria-busy', String(weatherState === 'loading'));
   }
 
   function createCard() {
@@ -92,6 +127,10 @@
       '<div class="wc-date"></div>' +
       '<div class="wc-divider"></div>' +
       '<div class="wc-weather-wrap" data-enabled="' + (WEATHER_KEY ? 'true' : 'false') + '">' +
+        '<div class="wc-weather-heading">' +
+          '<span class="wc-weather-label">杭州天气</span>' +
+          '<button type="button" class="wc-refresh" aria-label="刷新杭州天气">刷新</button>' +
+        '</div>' +
         '<div class="wc-weather">' +
           '<div class="wc-weather-icon">🌤️</div>' +
           '<div class="wc-weather-info">' +
@@ -99,13 +138,18 @@
             '<div class="wc-weather-desc">等待天气更新…</div>' +
           '</div>' +
         '</div>' +
+        '<div class="wc-weather-status" role="status" aria-live="polite"></div>' +
       '</div>';
 
+    card.querySelector('.wc-refresh').addEventListener('click', function () { fetchWeather(true); });
     announcementCard.parentNode.insertBefore(card, announcementCard.nextSibling);
     return card;
   }
 
   var CACHE_TIME = 30 * 60 * 1000;
+  var MAX_STALE_TIME = 24 * 60 * 60 * 1000;
+  var weatherState = 'idle';
+  var weatherError = '';
   var weatherCache = null;
   var weatherRequest = null;
   var clockTimer = null;
@@ -170,7 +214,7 @@
     updateClock();
     clockTimer = setInterval(updateClock, 1000);
     if (!WEATHER_KEY) return;
-    if (weatherCache && Date.now() - weatherCache.savedAt < CACHE_TIME) renderWeather(weatherCache.now);
+    renderWeatherState();
     waitForWeather(managedCard);
   }
 

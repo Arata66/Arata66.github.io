@@ -83,6 +83,52 @@
   color: var(--text-muted);
 }
 
+.wc-weather-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: -8px;
+}
+.wc-weather-label {
+  color: var(--text-muted);
+  font-size: 0.82em;
+}
+.weather-clock-card .wc-refresh {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid rgba(180, 142, 173, 0.3);
+  border-radius: 8px;
+  background: transparent !important;
+  color: var(--text-bright) !important;
+  font: inherit;
+  font-size: 0.82em;
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  cursor: pointer;
+}
+.weather-clock-card .wc-refresh:hover:not([aria-disabled="true"]) {
+  background: rgba(180, 142, 173, 0.16) !important;
+}
+.weather-clock-card .wc-refresh[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: wait;
+}
+.weather-clock-card .wc-refresh:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.wc-weather-status {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 0.75em;
+  line-height: 1.7;
+  text-align: center;
+}
+.wc-weather-status:empty { display: none; }
+
 /* 加载状态 */
 .wc-loading {
   text-align: center;
@@ -102,7 +148,7 @@
 
 /* 移动端仅显示时钟 */
 @media screen and (max-width: 768px) {
-  .wc-weather {
+  .wc-weather-wrap {
     display: none;
   }
 }

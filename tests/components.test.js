@@ -412,3 +412,111 @@ test('当天气请求因网络断开失败时应该保留可阅读的时钟和�
   assert.equal(app.document.querySelector('.wc-weather-wrap').getAttribute('data-enabled'), 'true');
   assert.ok(app.document.querySelector('.wc-date').textContent.includes('星期'));
 });
+
+test('当天气等待超过上限时应该允许刷新且忽略迟到的旧天气', async t => {
+  const finishes = [];
+  let aborted = false;
+  let count = 0;
+  const app = setup(t, weatherScript, { fetch: (url, config) => {
+    if (++count > 1) return Promise.resolve({ ok: true, json: async () => weather });
+    config?.signal?.addEventListener('abort', () => { aborted = true; });
+    return new Promise(resolve => finishes.push(resolve));
+  } });
+  app.approach(); await flush(); app.runTimers(15000); await flush();
+  assert.match(app.document.querySelector('.wc-weather-status')?.textContent || '', /超时/);
+  assert.equal(aborted, true);
+  app.document.querySelector('.weather-clock-card').querySelector('button').click(); await flush();
+  finishes[0]({ ok: true, json: async () => ({ code: '200', now: { ...weather.now, temp: '99' } }) }); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  assert.equal(JSON.parse(app.window.localStorage.getItem('weather-clock-cache')).now.temp, '25');
+});
+
+test('当天气解析一直等待时应该超时且时钟仍正常运行', async t => {
+  const app = setup(t, weatherScript, { fetch: async () => ({ ok: true, json: () => new Promise(() => {}) }) });
+  app.approach(); await flush(); app.runTimers(15000); await flush();
+  assert.match(app.document.querySelector('.wc-weather-status')?.textContent || '', /超时/);
+  assert.equal(app.document.querySelector('.weather-clock-card').querySelector('button')?.getAttribute('aria-disabled'), 'false');
+  assert.ok([...app.timers.values()].some(timer => timer.repeat && timer.delay === 1000));
+});
+
+test('当天气失败后手动刷新时应该恢复且连续操作只发一个请求', async t => {
+  let count = 0;
+  const finishes = [];
+  const app = setup(t, weatherScript, { fetch: () => {
+    if (++count === 1) return Promise.reject(new Error('离线'));
+    return new Promise(resolve => finishes.push(resolve));
+  } });
+  app.approach(); await flush();
+  const refresh = app.document.querySelector('.weather-clock-card').querySelector('button');
+  assert.ok(refresh, '卡片应提供刷新按钮');
+  refresh.focus(); refresh.click(); refresh.click(); await flush();
+  assert.equal(app.requests.length, 2);
+  assert.equal(refresh.getAttribute('aria-disabled'), 'true');
+  assert.equal(app.document.activeElement, refresh);
+  assert.match(app.document.querySelector('.wc-weather-status').textContent, /更新中/);
+  finishes[0]({ ok: true, json: async () => weather }); await flush();
+  assert.equal(refresh.getAttribute('aria-disabled'), 'false');
+  assert.equal(refresh.hidden, false);
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  assert.match(app.document.querySelector('.wc-weather-status').textContent, /更新于/);
+  assert.match(app.document.querySelector('.wc-weather-label').textContent, /杭州/);
+});
+
+test('当半小时内缓存有效时应该免请求且手动刷新可获取新天气', async t => {
+  const app = setup(t, weatherScript, { cache: { savedAt: Date.now(), now: weather.now } });
+  app.approach(); await flush();
+  assert.equal(app.requests.length, 0);
+  const refresh = app.document.querySelector('.weather-clock-card').querySelector('button');
+  assert.ok(refresh); refresh.click(); await flush();
+  assert.equal(app.requests.length, 1);
+  assert.match(app.document.querySelector('.wc-weather-status').textContent, /更新于/);
+});
+
+test('当近期缓存过期且刷新失败时应该保留上次天气并明确标注', async t => {
+  const app = setup(t, weatherScript, { cache: { savedAt: Date.now() - 31 * 60 * 1000, now: weather.now }, fetch: async () => { throw new Error('离线'); } });
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  assert.match(app.document.querySelector('.wc-weather-status').textContent, /上次更新/);
+  app.approach(); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  assert.match(app.document.querySelector('.wc-weather-status').textContent, /失败.*上次更新/);
+});
+
+test('当缓存超过一天时应该不把旧温度当作当前天气', async t => {
+  const app = setup(t, weatherScript, { cache: { savedAt: Date.now() - 25 * 60 * 60 * 1000, now: weather.now }, fetch: async () => { throw new Error('离线'); } });
+  app.approach(); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '--°C');
+  assert.match(app.document.querySelector('.wc-weather-status')?.textContent || '', /失败/);
+});
+
+test('当天气加载期间Pjax更换卡片时应该继续显示同一请求的状态', async t => {
+  const finishes = [];
+  const app = setup(t, weatherScript, { fetch: () => new Promise(resolve => finishes.push(resolve)) });
+  app.approach(); await flush();
+  app.document.querySelector('.weather-clock-card').remove(); app.pjax(); app.runTimers(100);
+  assert.match(app.document.querySelector('.wc-weather-status')?.textContent || '', /更新中/);
+  assert.equal(app.document.querySelector('.weather-clock-card').querySelector('button')?.getAttribute('aria-disabled'), 'true');
+  assert.equal(app.requests.length, 1);
+  finishes[0]({ ok: true, json: async () => weather }); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  assert.equal(app.document.querySelector('.weather-clock-card').querySelector('button').getAttribute('aria-disabled'), 'false');
+});
+
+test('当浏览器拒绝本地存储时应该仍显示天气并可刷新', async t => {
+  const app = setup(t, weatherScript, { storageDenied: true });
+  app.approach(); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  const refresh = app.document.querySelector('.weather-clock-card').querySelector('button');
+  assert.ok(refresh); refresh.click(); await flush();
+  assert.equal(app.requests.length, 2);
+});
+
+test('当页面持续打开且缓存跨过一天时应该及时撤下旧温度', async t => {
+  const savedAt = Date.now() - (24 * 60 - 1) * 60 * 1000;
+  const app = setup(t, weatherScript, { cache: { savedAt, now: weather.now }, fetch: async () => { throw new Error('离线'); } });
+  app.approach(); await flush();
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '25°C');
+  app.window.Date.now = () => savedAt + (24 * 60 + 1) * 60 * 1000;
+  app.runTimers(1000);
+  assert.equal(app.document.querySelector('.wc-weather-temp').textContent, '--°C');
+  assert.doesNotMatch(app.document.querySelector('.wc-weather-status').textContent, /上次更新/);
+});
