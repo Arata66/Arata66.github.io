@@ -67,14 +67,21 @@
 
   document.addEventListener('contextmenu', function (e) {
     if (!(e.target instanceof Element)) return;
-    // 不拦截输入框、链接、代码块的右键
-    if (e.target.closest('input, textarea, a, pre, code')) return;
+    var selection = window.getSelection();
+    // 复制选区、保存媒体和编辑文字需要浏览器原生操作。
+    if ((selection && !selection.isCollapsed) || e.target.closest('input, textarea, select, button, a, pre, code, img, picture, video, audio, canvas, [contenteditable], [role="textbox"]')) {
+      hideMenu();
+      return;
+    }
     e.preventDefault();
     showMenu(e.clientX, e.clientY);
   });
 
   document.addEventListener('click', hideMenu);
   document.addEventListener('scroll', hideMenu, true);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') hideMenu();
+  });
 
   // Pjax 兼容
   document.addEventListener('pjax:complete', function () {
