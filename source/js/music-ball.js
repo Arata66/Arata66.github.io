@@ -2,6 +2,7 @@
 (function () {
   if (document.getElementById("music-ball")) return;
   var API = "https://api.injahow.cn/meting/?type=playlist&id=2690018998";
+  var DEFAULT_COVER = "/img/theme/azusa-sidebar.73c9217b52.webp";
   var songs = [];
   var playlistLoaded = false;
   var playlistRequest = null;
@@ -10,10 +11,17 @@
   audio.preload = "none";
   var playing = false;
   var playbackAttempt = 0;
+  var needsReload = false;
   var panelOpen = false;
 
   // 音量初始化：从 localStorage 读取，默认 0.8
-  var savedVol = parseFloat(localStorage.getItem("music-ball-vol"));
+  function readPreference(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function savePreference(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+  var savedVol = parseFloat(readPreference("music-ball-vol"));
   audio.volume = isNaN(savedVol) ? 0.8 : Math.min(1, Math.max(0, savedVol));
 
   // ---- DOM 构建 ----
@@ -22,10 +30,10 @@
 
   // 悬浮球
   root.innerHTML =
-    '<div class="ball" id="music-ball-btn">' +
+    '<button type="button" class="ball" id="music-ball-btn" aria-label="展开音乐面板" aria-controls="music-panel" aria-expanded="false">' +
       '<div class="cover"><img id="ball-cover" src="/img/theme/azusa-sidebar.73c9217b52.webp" alt="" draggable="false"></div>' +
       '<div class="hole"></div>' +
-    '</div>';
+    '</button>';
 
   // 播放器面板
   var panel = document.createElement("div");
@@ -42,12 +50,16 @@
         '<div class="track-artist" id="mp-artist"></div>' +
       '</div>' +
     '</div>' +
+    '<div class="load-feedback">' +
+      '<p id="mp-status" role="status" aria-live="polite"></p>' +
+      '<button type="button" id="mp-retry" hidden>重新加载歌单</button>' +
+    '</div>' +
     // 控制区域
     '<div class="ctrl-section">' +
       '<div class="btn-row">' +
-        '<button class="ctrl-btn" id="mp-prev" title="上一首">⏮</button>' +
-        '<button class="ctrl-btn play-btn" id="mp-play" title="播放/暂停">▶</button>' +
-        '<button class="ctrl-btn" id="mp-next" title="下一首">⏭</button>' +
+        '<button type="button" class="ctrl-btn" id="mp-prev" title="上一首" aria-label="上一首">⏮</button>' +
+        '<button type="button" class="ctrl-btn play-btn" id="mp-play" title="播放/暂停" aria-label="播放">▶</button>' +
+        '<button type="button" class="ctrl-btn" id="mp-next" title="下一首" aria-label="下一首">⏭</button>' +
       '</div>' +
       // 音量条
       '<div class="volume-area">' +
@@ -71,7 +83,7 @@
   document.body.appendChild(root);
 
   // ---- 恢复位置 ----
-  var saved = localStorage.getItem("music-ball-pos");
+  var saved = readPreference("music-ball-pos");
   if (saved) {
     try {
       var p = JSON.parse(saved);
@@ -82,31 +94,79 @@
   }
 
   // ---- 加载歌单 ----
+  function showStatus(message, retry) {
+    document.getElementById("mp-status").textContent = message;
+    var button = document.getElementById("mp-retry");
+    // 重试入口隐藏时保留键盘操作位置，不干扰已移到其他位置的焦点。
+    if (!retry && document.activeElement === button) document.getElementById("mp-play").focus();
+    button.hidden = !retry;
+  }
+
   function ensurePlaylist() {
     if (playlistLoaded) return Promise.resolve(true);
     if (playlistRequest) return playlistRequest;
-    document.getElementById("mp-title").textContent = "加载中...";
-    // 打开面板与播放操作共享请求，失败后保留再次操作重试的入口。
-    playlistRequest = fetch(API)
+    document.getElementById("mp-title").textContent = "加载歌单…";
+    showStatus("正在加载歌单…", false);
+    panel.setAttribute("aria-busy", "true");
+    var controller = new AbortController();
+    var timedOut = false;
+    var timeout;
+    var deadline = new Promise(function (resolve, reject) {
+      timeout = setTimeout(function () {
+        timedOut = true;
+        reject(new Error("歌单请求超时"));
+        controller.abort();
+      }, 15000);
+    });
+    // 超时也覆盖响应解析；迟到数据只能停留在已结束的请求中。
+    var request = fetch(API, { signal: controller.signal })
       .then(function (r) {
         if (!r.ok) throw new Error("歌单请求失败");
         return r.json();
-      })
+      });
+    playlistRequest = Promise.race([request, deadline])
       .then(function (d) {
-        songs = Array.isArray(d) ? d : d && Array.isArray(d.data) ? d.data : [];
+        var items = Array.isArray(d) ? d : d && Array.isArray(d.data) ? d.data : null;
+        if (!items) throw new Error("歌单格式不可用");
+        songs = items.filter(function (s) {
+          return s && typeof s === "object" && typeof s.url === "string" && safeUrl(s.url);
+        });
+        if (items.length && !songs.length) throw new Error("没有可播放的歌曲");
         playlistLoaded = true;
         renderPlaylist();
         if (songs.length > 0) loadSong(0);
-        else document.getElementById("mp-title").textContent = "暂无歌曲";
+        else {
+          document.getElementById("mp-title").textContent = "暂无歌曲";
+          showStatus("歌单暂时为空，可以稍后重新加载。", true);
+        }
         return true;
       })
       .catch(function () {
-        document.getElementById("mp-title").textContent = "歌单加载失败，点击重试";
+        document.getElementById("mp-title").textContent = "歌单加载失败";
+        showStatus(timedOut ? "歌单加载超时，可以重新试试。" : "暂时无法加载歌单，可以重新试试。", true);
         return false;
       })
-      .finally(function () { playlistRequest = null; });
+      .finally(function () {
+        clearTimeout(timeout);
+        panel.setAttribute("aria-busy", "false");
+        playlistRequest = null;
+      });
     return playlistRequest;
   }
+
+  function safeUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    try {
+      var url = new URL(value, document.baseURI);
+      return /^https?:$/.test(url.protocol) ? value : "";
+    } catch (e) { return ""; }
+  }
+
+  document.getElementById("mp-retry").onclick = function () {
+    if (playlistRequest) return;
+    playlistLoaded = false;
+    ensurePlaylist();
+  };
 
   // ---- 歌曲操作 ----
   function loadSong(i) {
@@ -119,11 +179,17 @@
     titleEl.textContent = s.name || s.title || "未知";
     artistEl.textContent = s.artist || s.author || "";
     audio.src = s.url || "";
+    needsReload = false;
+    showStatus("", false);
+    document.getElementById("mp-progress").style.width = "0%";
+    document.getElementById("mp-cur").textContent = "0:00";
+    document.getElementById("mp-dur").textContent = "0:00";
 
     // 封面图片
-    var cover = s.pic || s.pic_url || "";
-    document.getElementById("mp-cover").setAttribute("src", cover);
-    document.getElementById("ball-cover").setAttribute("src", cover);
+    var cover = safeUrl(s.pic || s.pic_url);
+    if (cover) document.getElementById("mp-cover").setAttribute("src", cover);
+    else document.getElementById("mp-cover").removeAttribute("src");
+    document.getElementById("ball-cover").setAttribute("src", cover || DEFAULT_COVER);
 
     updatePlaylistActive();
   }
@@ -148,7 +214,13 @@
 
   function startPlayback() {
     if (!audio.src) return;
+    // 媒体错误会保留在Audio上，重试须重新加载同一首才能恢复。
+    if (needsReload) {
+      audio.load();
+      needsReload = false;
+    }
     var attempt = ++playbackAttempt;
+    showStatus("", false);
     playing = true;
     syncPlayState();
     audio.play().catch(function () {
@@ -156,11 +228,13 @@
       if (attempt !== playbackAttempt) return;
       playing = false;
       syncPlayState();
+      showStatus("播放失败，可以点击播放重试或换一首。", false);
     });
   }
 
   function syncPlayState() {
     document.getElementById("mp-play").textContent = playing ? "⏸" : "▶";
+    document.getElementById("mp-play").setAttribute("aria-label", playing ? "暂停" : "播放");
     var btn = document.getElementById("music-ball-btn");
     if (playing) btn.classList.add("playing");
     else btn.classList.remove("playing");
@@ -187,22 +261,22 @@
   // ---- 播放列表 ----
   function renderPlaylist() {
     var pl = document.getElementById("mp-playlist");
-    var h = "";
+    pl.replaceChildren();
     songs.forEach(function (s, i) {
-      h +=
-        '<div class="pl-item" data-i="' + i + '">' +
-          '<span class="pl-num">' + (i + 1) + "</span>" +
-          '<span class="pl-title">' + (s.name || s.title || "") + "</span>" +
-          '<span class="pl-singer">' + (s.artist || s.author || "") + "</span>" +
-        "</div>";
-    });
-    pl.innerHTML = h;
-    pl.querySelectorAll(".pl-item").forEach(function (el) {
-      if (!(el instanceof HTMLElement)) return;
+      var el = document.createElement("button");
+      el.type = "button";
+      el.className = "pl-item";
+      [String(i + 1), s.name || s.title || "未知歌曲", s.artist || s.author || ""].forEach(function (value, field) {
+        var span = document.createElement("span");
+        span.className = ["pl-num", "pl-title", "pl-singer"][field];
+        span.textContent = value;
+        el.appendChild(span);
+      });
       el.onclick = function () {
-        loadSong(parseInt(el.dataset.i));
+        loadSong(i);
         startPlayback();
       };
+      pl.appendChild(el);
     });
   }
 
@@ -221,6 +295,18 @@
     document.getElementById("mp-dur").textContent = fmt(audio.duration);
   };
   audio.onended = function () { next(); };
+  audio.onerror = function () {
+    playbackAttempt++;
+    needsReload = true;
+    playing = false;
+    syncPlayState();
+    showStatus("播放失败，可以点击播放重试或换一首。", false);
+  };
+
+  document.getElementById("ball-cover").onerror = function () {
+    if (this.getAttribute("src") !== DEFAULT_COVER) this.setAttribute("src", DEFAULT_COVER);
+  };
+  document.getElementById("mp-cover").onerror = function () { this.removeAttribute("src"); };
 
   function fmt(s) {
     var m = Math.floor(s / 60);
@@ -248,7 +334,7 @@
 
   function setVolume(v) {
     audio.volume = Math.min(1, Math.max(0, v));
-    localStorage.setItem("music-ball-vol", String(audio.volume));
+    savePreference("music-ball-vol", String(audio.volume));
     updateVolumeUI();
   }
 
@@ -295,10 +381,18 @@
 
   // 面板展开/收起（用 wasDragged 标记区分拖拽和点击）
   var wasDragged = false;
+  function closePanel() {
+    panelOpen = false;
+    panel.classList.remove("show");
+    document.getElementById("music-ball-btn").setAttribute("aria-expanded", "false");
+    document.getElementById("music-ball-btn").setAttribute("aria-label", "展开音乐面板");
+  }
   document.getElementById("music-ball-btn").onclick = function () {
     if (wasDragged) return;
     panelOpen = !panelOpen;
     panel.classList.toggle("show", panelOpen);
+    document.getElementById("music-ball-btn").setAttribute("aria-expanded", String(panelOpen));
+    document.getElementById("music-ball-btn").setAttribute("aria-label", panelOpen ? "收起音乐面板" : "展开音乐面板");
     if (panelOpen) ensurePlaylist();
   };
 
@@ -336,7 +430,7 @@
 
   function onDragEnd() {
     if (wasDragged) {
-      localStorage.setItem(
+      savePreference(
         "music-ball-pos",
         JSON.stringify({
           left: parseInt(root.style.left),
@@ -348,6 +442,7 @@
 
   // 鼠标拖动
   root.onmousedown = function (e) {
+    if (!(e.target instanceof Node) || panel.contains(e.target)) return;
     onDragStart(e.clientX, e.clientY);
     document.onmousemove = function (ev) { onDragMove(ev.clientX, ev.clientY); };
     document.onmouseup = function () {
@@ -359,11 +454,13 @@
 
   // 触屏拖动
   root.addEventListener("touchstart", function (e) {
+    if (!(e.target instanceof Node) || panel.contains(e.target)) return;
     var t = e.touches[0];
     onDragStart(t.clientX, t.clientY);
   }, { passive: true });
 
   root.addEventListener("touchmove", function (e) {
+    if (!(e.target instanceof Node) || panel.contains(e.target)) return;
     var t = e.touches[0];
     onDragMove(t.clientX, t.clientY);
   }, { passive: true });
@@ -376,8 +473,15 @@
   document.addEventListener("click", function (e) {
     if (!(e.target instanceof Node)) return;
     if (!wasDragged && panelOpen && !root.contains(e.target)) {
-      panelOpen = false;
-      panel.classList.remove("show");
+      closePanel();
     }
+  });
+  document.getElementById("music-ball-btn").onkeydown = function (e) {
+    if (e.key === "Enter" || e.key === " ") wasDragged = false;
+  };
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !panelOpen || !root.contains(document.activeElement)) return;
+    closePanel();
+    document.getElementById("music-ball-btn").focus();
   });
 })();
