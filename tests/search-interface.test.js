@@ -35,6 +35,14 @@ function setup(t, fetchData = async () => new Response(xml), restoredQuery = '')
   return { window, document, input, trigger, dialog, query, button, flush: () => new Promise(resolve => setImmediate(resolve)), status: () => document.querySelector('#local-search-stats').textContent };
 }
 
+test('当手机隐藏搜索文字时应该仍有明确的入口名称且切页后保持',t=>{
+  const app=setup(t);
+  assert.equal(app.trigger.getAttribute('aria-label'),'搜索文章');
+  app.trigger.innerHTML='<i class="fas fa-search" aria-hidden="true"></i>';
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  assert.equal(app.trigger.getAttribute('aria-label'),'搜索文章');
+});
+
 test('当页面尚未触发整页加载时应该立即可以打开搜索并输入', (t) => {
   const app = setup(t);
   app.trigger.click();

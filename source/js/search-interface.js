@@ -112,6 +112,7 @@
 
     function prepareTriggers() {
       document.querySelectorAll('#search-button > .search').forEach(trigger => {
+        trigger.setAttribute('aria-label', '搜索文章');
         trigger.setAttribute('role', 'button');
         trigger.setAttribute('tabindex', '0');
         trigger.setAttribute('aria-haspopup', 'dialog');

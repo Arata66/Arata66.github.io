@@ -1,13 +1,13 @@
 // 花瓣飘落粒子效果（仅首页）
 (function () {
-  if (!document.getElementById('recent-posts')) return;
-
-  var canvas = document.createElement('canvas');
-  canvas.id = 'sakura-canvas';
-  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
-  document.body.appendChild(canvas);
-
-  var ctx = canvas.getContext('2d');
+  var root = document.documentElement;
+  if (root.dataset.sakuraPetalsInitialized) return;
+  root.dataset.sakuraPetalsInitialized = 'true';
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var canvas = null;
+  var ctx = null;
+  var frame = 0;
+  var navigating = false;
   var W, H;
   var petals = [];
   var maxPetals = 18;
@@ -78,15 +78,46 @@
   }
 
   function loop() {
+    if (!canvas || !ctx) return;
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < petals.length; i++) {
       petals[i].update();
       petals[i].draw();
     }
-    requestAnimationFrame(loop);
+    frame = requestAnimationFrame(loop);
   }
 
-  window.addEventListener('resize', resize);
-  init();
-  loop();
+  function stop() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    canvas?.remove();
+    canvas = null;
+    ctx = null;
+    petals = [];
+  }
+
+  function sync() {
+    if (navigating || reduced.matches || document.hidden || document.body.classList.contains('read-mode') || !document.getElementById('recent-posts')) {
+      stop();
+      return;
+    }
+    if (canvas) return;
+    canvas = document.createElement('canvas');
+    canvas.id = 'sakura-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    ctx = canvas.getContext('2d');
+    if (!ctx) { canvas = null; return; }
+    document.body.appendChild(canvas);
+    init();
+    loop();
+  }
+
+  window.addEventListener('resize', () => { if (canvas) resize(); });
+  reduced.addEventListener('change', sync);
+  document.addEventListener('visibilitychange', sync);
+  document.addEventListener('pjax:send', () => { navigating = true; stop(); });
+  document.addEventListener('pjax:complete', () => { navigating = false; sync(); });
+  // 阅读模式只改变body类名，及时释放它不再展示的装饰帧。
+  new MutationObserver(sync).observe(document.body, {attributes:true,attributeFilter:['class']});
+  sync();
 })();
