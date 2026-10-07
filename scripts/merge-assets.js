@@ -34,6 +34,7 @@ const CSS_FILES = [
   '/css/interaction-polish.css',
   '/css/code-reading.css',
   '/css/comment-feedback.css',
+  '/css/theme-atmosphere.css',
   '/css/intro-performance.css'
 ];
 
