@@ -5,7 +5,7 @@ const test = require('node:test');
 const { JSDOM } = require('jsdom');
 
 const script = fs.readFileSync(path.join(__dirname, '../source/js/mobile-rightside.js'), 'utf8');
-const markup = '<button id="outside">正文入口</button><div id="rightside"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i></i></button><button id="darkmode" title="主题切换"><i></i></button></div><div id="rightside-config-show"><button id="rightside-config">设置</button><button id="mobile-toc-button"><i></i></button><a id="to_comment" href="#comment"><i></i></a><button id="go-up"><i></i></button></div></div>';
+const markup = '<button id="outside">正文入口</button><div id="rightside" class="rightside-show"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i></i></button><button id="darkmode" title="主题切换"><i></i></button></div><div id="rightside-config-show"><button id="rightside-config">设置</button><button id="mobile-toc-button"><i></i></button><a id="to_comment" href="#comment"><i></i></a><button id="go-up"><i></i></button></div></div>';
 
 function setup(t) {
   const dom = new JSDOM(markup, { runScripts: 'outside-only', url: 'https://arata66.top/2026/06/29/Coming/' });
@@ -14,6 +14,7 @@ function setup(t) {
   const media = { matches: true, addEventListener: (name, listener) => changes.push(listener) };
   Object.defineProperty(window, 'matchMedia', { value: () => media });
   window.eval(script);
+  window.eval(fs.readFileSync(path.join(__dirname, '../source/js/reading-mode.js'), 'utf8'));
   t.after(() => window.close());
   const toggle = () => window.document.getElementById('mobile-rightside-toggle');
   return { window, document: window.document, media, changes, toggle };
@@ -51,8 +52,13 @@ test('当使用主题工具后应该收起工具并把焦点放回可见入口',
 test('当进入阅读模式时应该把焦点放到有名称的退出按钮', t => {
   const app = setup(t);
   app.document.getElementById('readmode').addEventListener('click', () => {
+    app.document.body.classList.add('read-mode');
     const exit = app.document.createElement('button');
     exit.className = 'exit-readmode';
+    exit.addEventListener('click', () => {
+      app.document.body.classList.remove('read-mode');
+      exit.remove();
+    });
     app.document.body.appendChild(exit);
   });
   app.toggle().click();

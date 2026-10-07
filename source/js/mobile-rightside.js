@@ -75,16 +75,6 @@
     const control = event.target.closest('#rightside button, #rightside a');
     if (!control) return;
     collapse();
-    if (control.id === 'readmode') {
-      const exit = document.querySelector('.exit-readmode');
-      if (!(exit instanceof HTMLButtonElement)) return;
-      exit.setAttribute('aria-label', '退出阅读模式');
-      exit.focus({ preventScroll: true });
-      exit.addEventListener('click', () => {
-        const currentToggle = document.getElementById('mobile-rightside-toggle');
-        currentToggle?.focus({ preventScroll: true });
-      }, { once: true });
-    }
   });
   document.addEventListener('keydown', event => {
     const rightside = document.getElementById('rightside');
