@@ -1,0 +1,56 @@
+#page-header.post-bg::before {
+  background: rgba(20, 13, 31, 0.64);
+}
+
+#post-info .post-meta-date {
+  display: inline;
+  color: inherit;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+#post-info time {
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 900px) {
+  #body-wrap.post #page-header.post-bg {
+    padding-bottom: 0;
+  }
+
+  #body-wrap.post #page-header #post-info {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    padding: 86px 0 28px;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sakura-canvas,
+  .magic-cursor-outer,
+  .magic-cursor-inner,
+  .cursor-particle {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    /* 主题关闭菜单依赖动画结束事件，保留一次几乎即时的动画。 */
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-reveal,
+  .aside-list-item.scroll-reveal,
+  #footer.scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
