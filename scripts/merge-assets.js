@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { enhanceHomeHtml } = require('./home-post-sections');
-const { enhanceContentNavigation } = require('./content-navigation');
+const { enhanceContentNavigation, readContentCategories } = require('./content-navigation');
 const { composeSearchScript } = require('./search-interface');
 const { enhanceArticleSharing } = require('./article-sharing');
 const { enhanceThemePreference } = require('./theme-preference');
@@ -127,13 +127,15 @@ function main() {
   mergeFiles(JS_FILES, '/js/custom-bundle.js');
   const homePath = path.join(PUBLIC_DIR, 'index.html');
   fs.writeFileSync(homePath, enhanceHomeHtml(fs.readFileSync(homePath, 'utf8')), 'utf8');
+  // 从生成的分类索引读取一次，避免侧栏配置或分页改变浏览入口。
+  const categories = readContentCategories(fs.readFileSync(path.join(PUBLIC_DIR, 'categories/index.html'), 'utf8'));
   function enhancePages(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html))), 'utf8');
+        fs.writeFileSync(fullPath, enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), 'utf8');
       }
     }
   }
