@@ -54,6 +54,7 @@ const JS_FILES = [
   '/js/subscription.js',
   '/js/article-sharing.js',
   '/js/code-reading.js',
+  '/js/reading-mode.js',
   '/js/comment-feedback.js'
 ];
 

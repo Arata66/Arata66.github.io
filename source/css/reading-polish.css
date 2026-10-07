@@ -75,6 +75,40 @@ body.read-mode #body-wrap.post #post {
   box-shadow: none;
 }
 
+body.read-mode .exit-readmode {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  top: 16px;
+  right: 16px;
+  width: auto !important;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  color: #35233e !important;
+}
+
+body.read-mode .reading-exit-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+body.read-mode .exit-readmode:focus-visible {
+  outline: 2px solid #8c3f69;
+  outline-offset: 3px;
+}
+
+[data-theme="dark"] body.read-mode .exit-readmode:focus-visible {
+  outline-color: #efbbdc;
+}
+
+/* 主题会强制显示代码块子元素，保留备用复制框原本的隐藏状态。 */
+body.read-mode #article-container figure.highlight .code-copy-fallback[hidden],
+body.read-mode #article-container figure.highlight .code-copy-status:empty {
+  display: none !important;
+}
+
 #body-wrap.post #article-container {
   max-width: 46rem;
   margin-inline: auto;
@@ -149,6 +183,12 @@ body.read-mode #body-wrap.post #post {
 }
 
 @media screen and (max-width: 900px) {
+  body.read-mode .exit-readmode {
+    top: auto;
+    right: 16px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
   #body-wrap.post #post {
     border-radius: 12px;
   }
