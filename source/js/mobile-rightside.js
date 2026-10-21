@@ -88,3 +88,79 @@
   mediaQuery.addEventListener('change', setup);
   setup();
 })();
+
+(function () {
+  const mediaQuery = window.matchMedia('(max-width: 900px)');
+  let readingPosition = null;
+
+  function syncToc() {
+    const toc = document.getElementById('card-toc');
+    const button = document.getElementById('mobile-toc-button');
+    if (!toc || !button) return;
+    const expanded = toc.classList.contains('open');
+    toc.querySelector('.toc-content')?.toggleAttribute('inert', mediaQuery.matches && !expanded);
+    button.setAttribute('aria-controls', 'card-toc');
+    button.setAttribute('aria-expanded', String(expanded));
+  }
+
+  function returnToReading(toc) {
+    if (readingPosition?.toc === toc) {
+      window.scrollTo({ top: readingPosition.top, behavior: 'instant' });
+    }
+    readingPosition = null;
+    document.getElementById('mobile-rightside-toggle')?.focus({ preventScroll: true });
+  }
+
+  document.addEventListener('click', event => {
+    if (!mediaQuery.matches || !(event.target instanceof Element)) return;
+    const toc = document.getElementById('card-toc');
+    if (!toc) return;
+    if (event.target.closest('#mobile-toc-button')) {
+      syncToc();
+      if (toc.classList.contains('open')) {
+        readingPosition = { toc, top: window.scrollY };
+        // 流式目录在文章后方，主题只展开卡片不会将它带入视野。
+        toc.scrollIntoView({ block: 'start', behavior: 'instant' });
+        const link = toc.querySelector('.toc-link.active') || toc.querySelector('.toc-link');
+        if (link instanceof HTMLElement) {
+          link.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+          link.focus({ preventScroll: true });
+        }
+      } else {
+        returnToReading(toc);
+      }
+      return;
+    }
+    const link = event.target.closest('#card-toc .toc-link');
+    if (!(link instanceof HTMLAnchorElement)) return;
+    toc.classList.remove('open');
+    syncToc();
+    readingPosition = null;
+    const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+    if (heading) {
+      // 按实际渲染位置避开固定导航，焦点也不能留在隐藏目录里。
+      heading.scrollIntoView({ block: 'start', behavior: 'auto' });
+      if (!heading.hasAttribute('tabindex')) heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+    }
+  });
+
+  document.addEventListener('keydown', event => {
+    const toc = document.getElementById('card-toc');
+    if (event.key !== 'Escape' || event.defaultPrevented || !mediaQuery.matches || !toc?.classList.contains('open') || !toc.contains(document.activeElement)) return;
+    event.preventDefault();
+    toc.classList.remove('open');
+    syncToc();
+    returnToReading(toc);
+  });
+
+  function setupToc() {
+    readingPosition = null;
+    syncToc();
+  }
+
+  document.addEventListener('pjax:send', () => { readingPosition = null; });
+  document.addEventListener('pjax:complete', setupToc);
+  mediaQuery.addEventListener('change', setupToc);
+  setupToc();
+})();
