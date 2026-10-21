@@ -12,4 +12,15 @@ function enhanceThemeMotion(source) {
 ${marker}`);
 }
 
-module.exports = { enhanceThemeMotion };
+function enhanceThemeToc(source) {
+  const marker = '    const findHeadPosition = top => {';
+  const ownMarker = '      // 手机查看流式目录时保留阅读章节，避免目录被滚到最后一项。';
+  if (source.includes(ownMarker)) return source;
+  if (source.split(marker).length !== 2) throw new Error('主题目录结构已改变，需重新核对手机目录定位');
+  return source.replace(marker, `${marker}
+${ownMarker}
+      if (isToc && window.matchMedia('(max-width: 900px)').matches && $cardToc.closest('#card-toc').classList.contains('open')) return
+`);
+}
+
+module.exports = { enhanceThemeMotion, enhanceThemeToc };

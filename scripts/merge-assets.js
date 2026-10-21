@@ -6,7 +6,7 @@ const { enhanceContentNavigation, readContentCategories } = require('./content-n
 const { composeSearchScript } = require('./search-interface');
 const { enhanceArticleSharing } = require('./article-sharing');
 const { enhanceThemePreference } = require('./theme-preference');
-const { enhanceThemeMotion } = require('./reading-conditions');
+const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -119,6 +119,8 @@ function generateSiteStats() {
 function main() {
   const utilsPath = path.join(PUBLIC_DIR, 'js/utils.js');
   fs.writeFileSync(utilsPath, enhanceThemeMotion(fs.readFileSync(utilsPath, 'utf8')), 'utf8');
+  const mainPath = path.join(PUBLIC_DIR, 'js/main.js');
+  fs.writeFileSync(mainPath, enhanceThemeToc(fs.readFileSync(mainPath, 'utf8')), 'utf8');
   for (const file of STANDALONE_JS_FILES) {
     if (!fs.existsSync(path.join(PUBLIC_DIR, file))) {
       throw new Error(`[merge-assets] 必需资源不存在: ${file}`);

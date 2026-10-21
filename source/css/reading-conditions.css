@@ -15,6 +15,11 @@
 }
 
 @media screen and (max-width: 900px) {
+  #body-wrap.post #card-toc,
+  #body-wrap.post #article-container :is(h1, h2, h3, h4, h5, h6) {
+    scroll-margin-top: 70px;
+  }
+
   #body-wrap.post #page-header.post-bg {
     padding-bottom: 0;
   }
