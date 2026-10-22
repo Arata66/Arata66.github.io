@@ -182,6 +182,12 @@ body.read-mode #article-container figure.highlight .code-copy-status:empty {
   border-radius: 10px;
 }
 
+@media screen and (max-width: 600px) {
+  .fancybox__container .f-carousel__toolbar__column.is-middle [data-panzoom-action]:not([data-panzoom-action="toggleFull"]) {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 900px) {
   body.read-mode .exit-readmode {
     top: auto;
