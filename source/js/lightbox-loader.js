@@ -6,6 +6,14 @@
   const original = window.btf.loadLightbox;
   let request;
 
+  // 离页直接释放图库，避免遮住新文章或把焦点拉回旧图片。
+  document.addEventListener('pjax:send', () => {
+    for (let viewer = window.Fancybox?.getInstance?.(); viewer; viewer = window.Fancybox?.getInstance?.()) {
+      viewer.getOptions().placeFocusBack = false;
+      viewer.destroy();
+    }
+  });
+
   window.btf.loadLightbox = function (images) {
     if (GLOBAL_CONFIG.lightbox !== 'fancybox') return original(images);
     const current = Array.from(images);

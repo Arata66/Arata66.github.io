@@ -38,5 +38,10 @@ interface Window {
     loadLightbox: (images: Iterable<HTMLImageElement>) => void;
     getScript: (source: string) => Promise<unknown>;
   };
-  Fancybox?: unknown;
+  Fancybox?: {
+    getInstance?: () => {
+      getOptions: () => { placeFocusBack?: boolean };
+      destroy: () => void;
+    } | undefined;
+  };
 }
