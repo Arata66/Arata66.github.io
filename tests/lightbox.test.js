@@ -60,6 +60,39 @@ test('当等待灯箱时已切换页面应该不处理离开的图片', async t 
   assert.equal(app.galleries.length, 0);
 });
 
+test('当图片打开期间切换文章时应该清除图库与滚动锁且不恢复旧图片焦点', t => {
+  const app = setup(t);
+  const { document } = app.window;
+  const opener = document.createElement('a'); opener.href = '/image.webp';
+  document.body.appendChild(opener);
+  const viewer = document.createElement('div'); viewer.className = 'fancybox__container'; viewer.tabIndex = 0;
+  document.body.appendChild(viewer); document.body.classList.add('hide-scrollbar'); viewer.focus();
+  const options = { placeFocusBack: true };
+  let current = {
+    getOptions: () => options,
+    destroy: () => {
+      viewer.remove(); document.body.classList.remove('hide-scrollbar'); current = null;
+      if (options.placeFocusBack) opener.focus();
+    }
+  };
+  app.window.Fancybox = { getInstance: () => current };
+  document.dispatchEvent(new app.window.Event('pjax:send'));
+  assert.equal(document.querySelector('.fancybox__container'), null);
+  assert.equal(document.body.classList.contains('hide-scrollbar'), false);
+  assert.notEqual(document.activeElement, opener);
+  const nextImage = document.createElement('img'); document.body.appendChild(nextImage);
+  app.window.btf.loadLightbox([nextImage]);
+  assert.equal(app.galleries[0][0], nextImage);
+  assert.equal(app.requests.length, 0);
+});
+
+test('当切页前尚未加载图库时应该不为清理而下载脚本', t => {
+  const app = setup(t);
+  app.window.document.dispatchEvent(new app.window.Event('pjax:send'));
+  assert.equal(app.requests.length, 0);
+  assert.equal(app.galleries.length, 0);
+});
+
 test('当构建页面带有外部灯箱脚本时应该转换为可重复处理的按需入口', () => {
   const input = '<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.4/dist/fancybox/fancybox.umd.min.js"></script>';
   assert.equal(typeof deferLightboxScript, 'function');
