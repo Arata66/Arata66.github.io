@@ -59,7 +59,7 @@
   // 先检查内层界面，避免同一次 Escape 连带退出阅读模式。
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || event.defaultPrevented || !document.body.classList.contains('read-mode')) return;
-    if (document.querySelector('.code-fullpage, #custom-context-menu.show') || [...document.querySelectorAll('[role="dialog"]')].some(isVisible)) return;
+    if (document.querySelector('.code-fullpage, #custom-context-menu.show') || [...document.querySelectorAll('[role="dialog"], .fancybox__container')].some(isVisible)) return;
     const exit = document.querySelector('.exit-readmode');
     if (!(exit instanceof HTMLButtonElement)) return;
     event.preventDefault();

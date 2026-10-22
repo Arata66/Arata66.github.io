@@ -98,6 +98,30 @@ test('当搜索对话框显示时应该先关闭搜索而保留阅读模式', t 
   app.escape(); assert.equal(app.document.body.classList.contains('read-mode'), false);
 });
 
+test('当阅读模式中的图片查看器没有对话框角色时应该先关闭图片', t => {
+  const app = setup(t); const exit = app.enter();
+  const viewer = app.document.createElement('div'); viewer.className = 'fancybox__container';
+  viewer.tabIndex = 0; app.document.body.appendChild(viewer); viewer.focus();
+  app.document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !event.defaultPrevented && viewer.isConnected) {
+      viewer.remove(); exit.focus(); event.preventDefault();
+    }
+  });
+  app.escape();
+  assert.equal(viewer.isConnected, false);
+  assert.equal(app.document.body.classList.contains('read-mode'), true);
+  assert.equal(app.document.activeElement, exit);
+  app.escape(); assert.equal(app.document.body.classList.contains('read-mode'), false);
+});
+
+test('当图片查看器残留在隐藏祖先中时应该允许Escape退出阅读', t => {
+  const app = setup(t); app.enter();
+  const wrapper = app.document.createElement('div'); wrapper.hidden = true;
+  const viewer = app.document.createElement('div'); viewer.className = 'fancybox__container';
+  wrapper.appendChild(viewer); app.document.body.appendChild(wrapper);
+  app.escape(); assert.equal(app.document.body.classList.contains('read-mode'), false);
+});
+
 test('当手机阅读中切到桌面且原工具折叠时应该把退出焦点交给可见设置入口', t => {
   const app = setup(t, true); app.enter();
   app.document.getElementById('mobile-rightside-toggle').remove();
