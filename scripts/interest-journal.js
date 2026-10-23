@@ -7,8 +7,14 @@ function readJournal(file) {
   if (!Array.isArray(data)) throw new Error('手账内容必须是列表');
   const ids = new Set();
   return data.map(entry => {
-    for (const key of ['id', 'category', 'title', 'date', 'text', 'sourceTitle', 'sourceUrl']) {
+    for (const key of ['id', 'category', 'title', 'date', 'text', 'origin']) {
       if (typeof entry?.[key] !== 'string' || !entry[key].trim()) throw new Error(`手账缺少有效字段：${key}`);
+    }
+    if (!['original', 'excerpt'].includes(entry.origin)) throw new Error('手账来源类型必须是原创或摘录');
+    if (entry.origin === 'excerpt') {
+      for (const key of ['sourceTitle', 'sourceUrl']) {
+        if (typeof entry[key] !== 'string' || !entry[key].trim()) throw new Error(`旧文摘录缺少有效字段：${key}`);
+      }
     }
     if (!/^[a-z0-9-]+$/.test(entry.id) || ids.has(entry.id)) throw new Error('手账编号无效或重复');
     ids.add(entry.id);
@@ -16,7 +22,7 @@ function readJournal(file) {
     for (const url of [entry.sourceUrl, entry.cover].filter(Boolean)) {
       if (typeof url !== 'string' || !/^\/(?!\/)[a-zA-Z0-9/_%.-]+$/.test(url) || url.includes('..')) throw new Error('手账来源和封面必须是站内路径');
     }
-    return { id: entry.id, category: entry.category, title: entry.title, date: entry.date, text: entry.text, cover: entry.cover || '', sourceTitle: entry.sourceTitle, sourceUrl: entry.sourceUrl };
+    return { id: entry.id, origin: entry.origin, category: entry.category, title: entry.title, date: entry.date, text: entry.text, cover: entry.cover || '', sourceTitle: entry.sourceTitle || '', sourceUrl: entry.sourceUrl || '' };
   });
 }
 
@@ -31,6 +37,7 @@ function enhanceJournal(html, entries) {
     return html;
   }
   const preview = !page;
+  const visibleEntries = entries.slice(0, preview ? 3 : entries.length);
   const root = document.createElement('section');
   root.className = preview ? 'journal journal-preview' : 'journal journal-full';
   root.setAttribute('data-journal', preview ? 'preview' : 'page');
@@ -43,10 +50,10 @@ function enhanceJournal(html, entries) {
   }
   const header = element('header', 'journal-header');
   const headingGroup = element('div', 'journal-heading-group');
-  headingGroup.append(element('p', 'journal-kicker', '听歌 · 追番 · 生活'));
+  headingGroup.append(element('p', 'journal-kicker', [...new Set(visibleEntries.map(entry => entry.category))].join(' · ')));
   const heading = element('h2', 'journal-heading', preview ? '兴趣手账' : '把喜欢的事，记在这里');
   heading.id = 'journal-heading';
-  headingGroup.append(heading, element('p', 'journal-intro', '一些歌，一些折腾，还有生活里的小片段。'));
+  headingGroup.append(heading, element('p', 'journal-intro', '一些喜欢的事，一些折腾，还有生活里的小片段。'));
   header.append(headingGroup);
   if (preview) {
     const link = element('a', 'journal-open', '翻开手账 →');
@@ -54,7 +61,12 @@ function enhanceJournal(html, entries) {
     header.append(link);
   }
   root.append(header);
-  root.append(element('p', 'journal-origin', '旧文摘录 · 日期为原文发表日期'));
+  const hasOriginal = visibleEntries.some(entry => entry.origin === 'original');
+  const hasExcerpt = visibleEntries.some(entry => entry.origin === 'excerpt');
+  const dateNote = hasOriginal && hasExcerpt
+    ? '近况使用记录日期，旧文摘录保留原文日期'
+    : hasOriginal ? '近况短记 · 日期为记录日期' : '旧文摘录 · 日期为原文发表日期';
+  root.append(element('p', 'journal-origin', dateNote));
   if (!preview) {
     const filters = element('div', 'journal-filters');
     filters.setAttribute('data-journal-filters', '');
@@ -74,10 +86,11 @@ function enhanceJournal(html, entries) {
     root.append(filters, status);
   }
   const list = element('div', 'journal-entries');
-  entries.slice(0, preview ? 3 : entries.length).forEach((entry, index) => {
+  visibleEntries.forEach((entry, index) => {
     const article = element('article', 'journal-entry');
     article.id = `journal-${entry.id}`;
     article.setAttribute('data-journal-entry', entry.category);
+    article.setAttribute('data-journal-origin', entry.origin);
     if (index === 0 && entry.cover) {
       article.classList.add('journal-entry-with-cover');
       const image = element('img', 'journal-cover no-lightbox');
@@ -94,9 +107,14 @@ function enhanceJournal(html, entries) {
     time.setAttribute('datetime', entry.date);
     meta.append(element('span', 'journal-category', entry.category), time);
     const title = element('h3', 'journal-entry-title', entry.title);
-    const source = element('a', 'journal-source', `摘自《${entry.sourceTitle}》 ↗`);
-    source.setAttribute('href', entry.sourceUrl);
-    body.append(meta, title, element('p', 'journal-text', entry.text), source);
+    body.append(meta, title, element('p', 'journal-text', entry.text));
+    if (entry.origin === 'excerpt') {
+      const source = element('a', 'journal-source', `摘自《${entry.sourceTitle}》 ↗`);
+      source.setAttribute('href', entry.sourceUrl);
+      body.append(source);
+    } else {
+      body.append(element('p', 'journal-note-label', '近况短记'));
+    }
     article.append(body);
     list.append(article);
   });

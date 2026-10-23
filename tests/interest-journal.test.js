@@ -10,7 +10,7 @@ const page = '<!DOCTYPE html><html><body><div id="journal-page"></div></body></h
 const home = '<!DOCTYPE html><html><body><header id="page-header" class="full_page"></header><div id="recent-posts"><div class="recent-post-items"><article class="recent-post-item"><a href="/archives/">原文章</a></article></div></div></body></html>';
 
 test('当首版采用旧文摘录时应该保留原日期与可访问来源且不冒充当前近况', () => {
-  const entries = readJournal(dataPath);
+  const entries = readJournal(dataPath).filter(entry => entry.origin === 'excerpt');
   const document = new JSDOM(enhanceJournal(page, entries)).window.document;
   assert.equal(document.querySelectorAll('[data-journal-entry]').length, 3);
   assert.deepEqual([...document.querySelectorAll('time')].map(el => el.dateTime), ['2026-06-29', '2026-06-29', '2026-06-29']);
@@ -20,6 +20,22 @@ test('当首版采用旧文摘录时应该保留原日期与可访问来源且�
   assert.ok([...document.querySelectorAll('[data-journal-entry]')].every(el => !el.hasAttribute('hidden')));
 });
 
+test('当原创新近况与旧文摘录混排时应该区分记录日期和来源且无脚本也能阅读', () => {
+  const entries = readJournal(dataPath);
+  const document = new JSDOM(enhanceJournal(page, entries)).window.document;
+  const notes = [...document.querySelectorAll('[data-journal-origin="original"]')];
+  assert.equal(notes.length, 3);
+  assert.equal(document.querySelectorAll('[data-journal-entry]').length, 6);
+  assert.deepEqual(notes.map(el => el.querySelector('time').dateTime), ['2026-10-23', '2026-10-23', '2026-10-23']);
+  assert.ok(notes.every(el => !el.querySelector('.journal-source') && el.textContent.includes('近况短记')));
+  assert.equal(document.querySelectorAll('.journal-source').length, 3);
+  assert.ok([...document.querySelectorAll('[data-journal-entry]')].every(el => !el.hasAttribute('hidden')));
+  assert.match(document.querySelector('.journal-origin').textContent, /近况.*记录日期.*旧文摘录.*原文日期/);
+  assert.match(notes[0].textContent, /我刷到的评价基本都在喷/);
+  assert.match(notes[1].textContent, /太对我胃口辣😋/);
+  assert.match(notes[2].textContent, /10 月 29 日/);
+});
+
 test('当首页加入手账预览时应该保留文章并在重复构建时不重复插入', () => {
   const entries = readJournal(dataPath);
   const enhanced = enhanceJournal(home, entries);
@@ -27,6 +43,9 @@ test('当首页加入手账预览时应该保留文章并在重复构建时不�
   assert.equal(document.querySelectorAll('.journal-preview').length, 1);
   assert.equal(document.querySelectorAll('.recent-post-item').length, 1);
   assert.ok(document.querySelector('.journal-preview a[href="/journal/"]'));
+  assert.deepEqual([...document.querySelectorAll('.journal-entry-title')].map(el => el.textContent), ['没有网上说的那么差', '物语系列，太对胃口辣', '偶尔 OW，等着影之刃零']);
+  assert.equal(document.querySelector('.journal-preview .journal-source'), null);
+  assert.doesNotMatch(document.querySelector('.journal-origin').textContent, /旧文摘录/);
   assert.equal(enhanceJournal(enhanced, entries), enhanced);
   assert.equal(enhanceJournal(enhanceJournal(page, entries), entries), enhanceJournal(page, entries));
   assert.equal(enhanceJournal('<main>普通页面</main>', entries), '<main>普通页面</main>');
@@ -61,7 +80,12 @@ test('当用户筛选与返回手账页时应该正确显示数量并能切回�
   const all = document.querySelector('button[data-journal-filter="all"]');
   assert.ok(all instanceof window.HTMLButtonElement);
   all.click();
-  assert.equal(document.querySelectorAll('[data-journal-entry]:not([hidden])').length, 3);
+  assert.equal(document.querySelectorAll('[data-journal-entry]:not([hidden])').length, 6);
+  const anime = document.querySelector('button[data-journal-filter="追番"]');
+  assert.ok(anime instanceof window.HTMLButtonElement);
+  anime.click();
+  assert.equal(document.querySelectorAll('[data-journal-entry]:not([hidden])').length, 2);
+  assert.match(document.querySelector('[role="status"]').textContent, /追番.*2 条/);
   document.body.innerHTML = new JSDOM(markup).window.document.body.innerHTML;
   document.dispatchEvent(new window.Event('pjax:complete'));
   const life = document.querySelector('button[data-journal-filter="生活"]');
