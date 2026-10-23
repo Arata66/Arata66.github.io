@@ -76,6 +76,35 @@
   opacity: 1;
 }
 
+#local-search .search-scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+#local-search .search-scopes button {
+  min-height: 44px;
+  padding: 6px 16px;
+  border: 1px solid var(--search-line);
+  background: transparent !important;
+  color: var(--search-ink) !important;
+  box-shadow: none;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+#local-search .search-scopes button[aria-pressed="true"] {
+  border-color: var(--search-link);
+  background: var(--search-soft) !important;
+  color: var(--search-link) !important;
+}
+#local-search .search-result-meta {
+  margin: 0 0 6px;
+  color: var(--search-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
 #local-search :is(.search-close-button, .search-clear, .search-retry) {
   flex-shrink: 0;
   min-width: 44px;

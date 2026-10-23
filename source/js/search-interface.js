@@ -18,9 +18,9 @@
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('aria-label', '站内搜索');
-    input.setAttribute('aria-label', '搜索文章标题或正文');
+    input.setAttribute('aria-label', '搜索文章或手账的标题或正文');
     input.setAttribute('aria-describedby', 'local-search-stats');
-    input.placeholder = '搜索标题或正文';
+    input.placeholder = '搜索文章或手账';
     closeButton.setAttribute('aria-label', '关闭搜索');
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
@@ -43,8 +43,24 @@
     const browse = document.createElement('nav');
     browse.className = 'search-browse';
     browse.setAttribute('aria-label', '也可以直接浏览');
-    browse.innerHTML = '<a href="/archives/">全部文章</a><a href="/categories/%E7%94%9F%E6%B4%BB/">生活随笔</a><a href="/categories/%E6%8A%80%E6%9C%AF/">学习与折腾</a>';
+    browse.innerHTML = '<a href="/archives/">全部文章</a><a href="/journal/">兴趣手账</a><a href="/categories/%E6%8A%80%E6%9C%AF/">学习与折腾</a>';
     results.after(browse);
+
+    const scopes = document.createElement('div');
+    scopes.className = 'search-scopes';
+    scopes.setAttribute('role', 'group');
+    scopes.setAttribute('aria-label', '搜索范围');
+    let scope = 'all';
+    for (const [value, label] of [['all', '全部内容'], ['article', '文章'], ['journal', '手账']]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.searchScope = value;
+      button.textContent = label;
+      button.setAttribute('aria-pressed', String(value === scope));
+      button.addEventListener('click', () => { scope = value; render(); });
+      scopes.append(button);
+    }
+    status.before(scopes);
 
     const search = new LocalSearch({ path: config.path, unescape: false, top_n_per_article: config.top_n_per_article ?? 1 });
     let state = 'idle';
@@ -52,6 +68,9 @@
     let opener = null;
     let previousScroll = { html: '', body: '', padding: '' };
     let background = [];
+    let documents = [];
+    const metadata = new Map();
+    const contentKey = url => url.origin + url.pathname + url.hash;
     const escapeText = value => {
       const element = document.createElement('span');
       element.textContent = value;
@@ -62,17 +81,35 @@
       const query = input.value.trim();
       clear.hidden = !input.value;
       retry.hidden = state !== 'error';
+      scopes.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.searchScope === scope)));
       results.setAttribute('aria-busy', String(state === 'loading'));
       results.textContent = '';
-      if (state === 'loading') status.textContent = '正在加载文章，输入的关键词会保留…';
-      else if (state === 'error') status.textContent = '未能加载文章，请重试，也可以先浏览全部文章。';
-      else if (state !== 'ready' || !query) status.textContent = '搜索文章标题或正文，例如 Hexo、音乐、手机。';
+      if (state === 'loading') status.textContent = '正在加载内容，输入的关键词会保留…';
+      else if (state === 'error') status.textContent = '未能加载内容，请重试，也可以先浏览文章或手账。';
+      else if (state !== 'ready' || !query) status.textContent = '搜索文章或手账的标题或正文，例如 Hexo、物语、影之刃零。';
       else {
+        search.datas = documents.filter(item => scope === 'all' || item.kind === scope);
         const items = search.getResultItems(escapeText(query.toLowerCase()).split(/[-\s]+/));
         items.sort((a, b) => b.includedCount - a.includedCount || b.hitCount - a.hitCount || b.id - a.id);
-        status.textContent = items.length ? `找到 ${items.length} 篇文章` : '没有找到相关内容，试试更短的关键词，或从下面的入口逛逛。';
+        status.textContent = '没有找到相关内容，试试更短的关键词，或切换搜索范围。';
         if (items.length) {
           results.innerHTML = `<ol class="search-result-list">${items.map(item => item.item).join('')}</ol>`;
+          let journalCount = 0;
+          results.querySelectorAll('.local-search-hit-item').forEach(item => {
+            const link = item.querySelector('a');
+            const entry = metadata.get(contentKey(new URL(link.href)));
+            const meta = document.createElement('p');
+            meta.className = 'search-result-meta';
+            if (entry?.kind === 'journal') {
+              journalCount++;
+              meta.textContent = ['手账', entry.category, entry.date].filter(Boolean).join(' · ');
+            } else meta.textContent = '文章';
+            link.prepend(meta);
+          });
+          const counts = [];
+          if (items.length > journalCount) counts.push(`${items.length - journalCount} 篇文章`);
+          if (journalCount) counts.push(`${journalCount} 条手账`);
+          status.textContent = `找到 ${counts.join('、')}`;
           window.pjax?.refresh(results);
         }
       }
@@ -86,21 +123,27 @@
       const deadline = setTimeout(() => controller.abort(), 12000);
       try {
         const response = await fetch(config.path, { signal: controller.signal });
-        if (!response.ok) throw new Error('文章请求失败');
+        if (!response.ok) throw new Error('内容请求失败');
         const xml = new DOMParser().parseFromString(await response.text(), 'text/xml');
-        if (xml.querySelector('parsererror') || xml.documentElement.tagName !== 'search') throw new Error('文章数据无效');
-        search.datas = [...xml.querySelectorAll('entry')].flatMap(entry => {
+        if (xml.querySelector('parsererror') || xml.documentElement.tagName !== 'search') throw new Error('搜索数据无效');
+        documents = [...xml.querySelectorAll('entry')].flatMap(entry => {
           const title = entry.querySelector('title')?.textContent?.trim();
           const rawUrl = entry.querySelector('url')?.textContent?.trim();
-          if (!title || !rawUrl) throw new Error('文章字段缺失');
+          if (!title || !rawUrl) throw new Error('搜索字段缺失');
           const url = new URL(rawUrl, location.origin);
           if (!['https:', 'http:'].includes(url.protocol) || url.origin !== location.origin) return [];
-          const contentHtml = document.createElement('template');
-          contentHtml.innerHTML = entry.querySelector('content')?.textContent || '';
-          contentHtml.content.querySelectorAll('script, style').forEach(element => element.remove());
-          const content = contentHtml.content.textContent.trim();
-          return [{ title: escapeText(title), content: escapeText(content), url: url.href }];
+          const kind = entry.querySelector('kind')?.textContent === 'journal' ? 'journal' : 'article';
+          let content = entry.querySelector('content')?.textContent || '';
+          if (kind === 'article') {
+            const contentHtml = document.createElement('template');
+            contentHtml.innerHTML = content;
+            contentHtml.content.querySelectorAll('script, style').forEach(element => element.remove());
+            content = contentHtml.content.textContent.trim();
+          }
+          return [{ title: escapeText(title), content: escapeText(content), url: url.href, kind, category: entry.querySelector('category')?.textContent || '', date: entry.querySelector('date')?.textContent || '' }];
         });
+        metadata.clear();
+        documents.forEach(entry => metadata.set(contentKey(new URL(entry.url)), entry));
         state = 'ready';
       } catch {
         state = 'error';
@@ -112,7 +155,7 @@
 
     function prepareTriggers() {
       document.querySelectorAll('#search-button > .search').forEach(trigger => {
-        trigger.setAttribute('aria-label', '搜索文章');
+        trigger.setAttribute('aria-label', '搜索本站内容');
         trigger.setAttribute('role', 'button');
         trigger.setAttribute('tabindex', '0');
         trigger.setAttribute('aria-haspopup', 'dialog');
@@ -159,6 +202,16 @@
       const trigger = event.target.closest('#search-button > .search');
       if (trigger) { event.preventDefault(); open(trigger); }
       else if (event.target.closest('#local-search .search-close-button') || event.target === mask) close();
+      else {
+        const link = event.target.closest('#local-search-results a');
+        if (link instanceof HTMLAnchorElement && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {
+          close(false);
+          const url = new URL(link.href);
+          if (url.origin === location.origin && url.pathname === location.pathname && url.pathname === '/journal/') {
+            document.dispatchEvent(new CustomEvent('journal:reveal', { detail: url.hash }));
+          }
+        }
+      }
     });
     document.addEventListener('keydown', event => {
       if (event.target instanceof Element && event.target.closest('#search-button > .search') && ['Enter', ' '].includes(event.key)) {

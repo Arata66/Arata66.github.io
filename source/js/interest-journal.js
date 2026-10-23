@@ -1,4 +1,18 @@
 (function () {
+  function revealTarget(hash) {
+    if (typeof hash !== 'string' || !/^#journal-[a-z0-9-]+$/.test(hash)) return;
+    var target = document.getElementById(hash.slice(1));
+    var root = target?.closest('[data-journal="page"]');
+    if (!(target instanceof HTMLElement) || !root) return;
+    root.setAttribute('data-journal-positioned', 'true');
+    if (target.hidden) {
+      var all = root.querySelector('button[data-journal-filter="all"]');
+      if (all instanceof HTMLButtonElement) all.click();
+    }
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: 'start', behavior: 'instant' });
+  }
+
   function init() {
     document.querySelectorAll('[data-journal="page"]').forEach(function (root) {
       if (root.getAttribute('data-journal-ready')) return;
@@ -26,7 +40,21 @@
       root.setAttribute('data-journal-ready', 'true');
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-  document.addEventListener('pjax:complete', init);
+  function start() {
+    init();
+    revealTarget(location.hash);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+  document.addEventListener('pjax:complete', function () {
+    init();
+    var hash = location.hash;
+    if (!/^#journal-[a-z0-9-]+$/.test(hash)) return;
+    // Pjax 随后还会滚动一次，下一帧再保留导航间距并取消平滑滚动。
+    requestAnimationFrame(function () { if (location.hash === hash) revealTarget(hash); });
+  });
+  window.addEventListener('hashchange', function () { revealTarget(location.hash); });
+  document.addEventListener('journal:reveal', function (event) {
+    if (event instanceof CustomEvent) revealTarget(event.detail);
+  });
 })();

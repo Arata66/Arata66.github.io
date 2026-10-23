@@ -1,3 +1,5 @@
+const { JSDOM } = require('jsdom');
+
 function composeSearchScript(themeScript, interfaceScript) {
   const marker = "window.addEventListener('load', () => {";
   const ownMarker = '// 本站搜索界面\n';
@@ -10,4 +12,25 @@ function composeSearchScript(themeScript, interfaceScript) {
   return themeScript.slice(0, boundary) + ownMarker + interfaceScript;
 }
 
-module.exports = { composeSearchScript };
+function enhanceSearchIndex(xml, journal) {
+  const dom = new JSDOM(xml, { contentType: 'text/xml' });
+  const document = dom.window.document;
+  if (document.documentElement.tagName !== 'search') throw new Error('搜索索引格式无效');
+  for (const entry of document.querySelectorAll('entry')) {
+    if (entry.querySelector('kind')?.textContent === 'journal') entry.remove();
+  }
+  for (const note of journal) {
+    const entry = document.createElement('entry');
+    for (const [key, value] of Object.entries({ title: note.title, content: note.text, url: `/journal/#journal-${note.id}`, kind: 'journal', category: note.category, date: note.date })) {
+      const field = document.createElement(key);
+      field.textContent = value;
+      entry.append(field);
+    }
+    document.documentElement.append(entry);
+  }
+  const output = dom.serialize();
+  dom.window.close();
+  return output;
+}
+
+module.exports = { composeSearchScript, enhanceSearchIndex };

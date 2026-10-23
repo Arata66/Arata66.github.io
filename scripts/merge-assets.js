@@ -3,7 +3,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const { enhanceHomeHtml } = require('./home-post-sections');
 const { enhanceContentNavigation, readContentCategories } = require('./content-navigation');
-const { composeSearchScript } = require('./search-interface');
+const { composeSearchScript, enhanceSearchIndex } = require('./search-interface');
 const { enhanceArticleSharing } = require('./article-sharing');
 const { enhanceThemePreference } = require('./theme-preference');
 const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
@@ -141,6 +141,8 @@ function main() {
   // 从生成的分类索引读取一次，避免侧栏配置或分页改变浏览入口。
   const categories = readContentCategories(fs.readFileSync(path.join(PUBLIC_DIR, 'categories/index.html'), 'utf8'));
   const journal = readJournal(path.join(SOURCE_DIR, '_data/journal.yml'));
+  const indexPath = path.join(PUBLIC_DIR, 'search.xml');
+  fs.writeFileSync(indexPath, enhanceSearchIndex(fs.readFileSync(indexPath, 'utf8'), journal), 'utf8');
   function enhancePages(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const fullPath = path.join(directory, entry.name);

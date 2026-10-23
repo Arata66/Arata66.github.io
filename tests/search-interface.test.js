@@ -3,11 +3,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const { JSDOM } = require('jsdom');
-const { composeSearchScript } = require('../scripts/search-interface');
+const { composeSearchScript, enhanceSearchIndex } = require('../scripts/search-interface');
+const { readJournal } = require('../scripts/interest-journal');
 
 const theme = fs.readFileSync(path.join(__dirname, '../node_modules/hexo-theme-butterfly/source/js/search/local-search.js'), 'utf8');
 const controllerPath = path.join(__dirname, '../source/js/search-interface.js');
 const xml = '<search><entry><title>Hexo 样式记录</title><content>博客样式与手机阅读体验</content><url>/2026/10/04/hexo-custom-style-preview/</url></entry><entry><title>听歌报告</title><content>分享生活里的音乐</content><url>/2026/06/29/my-playlist/</url></entry></search>';
+const journal = readJournal(path.join(__dirname, '../source/_data/journal.yml'));
 const markup = '<div id="body-wrap"><div id="search-button"><span class="search" tabindex="0">搜索</span></div><div id="article-container">正文</div></div><div id="rightside"></div><div id="local-search"><div class="search-dialog" style="display:none"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i id="loading-status" hidden></i><button class="search-close-button">×</button></nav><div id="loading-database">数据加载中</div><div class="local-search-input"><input placeholder="搜索文章"></div><hr><div id="local-search-results"></div><div id="local-search-pagination"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask" style="display:none"></div></div>';
 
 function setup(t, fetchData = async () => new Response(xml), restoredQuery = '') {
@@ -37,10 +39,63 @@ function setup(t, fetchData = async () => new Response(xml), restoredQuery = '')
 
 test('当手机隐藏搜索文字时应该仍有明确的入口名称且切页后保持',t=>{
   const app=setup(t);
-  assert.equal(app.trigger.getAttribute('aria-label'),'搜索文章');
+  assert.equal(app.trigger.getAttribute('aria-label'),'搜索本站内容');
   app.trigger.innerHTML='<i class="fas fa-search" aria-hidden="true"></i>';
   app.document.dispatchEvent(new app.window.Event('pjax:complete'));
-  assert.equal(app.trigger.getAttribute('aria-label'),'搜索文章');
+  assert.equal(app.trigger.getAttribute('aria-label'),'搜索本站内容');
+});
+
+test('当手账纳入索引时应该保留文章并为每条短记提供日期分类与可定位链接', () => {
+  const enhanced = enhanceSearchIndex(xml, journal);
+  const document = new JSDOM(enhanced, { contentType: 'text/xml' }).window.document;
+  assert.equal(document.querySelectorAll('entry').length, 8);
+  const entries = [...document.querySelectorAll('entry')].filter(entry => entry.querySelector('kind')?.textContent === 'journal');
+  assert.equal(entries.length, 6);
+  const note = entries.find(entry => entry.querySelector('title').textContent.includes('物语'));
+  assert.equal(note.querySelector('url').textContent, '/journal/#journal-monogatari');
+  assert.equal(note.querySelector('date').textContent, '2026-10-23');
+  assert.equal(note.querySelector('category').textContent, '追番');
+  assert.match(note.querySelector('content').textContent, /太对我胃口辣😋/);
+  assert.equal(enhanceSearchIndex(enhanced, journal), enhanced);
+});
+
+test('当用户搜索文章与手账并切换范围时应该保留关键词且显示正确结果和元信息', async t => {
+  const app = setup(t, async () => new Response(enhanceSearchIndex(xml, journal)));
+  app.trigger.click();
+  await app.flush();
+  app.query('物语');
+  assert.match(app.status(), /1 条手账/);
+  assert.match(app.document.querySelector('.search-result-meta').textContent, /手账.*追番.*2026-10-23/);
+  assert.equal(new URL(app.document.querySelector('#local-search-results a').getAttribute('href')).hash, '#journal-monogatari');
+  app.button('[data-search-scope="article"]').click();
+  assert.equal(app.input.value, '物语');
+  assert.match(app.status(), /没有找到/);
+  assert.equal(app.document.querySelector('#local-search-results a'), null);
+  app.button('[data-search-scope="journal"]').click();
+  assert.match(app.status(), /1 条手账/);
+  assert.equal(app.button('[data-search-scope="journal"]').getAttribute('aria-pressed'), 'true');
+  app.query('Hexo');
+  assert.match(app.status(), /没有找到/);
+  app.button('[data-search-scope="all"]').click();
+  assert.match(app.status(), /1 篇文章/);
+  assert.equal(app.document.querySelector('.search-result-meta').textContent, '文章');
+});
+
+test('当同页点击手账结果时应该关闭弹层并请求显示被筛选隐藏的目标', async t => {
+  const app = setup(t, async () => new Response(enhanceSearchIndex(xml, journal)));
+  app.window.history.replaceState({}, '', '/journal/');
+  let target = '';
+  app.document.addEventListener('journal:reveal', event => { if (event instanceof app.window.CustomEvent) target = event.detail; });
+  app.trigger.click();
+  await app.flush();
+  app.query('影之刃零');
+  const link = app.document.querySelector('#local-search-results a');
+  assert.ok(link instanceof app.window.HTMLAnchorElement);
+  link.addEventListener('click', event => event.preventDefault());
+  link.click();
+  assert.equal(app.dialog.style.display, 'none');
+  assert.equal(app.document.body.style.overflow, '');
+  assert.equal(target, '#journal-waiting-for-phantom-blade-zero');
 });
 
 test('当页面尚未触发整页加载时应该立即可以打开搜索并输入', (t) => {

@@ -91,6 +91,7 @@ function enhanceJournal(html, entries) {
     article.id = `journal-${entry.id}`;
     article.setAttribute('data-journal-entry', entry.category);
     article.setAttribute('data-journal-origin', entry.origin);
+    article.setAttribute('tabindex', '-1');
     if (index === 0 && entry.cover) {
       article.classList.add('journal-entry-with-cover');
       const image = element('img', 'journal-cover no-lightbox');

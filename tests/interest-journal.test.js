@@ -62,7 +62,7 @@ test('当摘录含有特殊字符时应该作为纯文本展示', () => {
 test('当用户筛选与返回手账页时应该正确显示数量并能切回全部', t => {
   const entries = readJournal(dataPath);
   const markup = enhanceJournal(page, entries);
-  const dom = new JSDOM(markup, { runScripts: 'outside-only', url: 'https://arata66.top/journal/' });
+  const dom = new JSDOM(markup, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://arata66.top/journal/' });
   t.after(() => dom.window.close());
   const { window } = dom;
   const script = fs.readFileSync(path.join(__dirname, '../source/js/interest-journal.js'), 'utf8');
@@ -93,4 +93,56 @@ test('当用户筛选与返回手账页时应该正确显示数量并能切回�
   life.click();
   assert.equal(document.querySelectorAll('[data-journal-entry]:not([hidden])').length, 1);
   assert.match(document.querySelector('[data-journal-entry]:not([hidden])').textContent, /几句话/);
+});
+
+test('当从搜索或锚点访问被筛选隐藏的短记时应该恢复可见并定位且普通进入不抢焦点', t => {
+  const markup = enhanceJournal(page, readJournal(dataPath));
+  const dom = new JSDOM(markup, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://arata66.top/journal/' });
+  t.after(() => dom.window.close());
+  const { window } = dom;
+  const positions = [];
+  window.HTMLElement.prototype.scrollIntoView = function () { positions.push(this.id); };
+  window.eval(fs.readFileSync(path.join(__dirname, '../source/js/interest-journal.js'), 'utf8'));
+  window.document.dispatchEvent(new window.Event('DOMContentLoaded'));
+  assert.deepEqual(positions, []);
+  const music = window.document.querySelector('button[data-journal-filter="听歌"]');
+  assert.ok(music instanceof window.HTMLButtonElement);
+  music.click();
+  window.document.dispatchEvent(new window.CustomEvent('journal:reveal', { detail: '#journal-monogatari' }));
+  assert.equal(window.document.querySelector('#journal-monogatari').hasAttribute('hidden'), false);
+  assert.equal(window.document.activeElement.id, 'journal-monogatari');
+  assert.equal(positions.at(-1), 'journal-monogatari');
+  assert.match(window.document.querySelector('[role="status"]').textContent, /全部.*6 条/);
+  window.history.replaceState({}, '', '/journal/#journal-waiting-for-phantom-blade-zero');
+  window.dispatchEvent(new window.HashChangeEvent('hashchange'));
+  assert.equal(window.document.activeElement.id, 'journal-waiting-for-phantom-blade-zero');
+  window.document.dispatchEvent(new window.Event('pjax:complete'));
+  assert.equal(positions.at(-1), 'journal-waiting-for-phantom-blade-zero');
+});
+
+test('当真实 Pjax 完成自己的锚点滚动后应该最终保留手账顶部间距且过期定位不影响新位置', t => {
+  const dom = new JSDOM(enhanceJournal(page, readJournal(dataPath)), { runScripts: 'outside-only', url: 'https://arata66.top/' });
+  t.after(() => dom.window.close());
+  const { window } = dom;
+  const calls = [];
+  const frames = [];
+  window.requestAnimationFrame = callback => { frames.push(callback); return frames.length; };
+  window.scrollTo = (...args) => { calls.push(['Pjax', args[1]]); };
+  window.HTMLElement.prototype.scrollIntoView = function (options) { calls.push([this.id, options.behavior]); };
+  window.eval(fs.readFileSync(path.join(__dirname, '../source/js/interest-journal.js'), 'utf8'));
+  window.document.dispatchEvent(new window.Event('DOMContentLoaded'));
+  const target = window.document.getElementById('journal-monogatari');
+  Object.defineProperty(target, 'offsetParent', { value: window.document.body });
+  Object.defineProperty(target, 'offsetTop', { value: 1777 });
+  window.eval(fs.readFileSync(path.join(__dirname, '../source/js/vendor/pjax.min.js'), 'utf8'));
+  const pjax = new window.Pjax({ elements: 'a', selectors: [], analytics: false, cacheBust: false });
+  pjax.state = { numPendingSwitches: 1, href: 'https://arata66.top/journal/?highlight=物语#journal-monogatari', options: { history: true, title: '手账', analytics: false, scrollTo: 0 } };
+  pjax.onSwitch();
+  while (frames.length) frames.shift()(0);
+  assert.deepEqual(calls.at(-1), ['journal-monogatari', 'instant']);
+  calls.length = 0;
+  window.document.dispatchEvent(new window.Event('pjax:complete'));
+  window.history.replaceState({}, '', '/journal/#journal-sana');
+  while (frames.length) frames.shift()(0);
+  assert.deepEqual(calls, []);
 });
