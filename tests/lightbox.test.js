@@ -28,6 +28,24 @@ function setup(t, fail = false) {
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
+function openViewer(app) {
+  const { document } = app.window;
+  const opener = document.createElement('a'); opener.href = '/image.webp';
+  document.body.appendChild(opener);
+  const viewer = document.createElement('div'); viewer.className = 'fancybox__container'; viewer.tabIndex = 0;
+  document.body.appendChild(viewer); document.body.classList.add('hide-scrollbar'); viewer.focus();
+  const options = { placeFocusBack: true };
+  let current = {
+    getOptions: () => options,
+    destroy: () => {
+      viewer.remove(); document.body.classList.remove('hide-scrollbar'); current = null;
+      if (options.placeFocusBack) opener.focus();
+    }
+  };
+  app.window.Fancybox = { getInstance: () => current };
+  return { document, opener };
+}
+
 test('当页面没有正文图片时应该不请求灯箱脚本', t => {
   const app = setup(t);
   app.window.btf.loadLightbox([]);
@@ -62,20 +80,7 @@ test('当等待灯箱时已切换页面应该不处理离开的图片', async t 
 
 test('当图片打开期间切换文章时应该清除图库与滚动锁且不恢复旧图片焦点', t => {
   const app = setup(t);
-  const { document } = app.window;
-  const opener = document.createElement('a'); opener.href = '/image.webp';
-  document.body.appendChild(opener);
-  const viewer = document.createElement('div'); viewer.className = 'fancybox__container'; viewer.tabIndex = 0;
-  document.body.appendChild(viewer); document.body.classList.add('hide-scrollbar'); viewer.focus();
-  const options = { placeFocusBack: true };
-  let current = {
-    getOptions: () => options,
-    destroy: () => {
-      viewer.remove(); document.body.classList.remove('hide-scrollbar'); current = null;
-      if (options.placeFocusBack) opener.focus();
-    }
-  };
-  app.window.Fancybox = { getInstance: () => current };
+  const { document, opener } = openViewer(app);
   document.dispatchEvent(new app.window.Event('pjax:send'));
   assert.equal(document.querySelector('.fancybox__container'), null);
   assert.equal(document.body.classList.contains('hide-scrollbar'), false);
@@ -84,6 +89,18 @@ test('当图片打开期间切换文章时应该清除图库与滚动锁且不�
   app.window.btf.loadLightbox([nextImage]);
   assert.equal(app.galleries[0][0], nextImage);
   assert.equal(app.requests.length, 0);
+});
+
+test('当等待切页期间又打开旧图片时应该在切页完成后清理且不回焦旧图片', t => {
+  const app = setup(t);
+  app.window.document.dispatchEvent(new app.window.Event('pjax:send'));
+  const { document, opener } = openViewer(app);
+  document.dispatchEvent(new app.window.Event('pjax:complete'));
+  assert.equal(document.querySelector('.fancybox__container'), null);
+  assert.equal(document.body.classList.contains('hide-scrollbar'), false);
+  assert.notEqual(document.activeElement, opener);
+  document.dispatchEvent(new app.window.Event('pjax:complete'));
+  assert.notEqual(document.activeElement, opener);
 });
 
 test('当切页前尚未加载图库时应该不为清理而下载脚本', t => {

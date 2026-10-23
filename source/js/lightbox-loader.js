@@ -7,12 +7,16 @@
   let request;
 
   // 离页直接释放图库，避免遮住新文章或把焦点拉回旧图片。
-  document.addEventListener('pjax:send', () => {
+  function clearGallery() {
     for (let viewer = window.Fancybox?.getInstance?.(); viewer; viewer = window.Fancybox?.getInstance?.()) {
       viewer.getOptions().placeFocusBack = false;
       viewer.destroy();
     }
-  });
+  }
+
+  document.addEventListener('pjax:send', clearGallery);
+  // 页面响应较慢时，等待期间仍可能打开旧图片。
+  document.addEventListener('pjax:complete', clearGallery);
 
   window.btf.loadLightbox = function (images) {
     if (GLOBAL_CONFIG.lightbox !== 'fancybox') return original(images);
