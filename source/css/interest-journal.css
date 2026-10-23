@@ -151,7 +151,10 @@
 .journal-filter:active { transform: translateY(1px); }
 .journal .journal-status { margin: 12px 0 20px; color: var(--scene-muted); font-size: 13px; }
 .journal-full .journal-entries { display: block; }
-.journal-full .journal-entry { border: 0; border-top: 1px solid var(--scene-rule); border-radius: 0; background: none; }
+.journal-full .journal-entry { border: 0; border-top: 1px solid var(--scene-rule); border-radius: 0; background: none; scroll-margin-top: 88px; }
+.journal-full .journal-entry:focus { outline: 2px solid var(--scene-focus); outline-offset: 6px; }
+/* 定位短记时保持正文位置稳定，避免上移入场随后挤掉导航间距。 */
+#content-inner:has(.journal-full[data-journal-positioned]) { animation: none; }
 .journal-full .journal-entry-with-cover { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; }
 .journal-full img.journal-cover { height: 240px; border-radius: 10px; }
 .journal-full .journal-entry-body { padding: 26px 0; }
