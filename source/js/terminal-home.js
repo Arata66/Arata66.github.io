@@ -205,7 +205,9 @@
       '</div>';
 
     // 插入到文章容器最前面
-    target.insertBefore(term, target.firstChild);
+    var journal = target.querySelector('.journal-preview');
+    if (journal) journal.insertAdjacentElement('afterend', term);
+    else target.insertBefore(term, target.firstChild);
 
     const input = term.querySelector('.th-input');
     if (!(input instanceof HTMLInputElement)) return;
