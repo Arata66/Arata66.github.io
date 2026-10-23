@@ -7,6 +7,7 @@ const { composeSearchScript } = require('./search-interface');
 const { enhanceArticleSharing } = require('./article-sharing');
 const { enhanceThemePreference } = require('./theme-preference');
 const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
+const { readJournal, enhanceJournal } = require('./interest-journal');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -37,6 +38,7 @@ const CSS_FILES = [
   '/css/comment-feedback.css',
   '/css/theme-atmosphere.css',
   '/css/reading-conditions.css',
+  '/css/interest-journal.css',
   '/css/intro-performance.css'
 ];
 
@@ -55,6 +57,7 @@ const JS_FILES = [
   '/js/sakura-petals.js',
   '/js/site-stats.js',
   '/js/subscription.js',
+  '/js/interest-journal.js',
   '/js/article-sharing.js',
   '/js/code-reading.js',
   '/js/reading-mode.js',
@@ -137,13 +140,14 @@ function main() {
   fs.writeFileSync(homePath, enhanceHomeHtml(fs.readFileSync(homePath, 'utf8')), 'utf8');
   // 从生成的分类索引读取一次，避免侧栏配置或分页改变浏览入口。
   const categories = readContentCategories(fs.readFileSync(path.join(PUBLIC_DIR, 'categories/index.html'), 'utf8'));
+  const journal = readJournal(path.join(SOURCE_DIR, '_data/journal.yml'));
   function enhancePages(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), 'utf8');
+        fs.writeFileSync(fullPath, enhanceJournal(enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), journal), 'utf8');
       }
     }
   }
