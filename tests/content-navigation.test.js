@@ -14,7 +14,7 @@ test('当访客打开首页时应该看到已有技术生活归档与订阅入�
   const dom = new JSDOM(enhanceContentNavigation(page()));
   const document = dom.window.document;
   assert.deepEqual([...document.querySelectorAll('.home-discovery a')].map(a => a.getAttribute('href')),
-    ['/categories/%E6%8A%80%E6%9C%AF/', '/categories/%E7%94%9F%E6%B4%BB/', '/archives/', '/reading-list/', '/subscribe/']);
+    ['/categories/%E6%8A%80%E6%9C%AF/', '/categories/%E7%94%9F%E6%B4%BB/', '/archives/', '/subscribe/']);
   assert.equal(document.querySelector('.home-discovery').nextElementSibling.textContent, '最新文章');
   assert.equal(document.querySelector('article a').getAttribute('href'), '/note/');
   assert.equal(document.querySelector('script').textContent, 'window.example = "原脚本";');
@@ -25,7 +25,7 @@ test('当访客打开首页时应该看到已有技术生活归档与订阅入�
 test('当访客直接进入文章页时应该只显示页脚入口而不插入首页浏览条', () => {
   const dom = new JSDOM(enhanceContentNavigation(page(false)));
   assert.equal(dom.window.document.querySelector('.home-discovery'), null);
-  assert.deepEqual([...dom.window.document.querySelectorAll('.footer-content-links a')].map(a => a.textContent), ['文章归档', '稍后读', '订阅更新']);
+  assert.deepEqual([...dom.window.document.querySelectorAll('.footer-content-links a')].map(a => a.textContent), ['文章归档', '订阅更新']);
   dom.window.close();
 });
 
@@ -41,16 +41,6 @@ test('当页面重复构建且已存在 Atom 自动发现链接时应该保持�
 });
 
 const categories = [{ name: '技术', href: '/categories/%E6%8A%80%E6%9C%AF/', count: 3 }, { name: '生活', href: '/categories/%E7%94%9F%E6%B4%BB/', count: 3 }];
-
-test('当增量构建复用旧页面时应该补上稍后读入口且重复处理不增加链接', () => {
-  const legacy = enhanceContentNavigation(page()).replaceAll('<a href="/reading-list/">稍后读</a>', '');
-  const updated = enhanceContentNavigation(legacy);
-  const dom = new JSDOM(updated);
-  assert.equal(dom.window.document.querySelectorAll('.home-discovery a[href="/reading-list/"]').length, 1);
-  assert.equal(dom.window.document.querySelectorAll('.footer-content-links a[href="/reading-list/"]').length, 1);
-  assert.equal(enhanceContentNavigation(updated), updated);
-  dom.window.close();
-});
 
 function collection(pathname = '/archives/', id = 'archive', heading = '归档', count = 6) {
   return `<!doctype html><html><head><link rel="canonical" href="https://arata66.top${pathname}"></head><body>
