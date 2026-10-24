@@ -10,6 +10,7 @@ CLAUDE.md
 .claude/
 .codex/
 .private/
+.blog-local.json
 docs/
 source/_drafts/
 
