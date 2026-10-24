@@ -2,10 +2,8 @@
 title: 作品展示
 type: page
 comments: false
+aside: false
+description: 一个记录学习与日常的博客，一个整理观看记录的追番工具。查看 Arata66 の Blog 与 OtakuLog 的功能、相关记录和源码。
 ---
 
-<div class="works-page">
-  <p class="works-intro">这里放着我正在折腾的两个小东西。一个记录日常，一个陪我追番，都在慢慢完善。</p>
-  <div class="works-filters"></div>
-  <div class="works-grid"></div>
-</div>
+<div id="works-showcase"></div>
