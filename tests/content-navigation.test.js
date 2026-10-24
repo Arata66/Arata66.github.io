@@ -36,7 +36,7 @@ test('当页面重复构建且已存在 Atom 自动发现链接时应该保持�
   const dom = new JSDOM(enhanced);
   assert.equal(dom.window.document.querySelectorAll('.home-discovery').length, 1);
   assert.equal(dom.window.document.querySelectorAll('.footer-content-links').length, 1);
-  assert.equal(dom.window.document.querySelectorAll('link[type="application/atom+xml"]').length, 1);
+  assert.deepEqual([...dom.window.document.querySelectorAll('link[type="application/atom+xml"]')].map(link => link.getAttribute('href')), ['/atom.xml', '/updates.xml', '/journal.xml']);
   dom.window.close();
 });
 

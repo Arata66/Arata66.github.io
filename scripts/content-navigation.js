@@ -82,12 +82,13 @@ function enhanceContentNavigation(html, categories = []) {
     footer.prepend(nav);
     changed = true;
   }
-  if (!document.querySelector('link[rel="alternate"][type="application/atom+xml"]')) {
+  for (const [href, title] of [['/atom.xml', '只看文章'], ['/updates.xml', '全部更新'], ['/journal.xml', '兴趣手账']]) {
+    if ([...document.querySelectorAll('link[rel="alternate"][type="application/atom+xml"]')].some(link => new URL(link.getAttribute('href'), 'https://arata66.top').pathname === href)) continue;
     const link = document.createElement('link');
     link.rel = 'alternate';
     link.type = 'application/atom+xml';
-    link.href = '/atom.xml';
-    link.title = 'Arata66 の Blog';
+    link.href = href;
+    link.title = `Arata66 の Blog · ${title}`;
     document.head.appendChild(link);
     changed = true;
   }
