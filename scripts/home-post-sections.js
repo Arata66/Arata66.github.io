@@ -5,7 +5,7 @@ function enhanceHomeHtml(html) {
   const dom = new JSDOM(html);
   const document = dom.window.document;
   const list = document.querySelector('#recent-posts .recent-post-items');
-  if (!document.querySelector('#page-header.full_page') || !list || list.querySelector('.home-post-heading')) {
+  if (!document.querySelector('#page-header.full_page') || !list || list.querySelector('.home-post-heading') || document.querySelector('#content-inner.home-overview')) {
     dom.window.close();
     return html;
   }

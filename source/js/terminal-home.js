@@ -179,8 +179,18 @@
     // 只在首页生效
     if (window.location.pathname !== '/' && window.location.pathname !== '') return;
 
-    var target = document.querySelector('.recent-posts');
+    var slot = document.querySelector('[data-home-terminal-slot]');
+    var target = slot || document.querySelector('.recent-posts');
     if (!target) return;
+    var shell = slot?.closest('details');
+    if (shell instanceof HTMLDetailsElement && !shell.open) {
+      // 折叠时不打印欢迎语，也不提前创建输入框。
+      if (!shell.dataset.terminalToggle) {
+        shell.dataset.terminalToggle = 'ready';
+        shell.addEventListener('toggle', function () { if (shell.open && shell.isConnected) createTerminal(); });
+      }
+      return;
+    }
     if (target.querySelector('.terminal-home')) return;
 
     history = [];
@@ -204,9 +214,10 @@
         '</div>' +
       '</div>';
 
-    // 插入到文章容器最前面
+    // 优先使用首页预留的角落，兼容旧首页的原位置。
     var journal = target.querySelector('.journal-preview');
-    if (journal) journal.insertAdjacentElement('afterend', term);
+    if (slot) target.appendChild(term);
+    else if (journal) journal.insertAdjacentElement('afterend', term);
     else target.insertBefore(term, target.firstChild);
 
     const input = term.querySelector('.th-input');

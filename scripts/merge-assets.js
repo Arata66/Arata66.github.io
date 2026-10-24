@@ -9,6 +9,7 @@ const { enhanceThemePreference } = require('./theme-preference');
 const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
 const { readJournal, enhanceJournal } = require('./interest-journal');
 const { createJournalFeeds } = require('./journal-feed');
+const { enhanceHomeOverview } = require('./home-overview');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -42,6 +43,7 @@ const CSS_FILES = [
   '/css/interest-journal.css',
   '/css/music-room.css',
   '/css/browser-tools.css',
+  '/css/home-overview.css',
   '/css/intro-performance.css'
 ];
 
@@ -163,6 +165,7 @@ function main() {
     }
   }
   enhancePages(PUBLIC_DIR);
+  fs.writeFileSync(homePath, enhanceHomeOverview(fs.readFileSync(homePath, 'utf8')), 'utf8');
   console.log('[merge-assets] 完成');
 }
 

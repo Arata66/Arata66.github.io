@@ -6,8 +6,8 @@ const { JSDOM } = require('jsdom');
 
 const script = fs.readFileSync(path.join(__dirname, '../source/js/terminal-home.js'), 'utf8');
 
-function setup(t, data = '[]') {
-  const dom = new JSDOM('<button id="other">其他入口</button><div class="recent-posts"></div>' +
+function setup(t, data = '[]', corner = '') {
+  const dom = new JSDOM('<button id="other">其他入口</button>' + corner + '<div class="recent-posts"></div>' +
     '<script id="terminal-home-data" type="application/json">' + data + '</script>', {
     url: 'https://example.test/', runScripts: 'outside-only'
   });
@@ -158,4 +158,41 @@ test('当 Pjax 返回新首页时应该重新读取文章数据并停止旧页�
   command(app, 'blog');
   app.flush();
   assert.ok(app.document.querySelector('.th-output a[href="/returned/"]'));
+});
+
+test('当首页终端角落关闭时应该等待读者展开才创建输入并保持原焦点', t => {
+  const app = setup(t, '[]', '<details class="home-terminal-shell"><summary>终端小角落</summary><div data-home-terminal-slot></div></details>');
+  app.flush();
+  assert.equal(app.document.querySelector('.th-input'), null);
+  const details = app.document.querySelector('details');
+  assert.ok(details instanceof app.window.HTMLDetailsElement);
+  details.open = true;
+  details.dispatchEvent(new app.window.Event('toggle'));
+  app.flush();
+  assert.ok(details.querySelector('.th-input'));
+  assert.equal(app.document.activeElement.id, 'other');
+  assert.equal(app.document.querySelector('.recent-posts .terminal-home'), null);
+});
+
+test('当读者反复展开终端角落时应该保留命令历史且不重复创建', t => {
+  const app = setup(t, '[]', '<details class="home-terminal-shell"><summary>终端小角落</summary><div data-home-terminal-slot></div></details>');
+  app.flush();
+  const details = app.document.querySelector('details');
+  assert.ok(details instanceof app.window.HTMLDetailsElement);
+  details.open = true;
+  details.dispatchEvent(new app.window.Event('toggle'));
+  app.flush();
+  command(app, 'about');
+  app.flush();
+  details.open = false;
+  details.dispatchEvent(new app.window.Event('toggle'));
+  details.open = true;
+  details.dispatchEvent(new app.window.Event('toggle'));
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  app.flush();
+  assert.equal(app.document.querySelectorAll('.terminal-home').length, 1);
+  const input = app.document.querySelector('.th-input');
+  assert.ok(input instanceof app.window.HTMLInputElement);
+  input.dispatchEvent(new app.window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+  assert.equal(input.value, 'about');
 });
