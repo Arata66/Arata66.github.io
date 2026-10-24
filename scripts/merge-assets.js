@@ -40,6 +40,7 @@ const CSS_FILES = [
   '/css/theme-atmosphere.css',
   '/css/reading-conditions.css',
   '/css/interest-journal.css',
+  '/css/music-room.css',
   '/css/intro-performance.css'
 ];
 
@@ -47,6 +48,7 @@ const JS_FILES = [
   '/js/mobile-performance.js',
   '/js/mobile-rightside.js',
   '/js/music-ball.js',
+  '/js/music-room.js',
   '/js/custom-menu.js',
   '/js/float-decor.js',
   '/js/weather-clock.js',

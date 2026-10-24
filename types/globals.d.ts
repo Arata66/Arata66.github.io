@@ -17,6 +17,12 @@ interface FriendLink {
 }
 
 interface Window {
+  BLOG_MUSIC?: {
+    getPlaylist: () => Promise<{ index: number; title: string; artist: string }[]>;
+    getState: () => { index: number; title: string; artist: string; playing: boolean; loaded: boolean; loading: boolean; message: string };
+    play: (index: number) => void;
+    toggle: () => void;
+  };
   globalFn?: { themeChange?: { giscus?: (mode: string) => void } };
   WORKS_DATA?: WorkProject[];
   __FLINK_DATA?: { class_name?: string; link_list?: FriendLink[] }[];
