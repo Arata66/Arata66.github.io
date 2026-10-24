@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "blog": "node scripts/blog-workflow.js",
     "build": "hexo generate && node scripts/merge-assets.js && node scripts/cache-bust.js && node scripts/site-integrity.js",
     "clean": "hexo clean",
     "server": "hexo server",
