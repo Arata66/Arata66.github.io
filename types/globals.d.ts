@@ -17,6 +17,13 @@ interface FriendLink {
 }
 
 interface Window {
+  BLOG_TOOLS?: {
+    formatJSON: (source: string, indent?: number) => string;
+    parseTimestamp: (source: string, unit: string) => number;
+    formatDate: (milliseconds: number, offset: number) => string;
+    dateToTimestamp: (source: string, offset: number) => number;
+    formatSeconds: (milliseconds: number) => string;
+  };
   BLOG_MUSIC?: {
     getPlaylist: () => Promise<{ index: number; title: string; artist: string }[]>;
     getState: () => { index: number; title: string; artist: string; playing: boolean; loaded: boolean; loading: boolean; message: string };
