@@ -1,4 +1,6 @@
-- name: Arata66 の Blog
+- id: blog
+  name: Arata66 の Blog
+  kind: 个人博客
   desc: 记录学习、兴趣和日常的二次元小站。页面还在慢慢完善，也想在这里留下更多自己的记录。
   icon: 🌸
   tags:
@@ -7,10 +9,26 @@
     - JavaScript
   status: wip
   statusText: 持续更新
-  link: /about/
-  linkText: 关于本站
+  cover: /img/works/blog-home-20261024.jpg
+  coverCaption: 本站首页 · 2026.10.24 实际页面
+  features:
+    - title: 文章与手账
+      text: 长一点的学习记录，短一点的追番和游戏近况，按各自的节奏留下来。
+    - title: 音乐与工具
+      text: 翻阅听歌报告里的歌单，也可以使用 JSON 处理与时间转换工具。
+    - title: 阅读与查找
+      text: 按分类、标签或关键词查找文章和手账，用目录继续阅读。
+  link: /
+  linkText: 访问博客
+  links:
+    - text: 关于本站
+      href: /about/
+    - text: 查看源码
+      href: https://github.com/Arata66/Arata66.github.io
 
-- name: OtakuLog
+- id: otakulog
+  name: OtakuLog
+  kind: 个人追番工具
   desc: 采用 vibe coding 搭建的个人追番工具，用来记录番剧、追踪进度和整理观看习惯。
   icon: 🎬
   tags:
@@ -20,5 +38,17 @@
     - Thymeleaf
   status: wip
   statusText: 持续更新
+  cover: /img/covers/31731b9436b7d649cf2d8b7c04c8142a.be87962543.webp
+  coverCaption: 《我做了一个追番管理工具》文章封面
+  features:
+    - title: 追番进度
+      text: 添加番剧、记录集数、评分和备注，也能从 Bangumi 导入收藏。
+    - title: 多种视图
+      text: 在表格、卡片和封面画廊之间切换，按自己的顺序整理番剧。
+    - title: 观看记录
+      text: 用观看热力图回看记录，生成追番分享卡，备份到 WebDAV。
   link: /2026/06/29/otakulog/
-  linkText: 相关记录
+  linkText: 阅读项目记录
+  links:
+    - text: 查看源码
+      href: https://github.com/Arata66/OtakuLog

@@ -10,6 +10,7 @@ const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
 const { readJournal, enhanceJournal } = require('./interest-journal');
 const { createJournalFeeds } = require('./journal-feed');
 const { enhanceHomeOverview } = require('./home-overview');
+const { readWorks, enhanceWorks } = require('./works-showcase');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -57,7 +58,6 @@ const JS_FILES = [
   '/js/custom-menu.js',
   '/js/float-decor.js',
   '/js/weather-clock.js',
-  '/js/works-page.js',
   '/js/error-decor.js',
   '/js/terminal-home.js',
   '/js/visitor-egg.js',
@@ -165,6 +165,8 @@ function main() {
     }
   }
   enhancePages(PUBLIC_DIR);
+  const worksPath = path.join(PUBLIC_DIR, 'works/index.html');
+  fs.writeFileSync(worksPath, enhanceWorks(fs.readFileSync(worksPath, 'utf8'), readWorks(path.join(SOURCE_DIR, '_data/works.yml'))), 'utf8');
   fs.writeFileSync(homePath, enhanceHomeOverview(fs.readFileSync(homePath, 'utf8')), 'utf8');
   console.log('[merge-assets] 完成');
 }
