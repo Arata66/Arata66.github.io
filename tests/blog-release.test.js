@@ -14,7 +14,8 @@ function fixture(t) {
     fs.rmSync(root, { recursive: true, force: true });
   });
   git(root, ['init', '-b', 'main']);
-  fs.writeFileSync(path.join(root, '.gitignore'), 'public/\n.private/\nsource/_drafts/\n');
+  // Git在Linux把符号链接当作文件，夹具须同时忽略目录和同名链接。
+  fs.writeFileSync(path.join(root, '.gitignore'), '/public\n/.private\nsource/_drafts/\n');
   fs.writeFileSync(path.join(root, 'post.md'), '已批准内容');
   git(root, ['add', '.']);
   git(root, ['-c', 'user.name=测试', '-c', 'user.email=test@example.invalid', 'commit', '-m', 'test: 建立本地测试基线']);
@@ -68,6 +69,7 @@ test('当产物目录是链接或发布缓存落进public时应该在清理前�
   fs.unlinkSync(path.join(root, 'public/index.html'));
   fs.rmdirSync(path.join(root, 'public'));
   fs.symlinkSync(outside, path.join(root, 'public'), process.platform === 'win32' ? 'junction' : 'dir');
+  assert.equal(git(root, ['status', '--porcelain']), '');
   assert.throws(() => prepareRelease(root, path.join(root, '.private'), task => calls.push(task)), /链接/);
   assert.deepEqual(calls, []);
 });
@@ -75,6 +77,7 @@ test('当产物目录是链接或发布缓存落进public时应该在清理前�
 test('当缓存的祖先链接指向public时应该在构建前拒绝递归打包', (t) => {
   const root = fixture(t);
   fs.symlinkSync(path.join(root, 'public'), path.join(root, '.private'), process.platform === 'win32' ? 'junction' : 'dir');
+  assert.equal(git(root, ['status', '--porcelain']), '');
   const calls = [];
   assert.throws(() => prepareRelease(root, path.join(root, '.private/writing'), task => { calls.push(task); throw new Error('不应进入检查'); }), /链接/);
   assert.deepEqual(calls, []);
