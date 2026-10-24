@@ -16,10 +16,6 @@
 ## 随便逛逛
 
 - [文章归档](https://arata66.top/archives/)
-- [稍后读](https://arata66.top/reading-list/)
-- [兴趣手账](https://arata66.top/journal/)
-- [音乐馆](https://arata66.top/music/)
-- [随手工具](https://arata66.top/tools/)
 - [我的作品](https://arata66.top/works/)
 - [关于我](https://arata66.top/about/)
 - [友情链接](https://arata66.top/link/)
