@@ -100,6 +100,7 @@
     // 重试入口隐藏时保留键盘操作位置，不干扰已移到其他位置的焦点。
     if (!retry && document.activeElement === button) document.getElementById("mp-play").focus();
     button.hidden = !retry;
+    notifyState();
   }
 
   function ensurePlaylist() {
@@ -192,6 +193,7 @@
     document.getElementById("ball-cover").setAttribute("src", cover || DEFAULT_COVER);
 
     updatePlaylistActive();
+    notifyState();
   }
 
   function togglePlay() {
@@ -238,6 +240,7 @@
     var btn = document.getElementById("music-ball-btn");
     if (playing) btn.classList.add("playing");
     else btn.classList.remove("playing");
+    notifyState();
   }
 
   function prev() {
@@ -484,4 +487,40 @@
     closePanel();
     document.getElementById("music-ball-btn").focus();
   });
+  function getState() {
+    var song = songs[curIdx];
+    return {
+      index: song ? curIdx : -1,
+      title: song ? String(song.name || song.title || "未知歌曲") : "还没有选择歌曲",
+      artist: song ? String(song.artist || song.author || "") : "",
+      playing: playing,
+      loaded: playlistLoaded,
+      loading: !!playlistRequest,
+      message: document.getElementById("mp-status").textContent
+    };
+  }
+
+  function notifyState() {
+    document.dispatchEvent(new Event("blog:music-change"));
+  }
+
+  // 音乐馆复用全站音频和请求，切页后无需建立第二个播放器。
+  window.BLOG_MUSIC = {
+    getState: getState,
+    getPlaylist: function () {
+      if (playlistLoaded && !songs.length) playlistLoaded = false;
+      return ensurePlaylist().then(function (ready) {
+        if (!ready) throw new Error("暂时无法加载在线歌单");
+        return songs.map(function (song, index) {
+          return { index: index, title: String(song.name || song.title || "未知歌曲"), artist: String(song.artist || song.author || "") };
+        });
+      });
+    },
+    play: function (index) {
+      if (!Number.isInteger(index) || !songs[index]) return;
+      loadSong(index);
+      startPlayback();
+    },
+    toggle: togglePlay
+  };
 })();

@@ -20,6 +20,7 @@ nav:
 menu:
   首页: / || fa-solid fa-house
   手账: /journal/ || fa-solid fa-book-open
+  音乐馆: /music/ || fa-solid fa-music
   分类: /categories/ || fa-solid fa-folder-open
   标签: /tags/ || fa-solid fa-tags
   归档: /archives/ || fa-solid fa-box-archive
