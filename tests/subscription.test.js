@@ -7,8 +7,8 @@ const { JSDOM } = require('jsdom');
 const script = fs.readFileSync(path.join(__dirname, '../source/js/subscription.js'), 'utf8');
 const markup = '<section class="subscription-page"><input class="subscription-url" aria-label="订阅地址" readonly value="https://arata66.top/atom.xml"><button class="subscription-copy" hidden>复制订阅地址</button><p class="subscription-feedback" role="status">也可以选中地址手动复制。</p></section>';
 
-function setup(t, writeText) {
-  const dom = new JSDOM(markup, { url: 'https://arata66.top/subscribe/', runScripts: 'outside-only' });
+function setup(t, writeText, html = markup) {
+  const dom = new JSDOM(html, { url: 'https://arata66.top/subscribe/', runScripts: 'outside-only' });
   const { window } = dom;
   Object.defineProperty(window.navigator, 'clipboard', { value: writeText ? { writeText } : undefined });
   window.eval(script);
@@ -28,6 +28,24 @@ test('当用户复制订阅地址成功时应该反馈成功并保持可以再�
   assert.deepEqual(copied, ['https://arata66.top/atom.xml']);
   assert.ok(app.document.querySelector('[role="status"]').textContent.includes('已复制'));
   assert.equal(app.button.disabled, false);
+});
+
+test('当用户选择不同订阅渠道时应该分别复制对应地址并只更新本渠道反馈', async t => {
+  const copied = [];
+  const channel = name => markup.replace('subscription-page', 'subscription-channel').replace('atom.xml', name);
+  const html = `<section class="subscription-page">${['updates.xml', 'atom.xml', 'journal.xml'].map(channel).join('')}</section>`;
+  const app = setup(t, async value => { copied.push(value); }, html);
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  const buttons = [...app.document.querySelectorAll('button')];
+  for (const [index, button] of buttons.entries()) {
+    assert.equal(button.hidden, false);
+    button.click();
+    await app.flush();
+    assert.equal(copied.length, index + 1);
+    assert.match(button.closest('.subscription-channel').querySelector('[role="status"]').textContent, /已复制/);
+    if (index < 2) assert.doesNotMatch(buttons[index + 1].closest('.subscription-channel').querySelector('[role="status"]').textContent, /已复制/);
+  }
+  assert.deepEqual(copied, ['https://arata66.top/updates.xml', 'https://arata66.top/atom.xml', 'https://arata66.top/journal.xml']);
 });
 
 test('当剪贴板拒绝访问时应该提供手动复制且允许再试', async (t) => {
@@ -85,4 +103,25 @@ test('当复制等待期间离开页面时应该不更新旧页面或抢夺新�
   await app.flush();
   assert.equal(oldStatus.textContent, before);
   assert.equal(app.document.activeElement, newButton);
+});
+
+test('当导航已经开始但新页面尚未返回时应该忽略迟到的复制反馈且允许重试', async t => {
+  for (const fails of [false, true]) {
+    const finishers = [];
+    const app = setup(t, () => new Promise((resolve, reject) => { finishers.push(() => fails ? reject(new Error('失败')) : resolve()); }));
+    app.button.click();
+    const status = app.document.querySelector('[role="status"]');
+    const before = status.textContent;
+    app.document.dispatchEvent(new app.window.Event('pjax:send'));
+    const link = app.document.createElement('a');
+    link.href = '/journal/';
+    app.document.body.append(link);
+    link.focus();
+    assert.equal(finishers.length, 1);
+    finishers[0]();
+    await app.flush();
+    assert.equal(status.textContent, before);
+    assert.equal(app.document.activeElement, link);
+    assert.equal(app.button.disabled, false);
+  }
 });

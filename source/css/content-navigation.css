@@ -189,6 +189,42 @@
   margin-top: 8px;
 }
 
+.subscription-channel {
+  margin-top: 28px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--scene-rule);
+}
+
+#article-container .subscription-channel h3 {
+  margin: 0 0 8px;
+  font-size: 21px;
+}
+
+#article-container .subscription-channel p {
+  margin: 8px 0;
+}
+
+.subscription-channel label {
+  margin-top: 18px;
+}
+
+.subscription-recommended {
+  padding: 22px clamp(14px, 3vw, 26px);
+  border: 1px solid var(--scene-rule);
+  border-radius: 12px;
+  background: var(--scene-soft);
+}
+
+#article-container .subscription-recommendation {
+  color: var(--scene-link);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+#article-container .subscription-feed-link {
+  font-size: 14px;
+}
+
 .subscription-url {
   flex: 1;
   min-width: 0;

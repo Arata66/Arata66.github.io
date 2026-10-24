@@ -8,6 +8,7 @@ const { enhanceArticleSharing } = require('./article-sharing');
 const { enhanceThemePreference } = require('./theme-preference');
 const { enhanceThemeMotion, enhanceThemeToc } = require('./reading-conditions');
 const { readJournal, enhanceJournal } = require('./interest-journal');
+const { createJournalFeeds } = require('./journal-feed');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -141,6 +142,9 @@ function main() {
   // 从生成的分类索引读取一次，避免侧栏配置或分页改变浏览入口。
   const categories = readContentCategories(fs.readFileSync(path.join(PUBLIC_DIR, 'categories/index.html'), 'utf8'));
   const journal = readJournal(path.join(SOURCE_DIR, '_data/journal.yml'));
+  const feeds = createJournalFeeds(fs.readFileSync(path.join(PUBLIC_DIR, 'atom.xml'), 'utf8'), journal);
+  fs.writeFileSync(path.join(PUBLIC_DIR, 'journal.xml'), feeds.journal, 'utf8');
+  fs.writeFileSync(path.join(PUBLIC_DIR, 'updates.xml'), feeds.updates, 'utf8');
   const indexPath = path.join(PUBLIC_DIR, 'search.xml');
   fs.writeFileSync(indexPath, enhanceSearchIndex(fs.readFileSync(indexPath, 'utf8'), journal), 'utf8');
   function enhancePages(directory) {
