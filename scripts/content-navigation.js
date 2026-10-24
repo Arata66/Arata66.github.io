@@ -69,6 +69,7 @@ function enhanceContentNavigation(html, categories = []) {
       '<a href="/categories/%E6%8A%80%E6%9C%AF/">学习与折腾</a>' +
       '<a href="/categories/%E7%94%9F%E6%B4%BB/">生活随笔</a>' +
       '<a href="/archives/">所有文章</a>' +
+      '<a href="/reading-list/">稍后读</a>' +
       '<a href="/subscribe/" class="home-subscribe-link"><i class="fas fa-rss" aria-hidden="true"></i> 订阅更新</a></div>';
     list.prepend(nav);
     changed = true;
@@ -78,8 +79,17 @@ function enhanceContentNavigation(html, categories = []) {
     const nav = document.createElement('nav');
     nav.className = 'footer-content-links';
     nav.setAttribute('aria-label', '更多内容入口');
-    nav.innerHTML = '<a href="/archives/">文章归档</a><a href="/subscribe/">订阅更新</a>';
+    nav.innerHTML = '<a href="/archives/">文章归档</a><a href="/reading-list/">稍后读</a><a href="/subscribe/">订阅更新</a>';
     footer.prepend(nav);
+    changed = true;
+  }
+  // 增量构建可能复用已经增强过的旧 HTML，需要补齐新入口。
+  for (const nav of document.querySelectorAll('.home-discovery-links, .footer-content-links')) {
+    if (nav.querySelector('a[href="/reading-list/"]')) continue;
+    const link = document.createElement('a');
+    link.href = '/reading-list/';
+    link.textContent = '稍后读';
+    nav.querySelector('a[href="/subscribe/"]')?.before(link);
     changed = true;
   }
   for (const [href, title] of [['/atom.xml', '只看文章'], ['/updates.xml', '全部更新'], ['/journal.xml', '兴趣手账']]) {
