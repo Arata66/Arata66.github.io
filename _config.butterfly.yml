@@ -19,14 +19,18 @@ nav:
 
 menu:
   首页: / || fa-solid fa-house
+  文章 || fa-solid fa-book:
+    全部文章: /archives/ || fa-solid fa-box-archive
+    分类: /categories/ || fa-solid fa-folder-open
+    标签: /tags/ || fa-solid fa-tags
   手账: /journal/ || fa-solid fa-book-open
   音乐馆: /music/ || fa-solid fa-music
-  工具: /tools/ || fa-solid fa-screwdriver-wrench
-  分类: /categories/ || fa-solid fa-folder-open
-  标签: /tags/ || fa-solid fa-tags
-  归档: /archives/ || fa-solid fa-box-archive
-  作品: /works/ || fa-solid fa-folder-open
   留言: /guestbook/ || fa-solid fa-comments
+  更多 || fa-solid fa-ellipsis:
+    随手工具: /tools/ || fa-solid fa-screwdriver-wrench
+    作品: /works/ || fa-solid fa-folder-open
+    友链: /link/ || fa-solid fa-link
+    订阅更新: /subscribe/ || fa-solid fa-rss
   关于: /about/ || fa-solid fa-circle-user
 
 # --------------------------------------

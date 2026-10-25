@@ -1,17 +1,16 @@
-// 页脚站点统计计数器
 (function () {
-  // 站点创建日期
-  var startDate = new Date('2025-11-13');
-  var now = new Date();
-  var days = Math.floor((now.getTime() - startDate.getTime()) / 86400000);
-
-  var el = document.getElementById('site-stats');
-  if (!el) return;
-
-  el.querySelector('.stats-days').textContent = String(days);
-
-  // 文章数由构建脚本注入 window.__SITE_STATS
-  if (window.__SITE_STATS) {
-    el.querySelector('.stats-posts').textContent = String(window.__SITE_STATS.postCount);
+  function refreshStats() {
+    var el = document.getElementById('site-stats');
+    if (!el) return;
+    // 与文章日期保持一致，按上海日历日期计算建站天数。
+    var days = Math.max(0, Math.floor((Date.now() + 8 * 3600000 - Date.UTC(2025, 10, 13)) / 86400000));
+    var daysEl = el.querySelector('.stats-days');
+    var postsEl = el.querySelector('.stats-posts');
+    if (daysEl) daysEl.textContent = String(days);
+    if (postsEl && window.__SITE_STATS) postsEl.textContent = String(window.__SITE_STATS.postCount);
   }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refreshStats, { once: true });
+  else refreshStats();
+  document.addEventListener('pjax:complete', refreshStats);
 })();
