@@ -12,6 +12,7 @@ const { createJournalFeeds } = require('./journal-feed');
 const { enhanceHomeOverview } = require('./home-overview');
 const { readWorks, enhanceWorks } = require('./works-showcase');
 const { readSiteCard, enhanceCommunity } = require('./community');
+const { enhanceSiteNavigation } = require('./site-navigation');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -53,6 +54,7 @@ const CSS_FILES = [
 const JS_FILES = [
   '/js/mobile-performance.js',
   '/js/mobile-rightside.js',
+  '/js/site-navigation.js',
   '/js/music-ball.js',
   '/js/music-room.js',
   '/js/browser-tools-core.js',
@@ -164,7 +166,8 @@ function main() {
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceCommunity(enhanceJournal(enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), journal), siteCard), 'utf8');
+        const navigable = enhanceSiteNavigation(html);
+        fs.writeFileSync(fullPath, enhanceCommunity(enhanceJournal(enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(navigable, categories))), journal), siteCard), 'utf8');
       }
     }
   }

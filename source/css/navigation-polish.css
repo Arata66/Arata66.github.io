@@ -11,6 +11,74 @@
   color: var(--accent);
 }
 
+:is(#nav, #sidebar-menus) details[data-site-menu] > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+:is(#nav, #sidebar-menus) details[data-site-menu] > summary::-webkit-details-marker {
+  display: none;
+}
+
+:is(#nav, #sidebar-menus) details[data-site-menu] > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+#nav details[data-site-menu] > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+}
+
+#nav details[data-site-menu] > .menus_item_child {
+  margin-top: 0;
+}
+
+#nav details[data-site-menu][open] > .menus_item_child {
+  display: block;
+}
+
+:is(#nav, #sidebar-menus) details[data-site-menu] > summary > i:last-child {
+  transition: transform .2s;
+}
+
+:is(#nav, #sidebar-menus) details[data-site-menu][open] > summary > i:last-child {
+  transform: rotate(180deg);
+}
+
+#nav .menus_items :is(a[aria-current], summary[data-current]) {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
+
+#sidebar #sidebar-menus .menus_items details[data-site-menu] > summary,
+#sidebar #sidebar-menus .menus_items a.site-page {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+#sidebar #sidebar-menus details[data-site-menu] > summary > i:last-child {
+  margin-left: auto;
+}
+
+#sidebar #sidebar-menus details[data-site-menu][open] > .menus_item_child {
+  max-height: none;
+  opacity: 1;
+  transform: none;
+}
+
+#sidebar #sidebar-menus .menus_items :is(a[aria-current], summary[data-current]) {
+  background: var(--text-bg-hover);
+  font-weight: 700;
+}
+
 #aside-content {
   --font-color: #dfd2e8;
   --text-highlight-color: #f3eaf8;
