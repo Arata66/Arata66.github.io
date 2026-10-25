@@ -13,6 +13,10 @@ body:has(.guestbook-page) #page {
   color: var(--scene-ink);
 }
 
+#article-container :is(.guestbook-page, .friend-exchange) a {
+  color: var(--scene-link);
+}
+
 .guestbook-intro {
   max-width: 720px;
 }
