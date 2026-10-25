@@ -25,7 +25,16 @@ test('当访客打开首页时应该看到已有技术生活归档与订阅入�
 test('当访客直接进入文章页时应该只显示页脚入口而不插入首页浏览条', () => {
   const dom = new JSDOM(enhanceContentNavigation(page(false)));
   assert.equal(dom.window.document.querySelector('.home-discovery'), null);
-  assert.deepEqual([...dom.window.document.querySelectorAll('.footer-content-links a')].map(a => a.textContent), ['文章归档', '订阅更新']);
+  assert.deepEqual([...dom.window.document.querySelectorAll('.footer-content-links a')].map(a => a.textContent), ['文章归档', '订阅更新', '留言交流']);
+  dom.window.close();
+});
+
+test('当缓存页脚已有旧入口时应该补齐留言入口且重复构建不重复添加', () => {
+  const old = page(false).replace('<div id="site-stats">', '<nav class="footer-content-links"><a href="/archives/">文章归档</a><a href="/subscribe/">订阅更新</a></nav><div id="site-stats">');
+  const first = enhanceContentNavigation(old);
+  const dom = new JSDOM(enhanceContentNavigation(first));
+  assert.equal(dom.window.document.querySelectorAll('.footer-content-links a[href="/guestbook/"]').length, 1);
+  assert.equal(enhanceContentNavigation(first), first);
   dom.window.close();
 });
 
