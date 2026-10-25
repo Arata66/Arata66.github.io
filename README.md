@@ -22,6 +22,7 @@
 - [我的作品](https://arata66.top/works/)
 - [关于我](https://arata66.top/about/)
 - [友情链接](https://arata66.top/link/)
+- [留言板](https://arata66.top/guestbook/)
 - [订阅更新](https://arata66.top/subscribe/)
 
 ## 博客长什么样

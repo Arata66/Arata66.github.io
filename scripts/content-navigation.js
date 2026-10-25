@@ -82,6 +82,14 @@ function enhanceContentNavigation(html, categories = []) {
     footer.prepend(nav);
     changed = true;
   }
+  const footerLinks = footer?.querySelector('.footer-content-links');
+  if (footerLinks && !footerLinks.querySelector('a[href="/guestbook/"]')) {
+    const link = document.createElement('a');
+    link.href = '/guestbook/';
+    link.textContent = '留言交流';
+    footerLinks.appendChild(link);
+    changed = true;
+  }
   for (const [href, title] of [['/atom.xml', '只看文章'], ['/updates.xml', '全部更新'], ['/journal.xml', '兴趣手账']]) {
     if ([...document.querySelectorAll('link[rel="alternate"][type="application/atom+xml"]')].some(link => new URL(link.getAttribute('href'), 'https://arata66.top').pathname === href)) continue;
     const link = document.createElement('link');

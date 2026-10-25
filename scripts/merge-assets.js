@@ -11,6 +11,7 @@ const { readJournal, enhanceJournal } = require('./interest-journal');
 const { createJournalFeeds } = require('./journal-feed');
 const { enhanceHomeOverview } = require('./home-overview');
 const { readWorks, enhanceWorks } = require('./works-showcase');
+const { readSiteCard, enhanceCommunity } = require('./community');
 
 // 构建后合并自定义 CSS/JS，减少 HTTP 请求数
 // 由 package.json build 脚本在 hexo generate 之后调用
@@ -45,6 +46,7 @@ const CSS_FILES = [
   '/css/music-room.css',
   '/css/browser-tools.css',
   '/css/home-overview.css',
+  '/css/community.css',
   '/css/intro-performance.css'
 ];
 
@@ -69,7 +71,8 @@ const JS_FILES = [
   '/js/article-sharing.js',
   '/js/code-reading.js',
   '/js/reading-mode.js',
-  '/js/comment-feedback.js'
+  '/js/comment-feedback.js',
+  '/js/community.js'
 ];
 
 const STANDALONE_JS_FILES = [
@@ -149,6 +152,7 @@ function main() {
   // 从生成的分类索引读取一次，避免侧栏配置或分页改变浏览入口。
   const categories = readContentCategories(fs.readFileSync(path.join(PUBLIC_DIR, 'categories/index.html'), 'utf8'));
   const journal = readJournal(path.join(SOURCE_DIR, '_data/journal.yml'));
+  const siteCard = readSiteCard(path.join(SOURCE_DIR, '_data/link.yml'), 'https://arata66.top');
   const feeds = createJournalFeeds(fs.readFileSync(path.join(PUBLIC_DIR, 'atom.xml'), 'utf8'), journal);
   fs.writeFileSync(path.join(PUBLIC_DIR, 'journal.xml'), feeds.journal, 'utf8');
   fs.writeFileSync(path.join(PUBLIC_DIR, 'updates.xml'), feeds.updates, 'utf8');
@@ -160,7 +164,7 @@ function main() {
       if (entry.isDirectory()) enhancePages(fullPath);
       else if (entry.isFile() && entry.name.endsWith('.html')) {
         const html = fs.readFileSync(fullPath, 'utf8');
-        fs.writeFileSync(fullPath, enhanceJournal(enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), journal), 'utf8');
+        fs.writeFileSync(fullPath, enhanceCommunity(enhanceJournal(enhanceThemePreference(enhanceArticleSharing(enhanceContentNavigation(html, categories))), journal), siteCard), 'utf8');
       }
     }
   }

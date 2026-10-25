@@ -26,6 +26,7 @@ menu:
   标签: /tags/ || fa-solid fa-tags
   归档: /archives/ || fa-solid fa-box-archive
   作品: /works/ || fa-solid fa-folder-open
+  留言: /guestbook/ || fa-solid fa-comments
   关于: /about/ || fa-solid fa-circle-user
 
 # --------------------------------------
