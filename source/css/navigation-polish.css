@@ -21,24 +21,103 @@
 }
 
 :is(#nav, #sidebar-menus) details[data-site-menu] > summary:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: 2px solid var(--scene-focus);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
-#nav details[data-site-menu] > summary {
+#nav #menus {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+#nav .menus_items {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 18px;
+}
+
+#nav .menus_items > .menus_item {
+  padding: 0;
+  vertical-align: middle;
+}
+
+#nav .menus_items > .menus_item > .site-page,
+#nav #search-button > .site-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 44px;
+  padding: 0;
+  font-weight: 400;
+  line-height: 1.2;
+  text-decoration: none;
 }
 
-#nav details[data-site-menu] > .menus_item_child {
-  margin-top: 0;
+#nav .menus_items > .menus_item > .site-page > i:first-child {
+  width: 1em;
+  opacity: .9;
 }
 
-#nav details[data-site-menu][open] > .menus_item_child {
+#nav details[data-site-menu] > summary > i:last-child {
+  width: .8em;
+  margin-left: 1px;
+  color: var(--scene-muted);
+  font-size: .65em;
+  opacity: .75;
+}
+
+#nav .menus_items details[data-site-menu] > .menus_item_child {
+  top: calc(100% + 6px);
+  right: -8px;
+  min-width: 164px;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--scene-rule);
+  border-radius: 12px;
+  background: var(--scene-nav-solid);
+  box-shadow: var(--scene-shadow);
+  animation: none;
+}
+
+#nav .menus_items details[data-site-menu][open] > .menus_item_child {
   display: block;
+}
+
+#page-header #nav details[data-site-menu][open] > summary {
+  color: var(--scene-link);
+}
+
+#nav .menus_items details[data-site-menu] > .menus_item_child > li:hover {
+  background: transparent;
+}
+
+#nav details[data-site-menu] .menus_item_child .site-page {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: var(--scene-ink) !important;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color .15s, background-color .15s;
+}
+
+#nav details[data-site-menu] .menus_item_child .site-page:is(:hover, :focus-visible, [aria-current]) {
+  background: var(--scene-soft);
+  color: var(--scene-link) !important;
+}
+
+#nav details[data-site-menu] .menus_item_child .site-page:focus-visible {
+  outline: 2px solid var(--scene-focus);
+  outline-offset: -2px;
+}
+
+#nav details[data-site-menu] .menus_item_child .site-page > i {
+  color: var(--scene-muted);
 }
 
 :is(#nav, #sidebar-menus) details[data-site-menu] > summary > i:last-child {
@@ -49,12 +128,24 @@
   transform: rotate(180deg);
 }
 
-#nav .menus_items :is(a[aria-current], summary[data-current]) {
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 7px;
+#nav .menus_items > .menus_item > .site-page::after,
+#nav #search-button > .site-page::after {
+  bottom: 4px;
+  z-index: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: opacity .15s, transform .15s;
+  pointer-events: none;
+}
+
+#nav .menus_items > .menus_item > .site-page:is(:hover, [aria-current], [data-current])::after,
+#nav #search-button > .site-page:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 #sidebar #sidebar-menus .menus_items details[data-site-menu] > summary,
