@@ -92,6 +92,7 @@
       root.style.top = "auto";
     } catch (e) {}
   }
+  keepBallVisible();
 
   // ---- 加载歌单 ----
   function showStatus(message, retry) {
@@ -101,6 +102,7 @@
     if (!retry && document.activeElement === button) document.getElementById("mp-play").focus();
     button.hidden = !retry;
     notifyState();
+    positionPanel();
   }
 
   function ensurePlaylist() {
@@ -281,6 +283,7 @@
       };
       pl.appendChild(el);
     });
+    positionPanel();
   }
 
   function updatePlaylistActive() {
@@ -384,6 +387,29 @@
 
   // 面板展开/收起（用 wasDragged 标记区分拖拽和点击）
   var wasDragged = false;
+  function positionPanel() {
+    if (!panelOpen || window.innerWidth <= 768) return;
+    var ball = root.getBoundingClientRect();
+    var width = panel.offsetWidth;
+    var height = panel.offsetHeight;
+    if (!width || !height) return;
+    var left = ball.right + 12;
+    if (left + width > window.innerWidth - 12) left = ball.left - width - 12;
+    var top = ball.top + ball.height / 2 - height / 2;
+    panel.style.left = Math.max(12, Math.min(window.innerWidth - width - 12, left)) + "px";
+    panel.style.top = Math.max(12, Math.min(window.innerHeight - height - 12, top)) + "px";
+  }
+  function keepBallVisible() {
+    if (window.innerWidth <= 768) return;
+    var ball = root.getBoundingClientRect();
+    if (!ball.width || !ball.height) return;
+    if (ball.left >= 0 && ball.top >= 0 && ball.right <= window.innerWidth && ball.bottom <= window.innerHeight) return;
+    // 旧窗口保存的像素坐标可能已在屏外，只调整当前显示，不覆盖用户偏好。
+    var pos = clampPos(ball.left, window.innerHeight - ball.bottom);
+    root.style.left = pos.left + "px";
+    root.style.bottom = pos.bottom + "px";
+    root.style.top = "auto";
+  }
   function closePanel() {
     panelOpen = false;
     panel.classList.remove("show");
@@ -396,8 +422,20 @@
     panel.classList.toggle("show", panelOpen);
     document.getElementById("music-ball-btn").setAttribute("aria-expanded", String(panelOpen));
     document.getElementById("music-ball-btn").setAttribute("aria-label", panelOpen ? "收起音乐面板" : "展开音乐面板");
-    if (panelOpen) ensurePlaylist();
+    if (panelOpen) {
+      keepBallVisible();
+      positionPanel();
+      ensurePlaylist();
+    }
   };
+  window.addEventListener("resize", function () {
+    if (window.innerWidth <= 768) {
+      closePanel();
+      return;
+    }
+    keepBallVisible();
+    positionPanel();
+  });
 
   // ---- 拖动（鼠标 + 触屏） ----
   var startX, startY, origLeft, origBottom;
@@ -428,6 +466,7 @@
       root.style.left = pos.left + "px";
       root.style.bottom = pos.bottom + "px";
       root.style.top = "auto";
+      positionPanel();
     }
   }
 
