@@ -65,6 +65,7 @@
     const search = new LocalSearch({ path: config.path, unescape: false, top_n_per_article: config.top_n_per_article ?? 1 });
     let state = 'idle';
     let opened = false;
+    let composing = false;
     let opener = null;
     let previousScroll = { html: '', body: '', padding: '' };
     let background = [];
@@ -80,6 +81,7 @@
     function render() {
       const query = input.value.trim();
       clear.hidden = !input.value;
+      if (composing) return;
       retry.hidden = state !== 'error';
       scopes.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.searchScope === scope)));
       results.setAttribute('aria-busy', String(state === 'loading'));
@@ -180,12 +182,14 @@
       background = [...document.querySelectorAll('#body-wrap, #rightside')].filter(element => element instanceof HTMLElement).map(element => ({ element, inert: element.inert === true }));
       background.forEach(item => { item.element.inert = true; });
       prepareTriggers();
+      render();
       loadData();
     }
 
     function close(restoreFocus = true) {
       if (!opened) return;
       opened = false;
+      composing = false;
       dialog.style.display = 'none';
       mask.style.display = 'none';
       document.documentElement.style.overflow = previousScroll.html;
@@ -214,6 +218,8 @@
       }
     });
     document.addEventListener('keydown', event => {
+      // 选字阶段的按键先交给输入法，尤其是取消候选的 Escape。
+      if (composing || event.isComposing) return;
       if (event.target instanceof Element && event.target.closest('#search-button > .search') && ['Enter', ' '].includes(event.key)) {
         event.preventDefault();
         open(event.target.closest('#search-button > .search'));
@@ -228,9 +234,14 @@
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }
     });
-    clear.addEventListener('click', () => { input.value = ''; render(); input.focus(); });
+    clear.addEventListener('click', () => { composing = false; input.value = ''; render(); input.focus(); });
     retry.addEventListener('click', loadData);
-    input.addEventListener('input', render);
+    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionend', () => { composing = false; render(); });
+    input.addEventListener('input', event => {
+      if (event instanceof InputEvent && event.isComposing) composing = true;
+      render();
+    });
     window.addEventListener('pjax:send', () => close(false));
     window.addEventListener('pjax:complete', () => {
       close(false);

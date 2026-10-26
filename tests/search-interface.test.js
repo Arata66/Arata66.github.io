@@ -195,6 +195,98 @@ test('当用键盘搜索时应该循环焦点并在关闭后恢复触发位置�
   assert.equal(app.trigger.getAttribute('aria-expanded'), 'false');
 });
 
+test('当输入法正在选字时应该将Escape留给候选框并保持搜索和输入焦点', async t => {
+  for (const isComposing of [true, false]) {
+    const app = setup(t);
+    app.trigger.click();
+    await app.flush();
+    app.input.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+    const escape = new app.window.KeyboardEvent('keydown', { key: 'Escape', isComposing, bubbles: true, cancelable: true });
+    app.input.dispatchEvent(escape);
+    assert.equal(app.dialog.style.display, 'block');
+    assert.equal(app.document.activeElement, app.input);
+    assert.equal(escape.defaultPrevented, false);
+    assert.equal(app.document.body.style.overflow, 'hidden');
+    app.input.dispatchEvent(new app.window.CompositionEvent('compositionend', { bubbles: true }));
+    app.input.dispatchEvent(new app.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert.equal(app.dialog.style.display, 'none');
+    assert.equal(app.document.activeElement, app.trigger);
+    assert.equal(app.document.body.style.overflow, '');
+  }
+});
+
+test('当中文尚未确认时应该保留原结果并在选字结束后搜索最终文本', async t => {
+  const app = setup(t, async () => new Response(enhanceSearchIndex(xml, journal)));
+  app.trigger.click();
+  await app.flush();
+  app.query('Hexo');
+  const results = app.document.querySelector('#local-search-results');
+  const previous = results.innerHTML;
+  const previousStatus = app.status();
+  app.input.value = 'w';
+  app.input.dispatchEvent(new app.window.InputEvent('input', { isComposing: true, bubbles: true }));
+  assert.equal(results.innerHTML, previous);
+  app.input.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+  app.query('wu yu');
+  assert.equal(results.innerHTML, previous);
+  assert.equal(app.status(), previousStatus);
+  app.input.value = '物语';
+  app.input.dispatchEvent(new app.window.CompositionEvent('compositionend', { data: '物语', bubbles: true }));
+  app.input.dispatchEvent(new app.window.InputEvent('input', { isComposing: false, bubbles: true }));
+  assert.match(app.status(), /1 条手账/);
+  assert.equal(results.querySelectorAll('a').length, 1);
+  assert.match(results.textContent, /物语系列/);
+  assert.equal(app.document.activeElement, app.input);
+});
+
+test('当选字期间搜索索引刚好载入时应该等待确认后再展示最终关键词结果', async t => {
+  const pending = [];
+  const app = setup(t, () => new Promise(resolve => pending.push(resolve)));
+  app.trigger.click();
+  app.input.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+  app.query('Hexo');
+  pending[0](new Response(xml));
+  await app.flush();
+  assert.equal(app.document.querySelector('#local-search-results').textContent, '');
+  app.input.value = '音乐';
+  app.input.dispatchEvent(new app.window.CompositionEvent('compositionend', { bubbles: true }));
+  assert.match(app.status(), /1 篇文章/);
+  assert.match(app.document.querySelector('#local-search-results').textContent, /听歌报告/);
+});
+
+test('当选字期间主动清空时应该解除等待并可以立即重新搜索', async t => {
+  const app = setup(t);
+  app.trigger.click();
+  await app.flush();
+  app.input.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+  app.query('wu yu');
+  assert.equal(app.button('.search-clear').hidden, false);
+  app.button('.search-clear').click();
+  assert.equal(app.input.value, '');
+  assert.match(app.status(), /标题或正文/);
+  assert.equal(app.document.activeElement, app.input);
+  app.query('音乐');
+  assert.match(app.status(), /1 篇文章/);
+});
+
+test('当选字中主动关闭或切页后重新打开时应该正常使用当前输入', async t => {
+  for (const leave of [app => app.button('.search-close-button').click(), app => app.window.dispatchEvent(new app.window.Event('pjax:send'))]) {
+    const app = setup(t);
+    app.trigger.click();
+    await app.flush();
+    app.query('Hexo');
+    app.input.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+    app.query('音乐');
+    leave(app);
+    app.trigger.click();
+    assert.equal(app.input.value, '音乐');
+    assert.match(app.status(), /1 篇文章/);
+    assert.match(app.document.querySelector('#local-search-results').textContent, /听歌报告/);
+    app.query('Hexo');
+    assert.match(app.document.querySelector('#local-search-results').textContent, /Hexo 样式记录/);
+  }
+});
+
 test('当结果切到新页面时应该关闭搜索且不把焦点拉回旧触发器', async (t) => {
   const app = setup(t);
   app.trigger.click();
