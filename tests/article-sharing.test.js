@@ -11,17 +11,83 @@ function enhance(html) {
   return require('../scripts/article-sharing').enhanceArticleSharing(html);
 }
 
-function setup(t, writeText) {
+function setup(t, writeText, fakeClock = false) {
   const dom = new JSDOM(enhance(markup), { url: articleUrl + '?highlight=Hexo#目标', runScripts: 'outside-only' });
   const { window } = dom;
+  const timers = new Map();
+  let timerId = 0;
+  if (fakeClock) {
+    Object.defineProperty(window, 'setTimeout', { value: (callback, delay) => { const id = ++timerId; timers.set(id, { callback, delay }); return id; } });
+    Object.defineProperty(window, 'clearTimeout', { value: id => timers.delete(id) });
+  }
   Object.defineProperty(window.navigator, 'clipboard', { value: writeText ? { writeText } : undefined });
   window.eval(fs.readFileSync(path.join(__dirname, '../source/js/article-sharing.js'), 'utf8'));
   window.document.dispatchEvent(new window.Event('DOMContentLoaded'));
   t.after(() => window.close());
   const button = window.document.querySelector('.article-copy');
   assert.ok(button instanceof window.HTMLButtonElement);
-  return { window, document: window.document, button, flush: () => new Promise(resolve => setImmediate(resolve)) };
+  return { window, document: window.document, button, flush: () => new Promise(resolve => setImmediate(resolve)),
+    advance(milliseconds) { for (const [id, timer] of [...timers]) if (timer.delay <= milliseconds) { timers.delete(id); timer.callback(); } }
+  };
 }
+
+test('当文章链接复制一直不返回时应该超时展示固定地址并允许重试', async t => {
+  const app = setup(t, () => new Promise(() => {}), true);
+  app.button.click(); app.advance(3000); await app.flush();
+  const input = app.document.querySelector('.article-copy-url');
+  assert.ok(input instanceof app.window.HTMLInputElement);
+  assert.equal(input.hidden, false);
+  assert.equal(input.value, articleUrl);
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('.article-copy-feedback').textContent, /手动复制/);
+});
+
+test('当文章链接复制晚到失败而读者已转去评论时应该保留新焦点', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise((resolve, reject) => replies.push(reject)), true);
+  app.button.focus(); app.button.click();
+  const comment = app.document.createElement('textarea');
+  app.document.body.append(comment); comment.focus(); comment.value = '评论正在输入';
+  replies[0](new Error('拒绝')); await app.flush();
+  assert.equal(app.document.activeElement, comment);
+  assert.equal(comment.value, '评论正在输入');
+  assert.equal(app.document.querySelector('.article-copy-url').hasAttribute('hidden'), false);
+});
+
+test('当链接复制等待时进入评论iframe后应该在超时或拒绝时保留框内焦点', async t => {
+  for (const timeout of [true, false]) {
+    const replies = [];
+    const app = setup(t, () => new Promise((resolve, reject) => replies.push(reject)), true);
+    app.button.focus(); app.button.click();
+    const frame = app.document.createElement('iframe'); app.document.body.append(frame);
+    const comment = frame.contentDocument.createElement('textarea'); frame.contentDocument.body.append(comment);
+    comment.focus(); comment.value = '评论内容';
+    assert.equal(app.document.activeElement, frame);
+    if (timeout) app.advance(3000);
+    else replies[0](new Error('拒绝'));
+    await app.flush();
+    assert.equal(app.document.activeElement, frame);
+    assert.equal(frame.contentDocument.activeElement, comment);
+    assert.equal(comment.value, '评论内容');
+    assert.equal(app.document.querySelector('.article-copy-url').hasAttribute('hidden'), false);
+  }
+});
+
+test('当链接复制等待中切页未成功时应该取消旧等待并允许当前文章再次复制', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise(resolve => replies.push(resolve)), true);
+  app.button.click();
+  app.document.dispatchEvent(new app.window.Event('pjax:send')); await app.flush();
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('.article-copy-feedback').textContent, /取消/);
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  app.button.click();
+  replies[0](); await app.flush();
+  assert.equal(app.button.disabled, true);
+  assert.match(app.document.querySelector('.article-copy-feedback').textContent, /正在复制/);
+  replies[1](); await app.flush();
+  assert.match(app.document.querySelector('.article-copy-feedback').textContent, /已复制/);
+});
 
 test('当构建文章分享入口时应该保留原链接且重复构建不产生重复按钮', () => {
   const once = enhance(markup);
@@ -77,6 +143,8 @@ test('当复制被拒绝时应该展开选中的地址并允许再次尝试', as
   app.button.click();
   await app.flush();
   assert.match(app.document.querySelector('.article-copy-feedback').textContent, /已复制/);
+  assert.equal(input.hidden, true);
+  assert.equal(app.document.activeElement, app.button);
 });
 
 test('当浏览器没有剪贴板 API 时应该仍可手动复制文章地址', async t => {

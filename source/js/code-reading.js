@@ -1,5 +1,6 @@
 (function () {
   let pageVersion = 0;
+  const pendingCopies = new Map();
 
   function init() {
     document.querySelectorAll('#article-container figure.highlight').forEach(figure => {
@@ -65,6 +66,9 @@
       figure.append(status, fallback);
       copy.addEventListener('click', async function () {
         const version = pageVersion;
+        const attempt = { status, cancel: () => {} };
+        pendingCopies.set(copy, attempt);
+        let timeout;
         let focusMoved = false;
         const rememberFocus = event => { if (event.target !== copy) focusMoved = true; };
         document.addEventListener('focusin', rememberFocus);
@@ -76,28 +80,38 @@
         status.textContent = '正在复制…';
         try {
           if (!navigator.clipboard?.writeText) throw new Error('剪贴板不可用');
-          await navigator.clipboard.writeText(text);
-          if (!figure.isConnected || version !== pageVersion) return;
+          const deadline = new Promise((resolve, reject) => {
+            attempt.cancel = () => reject(new Error('复制操作已取消'));
+            timeout = setTimeout(() => reject(new Error('复制等待超时')), 3000);
+          });
+          await Promise.race([navigator.clipboard.writeText(text), deadline]);
+          if (!figure.isConnected || version !== pageVersion || pendingCopies.get(copy) !== attempt) return;
           copy.disabled = false;
           if (document.activeElement === fallback) copy.focus({ preventScroll: true });
           fallback.hidden = true;
           status.textContent = '已复制，可以粘贴使用。';
         } catch {
           // 切页后结束的复制不能抢新页面焦点。
-          if (!figure.isConnected || version !== pageVersion) return;
+          if (!figure.isConnected || version !== pageVersion || pendingCopies.get(copy) !== attempt) return;
           if (tools.classList.contains('closed')) expand?.click();
           fallback.value = text;
           fallback.rows = Math.min(8, Math.max(2, lines.length));
           fallback.hidden = false;
           status.textContent = '可选中下方代码手动复制。';
           // 等待期间读者可能已转去评论输入框，保留新的操作焦点。
-          if (!focusMoved || document.activeElement === copy) {
+          // 评论位于iframe中，父文档收不到框内的focusin。
+          const currentFocus = document.activeElement;
+          if (!(currentFocus instanceof HTMLIFrameElement) && (!focusMoved || currentFocus === copy)) {
             fallback.focus();
             fallback.select();
           }
         } finally {
+          clearTimeout(timeout);
           document.removeEventListener('focusin', rememberFocus);
-          if (figure.isConnected) copy.disabled = false;
+          if (pendingCopies.get(copy) === attempt) {
+            pendingCopies.delete(copy);
+            if (figure.isConnected) copy.disabled = false;
+          }
         }
       });
     });
@@ -114,6 +128,15 @@
   });
   document.addEventListener('pjax:send', () => {
     pageVersion++;
+    // 导航失败可能保留原正文，先恢复按钮才能在返回时重新复制。
+    pendingCopies.forEach((attempt, copy) => {
+      attempt.cancel();
+      if (copy.isConnected) {
+        copy.disabled = false;
+        attempt.status.textContent = '复制操作已取消，可以重新复制。';
+      }
+    });
+    pendingCopies.clear();
     exitFullpage(false);
   });
   // Pjax 的主题回调创建工具条后，再升级当前正文。
