@@ -7,7 +7,7 @@ description: 在浏览器中校验、格式化和压缩 JSON，或在明确单�
 ---
 
 <section class="browser-tools" aria-labelledby="tools-title">
-  <header class="tools-header"><div><p class="tools-eyebrow">折腾时，顺手用一下</p><h2 id="tools-title">少开一个窗口，多省一点时间</h2><p>整理一段 JSON，或者对一下时间。输入内容在当前浏览器页面中处理。</p></div><nav class="tools-jump" aria-label="选择工具"><a href="#tool-json">JSON 处理</a><a href="#tool-time">时间转换</a></nav></header>
+  <header class="tools-header"><div><p class="tools-eyebrow">折腾时，顺手用一下</p><h2 id="tools-title">少开一个窗口，多省一点时间</h2><p>整理一段 JSON，或者对一下时间。输入内容在当前浏览器页面中处理。</p><p>站内切页会保留当前输入与结果，刷新页面后清空。</p></div><nav class="tools-jump" aria-label="选择工具"><a href="#tool-json">JSON 处理</a><a href="#tool-time">时间转换</a></nav></header>
   <noscript><p class="tools-no-script">这两个工具需要启用 JavaScript 后使用，输入内容不会发送到本站服务器。</p></noscript>
   <section class="tool-section" id="tool-json" aria-labelledby="json-title">
     <div class="tool-section-heading"><div><p class="tools-eyebrow">01 / 整理数据</p><h3 id="json-title">JSON 处理</h3></div><p>校验 · 格式化 · 压缩</p></div>

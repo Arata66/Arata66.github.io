@@ -1,6 +1,8 @@
 (function () {
   let cleanup = () => {};
   let navigating = false;
+  const savedValues = new Map();
+  let suspendedPage = null;
 
   function init() {
     if (navigating) return;
@@ -21,6 +23,13 @@
     const milliseconds = field('timestamp-ms');
     if (!(jsonInput instanceof HTMLTextAreaElement) || !(jsonOutput instanceof HTMLTextAreaElement) || !(indent instanceof HTMLSelectElement) || !(stamp instanceof HTMLInputElement) || !(unit instanceof HTMLSelectElement) || !(date instanceof HTMLInputElement) || !(zone instanceof HTMLSelectElement) || !(seconds instanceof HTMLInputElement) || !(milliseconds instanceof HTMLInputElement)) return;
     const ui = { jsonInput, jsonOutput, indent, stamp, unit, date, zone, seconds, milliseconds };
+    const resumed = suspendedPage === page;
+    suspendedPage = null;
+    if (!resumed) {
+      for (const [name, node] of Object.entries(ui)) {
+        if (savedValues.has(name)) node.value = savedValues.get(name);
+      }
+    }
     const jsonStatus = field('json-status');
     const timeStatus = field('time-status');
     let active = true;
@@ -132,9 +141,22 @@
       try { renderTime(currentTime); }
       catch (error) { clearTimeResult(); timeStatus.textContent = error.message; }
     });
+    // 导航取消会保留原节点，等待期间的新输入优先于离页快照。
+    if (resumed) {
+      if (ui.jsonInput.value !== savedValues.get('jsonInput')) clearJSONResult();
+      if (['stamp', 'date', 'unit', 'zone'].some(name => ui[name].value !== savedValues.get(name))) clearTimeResult();
+    }
     jsonReady(!!ui.jsonOutput.value);
     enable('time-copy-seconds', !!ui.seconds.value); enable('time-copy-ms', !!ui.milliseconds.value);
+    if (savedValues.size) {
+      if (ui.jsonInput.value || ui.jsonOutput.value) jsonStatus.textContent = ui.jsonOutput.value ? '已恢复输入与处理结果，可以继续使用。' : '已恢复输入，可继续修改或处理。';
+      if (ui.stamp.value || ui.date.value) timeStatus.textContent = currentTime !== null ? '已恢复输入与转换结果，可以继续使用。' : '已恢复输入，请选择转换方向。';
+    }
     cleanup = () => {
+      if (!active) return;
+      // 仅在本标签的脚本内存中保留往返内容，完整刷新后自然清空。
+      for (const [name, node] of Object.entries(ui)) savedValues.set(name, node.value);
+      suspendedPage = page;
       active = false;
       removers.forEach(remove => remove());
       pending.forEach((attempt, control) => {
