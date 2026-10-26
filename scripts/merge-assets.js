@@ -74,7 +74,8 @@ const JS_FILES = [
   '/js/code-reading.js',
   '/js/reading-mode.js',
   '/js/comment-feedback.js',
-  '/js/community.js'
+  '/js/community.js',
+  '/js/navigation-history.js'
 ];
 
 const STANDALONE_JS_FILES = [
