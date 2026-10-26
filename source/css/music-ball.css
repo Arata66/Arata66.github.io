@@ -111,11 +111,10 @@
 
 /* ---------- 播放器面板 ---------- */
 #music-panel {
-  position: absolute;
-  left: 68px;
-  bottom: 0;
-  transform: translateY(32%);
+  position: fixed;
+  transform: none;
   width: 280px;
+  max-height: calc(100dvh - 24px);
   background: rgba(22, 12, 32, 0.94);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -126,7 +125,8 @@
   box-shadow:
     0 16px 48px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  overflow: hidden;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
 }
 #music-panel.show {
   display: block;
@@ -135,11 +135,11 @@
 @keyframes mpSlideIn {
   0% {
     opacity: 0;
-    transform: translateY(32%) scale(0.92) translateX(-8px);
+    transform: scale(0.92);
   }
   100% {
     opacity: 1;
-    transform: translateY(32%) scale(1) translateX(0);
+    transform: scale(1);
   }
 }
 
