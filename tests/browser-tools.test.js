@@ -16,6 +16,7 @@ function setup(t, writeText = async () => {}) {
   const revoked = [];
   Object.defineProperty(window, 'fetch', { value: () => { throw new Error('工具不得请求网络'); } });
   Object.defineProperty(window, 'localStorage', { get() { throw new Error('工具不得保存输入'); } });
+  Object.defineProperty(window, 'sessionStorage', { get() { throw new Error('工具不得写入会话存储'); } });
   Object.defineProperty(window.navigator, 'clipboard', { value: { writeText } });
   window.URL.createObjectURL = blob => { downloads.push(blob); return 'blob:test-output'; };
   window.URL.revokeObjectURL = url => revoked.push(url);
@@ -29,6 +30,137 @@ function setup(t, writeText = async () => {}) {
 function field(app, id) { const node = app.document.getElementById(id); assert.ok(node); return node; }
 function action(app, name) { const node = app.document.querySelector(`[data-tool-action="${name}"]`); assert.ok(node); return node; }
 function input(app, id, value) { const node = field(app, id); node.value = value; node.dispatchEvent(new app.window.Event('input')); }
+
+function leaveTools(app) {
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  app.document.body.innerHTML = '<main>其他页面</main>';
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+}
+
+function returnToTools(app) {
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  app.document.body.innerHTML = markup;
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+}
+
+test('当站内切页后返回工具时应该恢复JSON输入与结果并能继续修改', t => {
+  const app = setup(t);
+  const source = '{"编号":900719925474099312345,"文本":"继续处理"}';
+  input(app, 'json-input', source);
+  field(app, 'json-indent').value = '4';
+  action(app, 'json-format').click();
+  const output = field(app, 'json-output').value;
+  leaveTools(app);
+  returnToTools(app);
+  assert.equal(field(app, 'json-input').value, source);
+  assert.equal(field(app, 'json-indent').value, '4');
+  assert.equal(field(app, 'json-output').value, output);
+  assert.equal(action(app, 'json-copy').disabled, false);
+  assert.equal(action(app, 'json-download').disabled, false);
+  assert.match(field(app, 'json-status').textContent, /恢复/);
+  input(app, 'json-input', '[]');
+  assert.equal(field(app, 'json-output').value, '');
+  assert.equal(action(app, 'json-copy').disabled, true);
+  action(app, 'json-minify').click();
+  assert.equal(field(app, 'json-output').value, '[]');
+});
+
+test('当零时间戳转换后离页返回时应该保留单位时区和结果', t => {
+  const app = setup(t);
+  field(app, 'timestamp-unit').value = 'milliseconds';
+  field(app, 'time-zone').value = '0';
+  input(app, 'timestamp-input', '0');
+  action(app, 'time-from-stamp').click();
+  const date = field(app, 'date-input').value;
+  leaveTools(app);
+  returnToTools(app);
+  assert.equal(field(app, 'timestamp-input').value, '0');
+  assert.equal(field(app, 'timestamp-unit').value, 'milliseconds');
+  assert.equal(field(app, 'time-zone').value, '0');
+  assert.equal(field(app, 'date-input').value, date);
+  assert.equal(field(app, 'timestamp-ms').value, '0');
+  assert.equal(action(app, 'time-copy-ms').disabled, false);
+  field(app, 'time-zone').value = '480';
+  field(app, 'time-zone').dispatchEvent(new app.window.Event('change'));
+  assert.match(field(app, 'date-input').value, /T08:00/);
+  assert.equal(field(app, 'timestamp-ms').value, '0');
+});
+
+test('当尚未完成输入或清空后再次返回时应该保留最新内容并停用无效输出', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"未完成":');
+  input(app, 'timestamp-input', '还没填完');
+  leaveTools(app);
+  returnToTools(app);
+  assert.equal(field(app, 'json-input').value, '{"未完成":');
+  assert.equal(field(app, 'timestamp-input').value, '还没填完');
+  assert.equal(action(app, 'json-copy').disabled, true);
+  assert.equal(action(app, 'time-copy-ms').disabled, true);
+  action(app, 'json-clear').click();
+  leaveTools(app);
+  returnToTools(app);
+  assert.equal(field(app, 'json-input').value, '');
+  assert.equal(field(app, 'json-output').value, '');
+  assert.equal(action(app, 'json-copy').disabled, true);
+});
+
+test('当复制等待时离页返回后旧请求完成时应该不覆盖恢复状态或抢焦点', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise(resolve => { replies.push(resolve); }));
+  input(app, 'json-input', '{"test":1}');
+  action(app, 'json-format').click();
+  action(app, 'json-copy').focus();
+  action(app, 'json-copy').click();
+  leaveTools(app);
+  returnToTools(app);
+  const status = field(app, 'json-status').textContent;
+  field(app, 'json-input').focus();
+  assert.equal(replies.length, 1);
+  replies[0]();
+  await flush();
+  assert.equal(field(app, 'json-input').value, '{"test":1}');
+  assert.equal(field(app, 'json-status').textContent, status);
+  assert.doesNotMatch(status, /正在复制|已复制/);
+  assert.equal(app.document.activeElement, field(app, 'json-input'));
+  assert.equal(action(app, 'json-copy').disabled, false);
+});
+
+test('当完整刷新或打开新标签页时应该从空白开始且不同页面上下文互不共享输入', t => {
+  const first = setup(t);
+  input(first, 'json-input', '{"临时":true}');
+  leaveTools(first);
+  const fresh = setup(t);
+  assert.equal(field(fresh, 'json-input').value, '');
+  assert.equal(field(fresh, 'json-output').value, '');
+  returnToTools(first);
+  assert.equal(field(first, 'json-input').value, '{"临时":true}');
+});
+
+test('当导航等待期间修改JSON后导航取消时应该保留新输入并停用旧结果', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"版本":1}'); action(app, 'json-format').click();
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  input(app, 'json-input', '{"版本":2}');
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  assert.equal(field(app, 'json-input').value, '{"版本":2}');
+  assert.equal(field(app, 'json-output').value, '');
+  assert.equal(action(app, 'json-copy').disabled, true);
+  action(app, 'json-format').click();
+  assert.match(field(app, 'json-output').value, /"版本": 2/);
+});
+
+test('当导航等待期间修改时间输入或选项后导航取消时应该保留最新值并停用旧结果', t => {
+  for (const [id, value] of [['timestamp-input', '1'], ['timestamp-unit', 'milliseconds'], ['time-zone', '0'], ['date-input', '2000-01-01T00:00']]) {
+    const app = setup(t);
+    input(app, 'timestamp-input', '0'); action(app, 'time-from-stamp').click();
+    app.document.dispatchEvent(new app.window.Event('pjax:send'));
+    input(app, id, value);
+    app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+    assert.equal(field(app, id).value, value);
+    assert.equal(field(app, 'timestamp-ms').value, '');
+    assert.equal(action(app, 'time-copy-ms').disabled, true);
+  }
+});
 
 test('当格式化 JSON 长编号与特殊字符串时应该保留原始数字和转义写法', t => {
   const app = setup(t);
