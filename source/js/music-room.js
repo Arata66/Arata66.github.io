@@ -24,6 +24,7 @@
     let active = true;
     let catalog = null;
     let requesting = false;
+    let returnLoadFocus = false;
     let visible = 40;
     const removers = [];
 
@@ -91,6 +92,7 @@
       ui.search.hidden = false;
       if (catalog?.length) { render(); return; }
       if (requesting) return;
+      returnLoadFocus = document.activeElement === ui.loadButton;
       requesting = true;
       ui.loadButton.disabled = true;
       ui.loadButton.textContent = '正在加载…';
@@ -112,6 +114,11 @@
           ui.loadButton.disabled = false;
           ui.loadButton.textContent = '重新加载歌单';
           results.setAttribute('aria-busy', 'false');
+          // 只接续本次浏览操作，加载期间的新输入或框内焦点不应被打断。
+          if (returnLoadFocus && (document.activeElement === document.body || document.activeElement === ui.loadButton)) {
+            (ui.loadButton.hidden ? results.querySelector('button') || ui.input : ui.loadButton).focus();
+          }
+          returnLoadFocus = false;
         }
       }
     }
@@ -122,10 +129,17 @@
     ui.loadButton.textContent = initialState.message ? '重新加载歌单' : '浏览完整歌单';
     status.textContent = initialState.message || '点“浏览完整歌单”后加载。文中歌单也可以直接阅读。';
     results.setAttribute('aria-busy', 'false');
+    listen(document, 'focusin', event => { if (event.target !== ui.loadButton) returnLoadFocus = false; });
+    listen(window, 'blur', () => { returnLoadFocus = false; });
     listen(ui.loadButton, 'click', () => { load(); });
     listen(ui.input, 'input', () => { visible = 40; render(); });
     listen(ui.clear, 'click', () => { ui.input.value = ''; visible = 40; render(); ui.input.focus(); });
-    listen(ui.more, 'click', () => { visible += 40; render(); });
+    listen(ui.more, 'click', () => {
+      const previousCount = results.children.length;
+      visible += 40;
+      render();
+      results.querySelectorAll('button')[previousCount]?.focus();
+    });
     listen(ui.toggle, 'click', () => player.toggle());
     listen(results, 'click', event => {
       const button = event.target instanceof Element ? event.target.closest('[data-music-index]') : null;
