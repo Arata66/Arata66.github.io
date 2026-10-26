@@ -8,9 +8,15 @@ const theme = fs.readFileSync(require.resolve('hexo-theme-butterfly/source/js/ma
 const themeTools = theme.slice(theme.indexOf('  const addHighlightTool ='), theme.indexOf('  const addPhotoFigcaption ='));
 const code = '<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre>1<br>2</pre></td><td class="code"><pre><span class="line">npm run build</span><br><span class="line">  echo &quot;&lt;完成&gt;&quot;</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>';
 
-async function setup(t, writeText) {
+async function setup(t, writeText, fakeClock = false) {
   const dom = new JSDOM('<div id="article-container">' + code + '</div>', { url: 'https://arata66.top/example/', runScripts: 'outside-only' });
   const { window } = dom;
+  const timers = new Map();
+  let timerId = 0;
+  if (fakeClock) {
+    Object.defineProperty(window, 'setTimeout', { value: (callback, delay) => { const id = ++timerId; timers.set(id, { callback, delay }); return id; } });
+    Object.defineProperty(window, 'clearTimeout', { value: id => timers.delete(id) });
+  }
   Object.defineProperty(window.navigator, 'clipboard', { value: writeText ? { writeText } : undefined });
   window.eval('var GLOBAL_CONFIG = { highlight: { highlightCopy: true, highlightLang: true, highlightFullpage: true, highlightMacStyle: true, plugin: "highlight.js" }, copy: { success: "已复制", noSupport: "失败" } }; var GLOBAL_CONFIG_SITE = { isHighlightShrink: false }; var btf = { addEventListenerPjax: (element, name, listener) => element.addEventListener(name, listener) };');
   // 使用当前主题真实委托，验证替换元素仍能展开和全屏。
@@ -23,8 +29,85 @@ async function setup(t, writeText) {
   t.after(() => window.close());
   const button = window.document.querySelector('.code-copy');
   assert.ok(button instanceof window.HTMLButtonElement);
-  return { window, document: window.document, button, flush, initTheme };
+  return { window, document: window.document, button, flush, initTheme,
+    advance(milliseconds) { for (const [id, timer] of [...timers]) if (timer.delay <= milliseconds) { timers.delete(id); timer.callback(); } }
+  };
 }
+
+test('当剪贴板一直不返回时应该在等待上限后提供完整代码并恢复复制按钮', async t => {
+  const app = await setup(t, () => new Promise(() => {}), true);
+  app.button.click();
+  app.advance(3000); await app.flush();
+  const fallback = app.document.querySelector('.code-copy-fallback');
+  assert.ok(fallback instanceof app.window.HTMLTextAreaElement);
+  assert.equal(fallback.hidden, false);
+  assert.equal(fallback.value, 'npm run build\n  echo "<完成>"\n');
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /手动复制/);
+});
+
+test('当代码复制超时前已转去输入评论时应该保留评论焦点并提供备用代码', async t => {
+  const app = await setup(t, () => new Promise(() => {}), true);
+  app.button.focus(); app.button.click();
+  const comment = app.document.createElement('textarea');
+  app.document.body.append(comment); comment.focus(); comment.value = '继续输入评论';
+  app.advance(3000); await app.flush();
+  assert.equal(app.document.activeElement, comment);
+  assert.equal(comment.value, '继续输入评论');
+  assert.equal(app.document.querySelector('.code-copy-fallback').hasAttribute('hidden'), false);
+  assert.equal(app.button.disabled, false);
+});
+
+test('当读者在复制等待时进入评论iframe后应该在超时或拒绝时保留框内焦点', async t => {
+  for (const timeout of [true, false]) {
+    const replies = [];
+    const app = await setup(t, () => new Promise((resolve, reject) => replies.push(reject)), true);
+    app.button.focus(); app.button.click();
+    const frame = app.document.createElement('iframe'); app.document.body.append(frame);
+    const comment = frame.contentDocument.createElement('textarea'); frame.contentDocument.body.append(comment);
+    comment.focus(); comment.value = '框内评论输入';
+    assert.equal(app.document.activeElement, frame);
+    if (timeout) app.advance(3000);
+    else replies[0](new Error('拒绝'));
+    await app.flush();
+    assert.equal(app.document.activeElement, frame);
+    assert.equal(frame.contentDocument.activeElement, comment);
+    assert.equal(comment.value, '框内评论输入');
+    assert.equal(app.document.querySelector('.code-copy-fallback').hasAttribute('hidden'), false);
+  }
+});
+
+test('当代码复制超时后重试时应该忽略旧结果并以本次成功收起备用框', async t => {
+  const replies = [];
+  const app = await setup(t, () => new Promise(resolve => replies.push(resolve)), true);
+  app.button.click(); app.advance(3000); await app.flush();
+  assert.equal(app.button.disabled, false);
+  app.button.click();
+  replies[0](); await app.flush();
+  assert.equal(app.button.disabled, true);
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /正在复制/);
+  replies[1](); await app.flush();
+  assert.equal(app.button.disabled, false);
+  assert.equal(app.document.querySelector('.code-copy-fallback').hasAttribute('hidden'), true);
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /已复制/);
+});
+
+test('当复制等待中导航取消并重新复制时应该恢复按钮且旧回调不覆盖新请求', async t => {
+  const replies = [];
+  const app = await setup(t, () => new Promise((resolve, reject) => replies.push({ resolve, reject })), true);
+  app.button.click();
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  await app.flush();
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /取消/);
+  app.document.dispatchEvent(new app.window.Event('pjax:complete')); await app.flush();
+  app.button.click();
+  replies[0].reject(new Error('旧请求失败')); await app.flush();
+  assert.equal(app.button.disabled, true);
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /正在复制/);
+  replies[1].resolve(); await app.flush();
+  assert.match(app.document.querySelector('.code-copy-status').textContent, /已复制/);
+});
 
 test('当代码默认展开时应该可键盘访问工具和横向滚动区域', async t => {
   const app = await setup(t);
@@ -113,12 +196,13 @@ test('当复制等待结果期间离开正文时应该不抢夺新页面焦点',
   app.button.click();
   const status = app.document.querySelector('.code-copy-status');
   app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  const leavingStatus = status.textContent;
   app.document.body.innerHTML = '<button id="next">下一页</button>';
   app.document.getElementById('next').focus();
   pending[0](new Error('拒绝'));
   await app.flush();
   assert.equal(app.document.activeElement.id, 'next');
-  assert.equal(status.textContent, '正在复制…');
+  assert.equal(status.textContent, leavingStatus);
 });
 
 test('当进入代码全屏后按Escape或切页时应该退出并恢复页面滚动', async t => {
