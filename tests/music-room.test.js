@@ -20,6 +20,13 @@ function find(app, selector) {
   return node;
 }
 
+function releaseDisabledFocus(button) {
+  // JSDOM 不会释放禁用按钮的焦点，模拟浏览器自然回落到正文。
+  button.disabled = false;
+  button.blur();
+  button.disabled = true;
+}
+
 function setup(t, fetcher = async () => ({ ok: true, json: async () => songs })) {
   const dom = new JSDOM(markup, { url: 'https://arata66.top/music/', runScripts: 'outside-only' });
   const { window } = dom;
@@ -82,6 +89,139 @@ test('当在线歌单较长时应该分批显示并让搜索覆盖全部歌曲',
   assert.equal(app.root.querySelectorAll('.music-results li').length, 1);
   find(app, '.music-results button').click(); await flush();
   assert.equal(app.audio.src, '/song-84.mp3');
+});
+
+test('当主动加载歌单后原按钮隐藏时应该从首曲继续浏览且不自动播放', async t => {
+  const app = setup(t);
+  const load = find(app, '.music-load');
+  load.focus();
+  load.click();
+  releaseDisabledFocus(load);
+  assert.equal(app.document.activeElement, app.document.body);
+  await flush();
+  assert.equal(load.hidden, true);
+  assert.equal(app.document.activeElement, find(app, '.music-results button'));
+  assert.equal(app.audio.plays, 0);
+});
+
+test('当主动加载失败或歌单为空时应该回到可操作的重试按钮', async t => {
+  for (const empty of [false, true]) {
+    const app = setup(t, async () => {
+      if (empty) return { ok: true, json: async () => [] };
+      throw new Error('网络不可用');
+    });
+    const load = find(app, '.music-load');
+    load.focus();
+    load.click();
+    releaseDisabledFocus(load);
+    assert.equal(app.document.activeElement, app.document.body);
+    await flush();
+    assert.equal(app.document.activeElement, load);
+    assert.equal(load.hidden, false);
+    assert.equal(load.disabled, false);
+    assert.match(find(app, '.music-results-status').textContent, empty ? /为空/ : /无法/);
+    assert.equal(app.audio.plays, 0);
+  }
+});
+
+test('当歌单加载期间已经转去其他输入时应该保留新焦点和正在输入的内容', async t => {
+  for (const mode of ['page', 'frame', 'blur']) {
+    const framed = mode === 'frame';
+    const replies = [];
+    const app = setup(t, () => new Promise(resolve => replies.push(resolve)));
+    const load = find(app, '.music-load');
+    load.focus(); load.click(); releaseDisabledFocus(load);
+    const frame = app.document.createElement('iframe');
+    if (framed) app.document.body.append(frame);
+    const owner = framed ? frame.contentDocument : app.document;
+    const input = owner.createElement('textarea');
+    owner.body.append(input);
+    input.focus();
+    input.value = '正在输入的文字';
+    if (mode === 'blur') input.blur();
+    const expectedFocus = app.document.activeElement;
+    const expectedOwnerFocus = owner.activeElement;
+    replies[0]({ ok: true, json: async () => songs });
+    await flush();
+    assert.equal(app.document.activeElement, expectedFocus);
+    assert.equal(owner.activeElement, expectedOwnerFocus);
+    assert.equal(input.value, '正在输入的文字');
+    assert.equal(app.audio.plays, 0);
+  }
+});
+
+test('当重试成功但当前搜索没有匹配时应该回到输入框供继续查找', async t => {
+  let attempts = 0;
+  const app = setup(t, async () => {
+    if (++attempts === 1) throw new Error('网络不可用');
+    return { ok: true, json: async () => songs };
+  });
+  const load = find(app, '.music-load');
+  load.click(); await flush();
+  const input = find(app, '.music-query');
+  input.value = '没有这首歌'; input.dispatchEvent(new app.window.Event('input'));
+  load.focus(); load.click(); releaseDisabledFocus(load);
+  await flush();
+  assert.equal(load.hidden, true);
+  assert.equal(app.root.querySelectorAll('.music-results li').length, 0);
+  assert.equal(app.document.activeElement, input);
+  assert.equal(input.value, '没有这首歌');
+  assert.match(find(app, '.music-results-status').textContent, /没有找到/);
+  assert.equal(app.audio.plays, 0);
+});
+
+test('当加载期间进入框内输入再回到正文时应该不重新抢回焦点', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise(resolve => replies.push(resolve)));
+  const load = find(app, '.music-load');
+  load.focus(); load.click(); releaseDisabledFocus(load);
+  const frame = app.document.createElement('iframe');
+  app.document.body.append(frame);
+  const input = frame.contentDocument.createElement('textarea');
+  frame.contentDocument.body.append(input);
+  input.focus();
+  // JSDOM 不会产生跨文档的窗口失焦事件，补齐浏览器在进入框内时的通知。
+  app.window.dispatchEvent(new app.window.Event('blur'));
+  input.value = '暂时离开输入';
+  input.blur(); frame.blur();
+  assert.equal(app.document.activeElement, app.document.body);
+  app.window.dispatchEvent(new app.window.Event('focus'));
+  replies[0]({ ok: true, json: async () => songs }); await flush();
+  assert.equal(app.document.activeElement, app.document.body);
+  assert.equal(input.value, '暂时离开输入');
+  assert.equal(app.audio.plays, 0);
+});
+
+test('当连续展开歌单直到最后一批时应该从每批新增的第一首继续浏览', async t => {
+  const many = Array.from({ length: 85 }, (_, index) => ({ ...songs[0], name: `歌曲${index}`, url: `/song-${index}.mp3` }));
+  const app = setup(t, async () => ({ ok: true, json: async () => many }));
+  find(app, '.music-load').click(); await flush();
+  const more = find(app, '.music-more');
+  for (const [count, index] of [[80, 40], [85, 80]]) {
+    more.focus(); more.click();
+    assert.equal(app.root.querySelectorAll('.music-results li').length, count);
+    assert.equal(app.document.activeElement, find(app, `[data-music-index="${index}"]`));
+    assert.match(app.document.activeElement.textContent, new RegExp(`歌曲${index}`));
+  }
+  assert.equal(more.hidden, true);
+  assert.equal(app.audio.plays, 0);
+  assert.equal(app.requests.length, 1);
+});
+
+test('当筛选后的歌曲索引不连续时应该聚焦新增首曲并保持搜索范围', async t => {
+  const many = Array.from({ length: 91 }, (_, index) => ({ ...songs[0], name: `${index % 2 ? '其他' : '喜欢'}歌曲${index}`, url: `/song-${index}.mp3` }));
+  const app = setup(t, async () => ({ ok: true, json: async () => many }));
+  find(app, '.music-load').click(); await flush();
+  const input = find(app, '.music-query');
+  input.value = '喜欢'; input.dispatchEvent(new app.window.Event('input'));
+  const more = find(app, '.music-more');
+  more.focus(); more.click();
+  assert.equal(app.root.querySelectorAll('.music-results li').length, 46);
+  assert.equal(app.document.activeElement, find(app, '[data-music-index="80"]'));
+  assert.equal(input.value, '喜欢');
+  assert.equal(more.hidden, true);
+  assert.match(find(app, '.music-results-status').textContent, /找到 46 首/);
+  assert.equal(app.audio.plays, 0);
 });
 
 test('当用户在音乐馆和悬浮播放器间操作时应该共用音频并同步当前歌曲与暂停状态', async t => {
