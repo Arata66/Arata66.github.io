@@ -31,6 +31,12 @@ function field(app, id) { const node = app.document.getElementById(id); assert.o
 function action(app, name) { const node = app.document.querySelector(`[data-tool-action="${name}"]`); assert.ok(node); return node; }
 function input(app, id, value) { const node = field(app, id); node.value = value; node.dispatchEvent(new app.window.Event('input')); }
 
+function enter(app, id, options = {}) {
+  const event = new app.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...options });
+  field(app, id).dispatchEvent(event);
+  return event;
+}
+
 function leaveTools(app) {
   app.document.dispatchEvent(new app.window.Event('pjax:send'));
   app.document.body.innerHTML = '<main>其他页面</main>';
@@ -42,6 +48,128 @@ function returnToTools(app) {
   app.document.body.innerHTML = markup;
   app.document.dispatchEvent(new app.window.Event('pjax:complete'));
 }
+
+test('当在JSON原始内容按Ctrl或Meta加Enter时应该按当前缩进格式化并保留输入焦点', t => {
+  for (const modifier of ['ctrlKey', 'metaKey']) {
+    const app = setup(t);
+    const source = '{"编号":900719925474099312345,"文本":"继续处理"}';
+    input(app, 'json-input', source);
+    field(app, 'json-indent').value = '4';
+    field(app, 'json-input').focus();
+    const event = enter(app, 'json-input', { [modifier]: true });
+    assert.equal(event.defaultPrevented, true);
+    assert.match(field(app, 'json-output').value, /\n {4}"编号": 900719925474099312345/);
+    assert.equal(field(app, 'json-input').value, source);
+    assert.equal(app.document.activeElement, field(app, 'json-input'));
+    assert.equal(action(app, 'json-copy').disabled, false);
+    assert.match(field(app, 'json-status').textContent, /4 个空格/);
+  }
+});
+
+test('当在时间戳输入框按Enter时应该按当前单位和时区完成转换', t => {
+  for (const [unit, value] of [['seconds', '1.234'], ['milliseconds', '1234']]) {
+    const app = setup(t);
+    field(app, 'timestamp-unit').value = unit;
+    field(app, 'time-zone').value = '0';
+    input(app, 'timestamp-input', value);
+    const event = enter(app, 'timestamp-input');
+    assert.equal(event.defaultPrevented, true);
+    assert.equal(field(app, 'timestamp-ms').value, '1234');
+    assert.equal(field(app, 'timestamp-seconds').value, '1.234');
+    assert.equal(field(app, 'date-input').value, '1970-01-01T00:00:01.234');
+    assert.equal(action(app, 'time-copy-ms').disabled, false);
+  }
+});
+
+test('当在日期输入框按Ctrl或Meta加Enter时应该按所选时区转换时间戳', t => {
+  for (const modifier of ['ctrlKey', 'metaKey']) {
+    const app = setup(t);
+    input(app, 'date-input', '2026-10-27T09:02:03.456');
+    const event = enter(app, 'date-input', { [modifier]: true });
+    assert.equal(event.defaultPrevented, true);
+    assert.equal(field(app, 'timestamp-ms').value, String(Date.UTC(2026, 9, 27, 1, 2, 3, 456)));
+    assert.match(field(app, 'time-status').textContent, /转换完成.*北京时间/);
+  }
+});
+
+test('当普通换行或操作只读结果及其他控件时应该保留原生按键行为', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"内容":true}');
+  for (const [id, options] of [['json-input', {}], ['json-output', { ctrlKey: true }], ['date-input', {}], ['json-indent', { ctrlKey: true }], ['timestamp-input', { altKey: true }], ['timestamp-input', { shiftKey: true }]]) {
+    assert.equal(enter(app, id, options).defaultPrevented, false);
+  }
+  assert.equal(field(app, 'json-output').value, '');
+  assert.equal(field(app, 'timestamp-ms').value, '');
+});
+
+test('当中文组字尚未结束时应该保留候选按键且失焦后可以继续使用快捷操作', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"文本":"中文"}');
+  const editor = field(app, 'json-input'); editor.focus();
+  editor.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+  for (const isComposing of [true, false]) assert.equal(enter(app, 'json-input', { ctrlKey: true, isComposing }).defaultPrevented, false);
+  assert.equal(field(app, 'json-output').value, '');
+  editor.dispatchEvent(new app.window.CompositionEvent('compositionend', { bubbles: true }));
+  assert.equal(enter(app, 'json-input', { ctrlKey: true, isComposing: true }).defaultPrevented, false);
+  editor.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+  editor.blur(); editor.focus();
+  assert.equal(enter(app, 'json-input', { ctrlKey: true }).defaultPrevented, true);
+  assert.match(field(app, 'json-output').value, /"文本": "中文"/);
+});
+
+test('当输入法先结束组字再派发确认键时应该保留确认且下一次按键可正常处理', t => {
+  for (const { id, source, options, output } of [
+    { id: 'json-input', source: '{"文本":"中文"}', options: { ctrlKey: true }, output: 'json-output' },
+    { id: 'timestamp-input', source: '0', options: {}, output: 'timestamp-ms' }
+  ]) {
+    const app = setup(t);
+    input(app, id, source);
+    const editor = field(app, id);
+    editor.dispatchEvent(new app.window.CompositionEvent('compositionstart', { bubbles: true }));
+    editor.dispatchEvent(new app.window.CompositionEvent('compositionend', { bubbles: true }));
+    assert.equal(enter(app, id, { ...options, keyCode: 229, isComposing: false }).defaultPrevented, false);
+    assert.equal(field(app, output).value, '');
+    assert.equal(enter(app, id, options).defaultPrevented, true);
+    assert.notEqual(field(app, output).value, '');
+  }
+});
+
+test('当快捷处理遇到无效输入时应该沿用校验反馈并停用旧结果', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{}'); action(app, 'json-format').click();
+  input(app, 'json-input', '{"缺少":}'); enter(app, 'json-input', { ctrlKey: true });
+  assert.equal(field(app, 'json-output').value, '');
+  assert.equal(action(app, 'json-copy').disabled, true);
+  assert.match(field(app, 'json-status').textContent, /JSON 格式有误/);
+  input(app, 'timestamp-input', '0'); action(app, 'time-from-stamp').click();
+  input(app, 'timestamp-input', '不是时间戳'); enter(app, 'timestamp-input');
+  assert.equal(field(app, 'timestamp-ms').value, '');
+  assert.equal(action(app, 'time-copy-ms').disabled, true);
+  assert.match(field(app, 'time-status').textContent, /有效秒数/);
+});
+
+test('当长按快捷键产生重复事件时应该阻止额外换行且不反复处理', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"内容":true}');
+  assert.equal(enter(app, 'json-input', { ctrlKey: true, repeat: true }).defaultPrevented, true);
+  assert.equal(field(app, 'json-output').value, '');
+  enter(app, 'json-input', { ctrlKey: true });
+  assert.match(field(app, 'json-output').value, /"内容": true/);
+});
+
+test('当切页等待中再按快捷键时应该停止旧处理且返回后可处理最新输入', t => {
+  const app = setup(t);
+  input(app, 'json-input', '{"版本":1}'); action(app, 'json-format').click();
+  const previous = field(app, 'json-output').value;
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  input(app, 'json-input', '{"版本":2}');
+  assert.equal(enter(app, 'json-input', { ctrlKey: true }).defaultPrevented, false);
+  assert.equal(field(app, 'json-output').value, previous);
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  enter(app, 'json-input', { ctrlKey: true });
+  assert.match(field(app, 'json-output').value, /"版本": 2/);
+});
 
 test('当站内切页后返回工具时应该恢复JSON输入与结果并能继续修改', t => {
   const app = setup(t);

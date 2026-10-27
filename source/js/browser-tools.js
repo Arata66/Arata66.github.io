@@ -36,6 +36,7 @@
     let currentTime = ui.milliseconds.value ? Number(ui.milliseconds.value) : null;
     const removers = [];
     const pending = new Map();
+    let composing = null;
     page.dataset.toolsReady = 'true';
 
     function button(name) { return page.querySelector(`button[data-tool-action="${name}"]`); }
@@ -132,6 +133,20 @@
       if (!(node instanceof HTMLButtonElement)) return;
       node.hidden = false;
       listen(node, 'click', handler);
+    });
+    listen(page, 'compositionstart', event => { composing = event.target; });
+    listen(page, 'compositionend', () => { composing = null; });
+    listen(page, 'focusout', event => { if (event.target === composing) composing = null; });
+    listen(page, 'keydown', event => {
+      if (event.key !== 'Enter' || event.altKey || event.shiftKey || event.isComposing || event.keyCode === 229 || event.target === composing) return;
+      const command = event.ctrlKey || event.metaKey;
+      const name = event.target === ui.jsonInput && command ? 'json-format'
+        : event.target === ui.stamp ? 'time-from-stamp'
+        : event.target === ui.date && command ? 'time-from-date' : null;
+      if (!name) return;
+      event.preventDefault();
+      // 复用按钮校验，长按时也不反复处理或向原文追加换行。
+      if (!event.repeat) actions[name]();
     });
     listen(ui.jsonInput, 'input', () => { clearJSONResult(); jsonStatus.textContent = '输入已更新，点击格式化或压缩。'; });
     for (const node of [ui.stamp, ui.date]) listen(node, 'input', () => { clearTimeResult(); timeStatus.textContent = '输入已更新，请选择转换方向。'; });
