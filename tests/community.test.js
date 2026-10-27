@@ -99,3 +99,92 @@ test('当剪贴板请求持续不返回时应该在超时后允许手动复制',
   assert.equal(app.document.activeElement, app.document.querySelector('textarea'));
   assert.match(app.document.querySelector('[role="status"]').textContent, /手动复制/);
 });
+
+test('当复制等待时已转到同页其他操作时应该保留新的焦点', async t => {
+  let fail = (_error) => {};
+  const app = setup(t, () => new Promise((resolve, reject) => { fail = reject; }));
+  app.button.focus(); app.button.click();
+  const input = app.document.createElement('input');
+  app.document.body.append(input); input.focus();
+  fail(new Error('复制失败')); await app.flush();
+  assert.equal(app.document.activeElement, input);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /手动复制/);
+  assert.equal(app.button.disabled, false);
+});
+
+test('当等待复制时已手动选择部分名片文字时应该保留当前选择', async t => {
+  let fail = (_error) => {};
+  const app = setup(t, () => new Promise((resolve, reject) => { fail = reject; }));
+  app.button.focus(); app.button.click();
+  const input = app.document.querySelector('textarea');
+  input.focus(); input.setSelectionRange(0, 4);
+  fail(new Error('复制失败')); await app.flush();
+  assert.equal(app.document.activeElement, input);
+  assert.equal(input.selectionEnd, 4);
+});
+
+test('当复制等待时焦点进入嵌入页面且没有父页面焦点事件时应该保留框内输入', async t => {
+  let fail = (_error) => {};
+  const app = setup(t, () => new Promise((resolve, reject) => { fail = reject; }));
+  app.button.focus(); app.button.click();
+  const frame = app.document.createElement('iframe');
+  app.document.body.append(frame);
+  // 框内焦点变化不会向父文档派发focusin，仍须核对当前活动框。
+  Object.defineProperty(app.document, 'activeElement', { configurable: true, get: () => frame });
+  fail(new Error('复制失败')); await app.flush();
+  assert.equal(app.document.querySelector('textarea').selectionEnd, 0);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /手动复制/);
+});
+
+test('当复制等待时离开浏览器窗口时应该取消自动选中名片', async t => {
+  let fail = (_error) => {};
+  const app = setup(t, () => new Promise((resolve, reject) => { fail = reject; }));
+  app.button.focus(); app.button.click();
+  app.window.dispatchEvent(new app.window.Event('blur'));
+  fail(new Error('复制失败')); await app.flush();
+  assert.equal(app.document.activeElement, app.button);
+  assert.equal(app.document.querySelector('textarea').selectionEnd, 0);
+});
+
+test('当复制期间开始切页时应该立即恢复按钮并明确取消等待', async t => {
+  const app = setup(t, () => new Promise(() => {}));
+  app.button.click();
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /已取消/);
+  await app.flush();
+  assert.match(app.document.querySelector('[role="status"]').textContent, /已取消/);
+});
+
+test('当切页取消后立即重试时应该保留新请求的禁用状态并忽略旧结果', async t => {
+  const requests = [];
+  const app = setup(t, () => new Promise((resolve, reject) => requests.push({ resolve, reject })));
+  app.button.click();
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  app.button.click();
+  assert.equal(requests.length, 2);
+  await app.flush();
+  assert.equal(app.button.disabled, true);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /正在复制/);
+  requests[0].reject(new Error('旧请求失败')); await app.flush();
+  assert.equal(app.button.disabled, true);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /正在复制/);
+  requests[1].resolve(); await app.flush();
+  assert.equal(app.button.disabled, false);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /已复制/);
+});
+
+test('当剪贴板同步抛错时应该回退手选且再次点击可以成功', async t => {
+  let calls = 0;
+  const app = setup(t, () => {
+    if (++calls === 1) throw new Error('拒绝复制');
+    return Promise.resolve();
+  });
+  app.button.click(); await app.flush();
+  assert.equal(app.button.disabled, false);
+  assert.equal(app.document.activeElement, app.document.querySelector('textarea'));
+  app.button.click(); await app.flush();
+  assert.equal(calls, 2);
+  assert.match(app.document.querySelector('[role="status"]').textContent, /已复制/);
+});
