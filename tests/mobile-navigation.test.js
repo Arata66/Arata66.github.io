@@ -183,3 +183,23 @@ test('当输入法或内部操作已处理Escape时应该保留当前菜单', as
   key(app, 'first', 'Escape');
   assert.equal(node(app, 'sidebar-menus').classList.contains('open'), true);
 });
+
+test('当菜单快速重开后旧动画清理遮罩样式时应该保留可点击遮罩', async t => {
+  const app = setup(t);
+  const style = app.document.createElement('style');
+  style.textContent = '#sidebar #menu-mask { display: none; }\n' + fs.readFileSync(path.join(__dirname, '../source/css/navigation-polish.css'), 'utf8');
+  app.document.head.append(style);
+  await open(app);
+  key(app, 'first', 'Escape');
+  await flush();
+  await open(app);
+  const mask = node(app, 'menu-mask');
+  mask.style.display = 'block';
+  // 旧关闭动画的迟到回调不能隐藏这一轮展开所需的遮罩。
+  mask.style.display = '';
+  mask.style.animation = '';
+  assert.equal(app.window.getComputedStyle(mask).display, 'block');
+  key(app, 'first', 'Escape');
+  await flush();
+  assert.equal(app.window.getComputedStyle(mask).display, 'none');
+});
