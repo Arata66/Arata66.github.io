@@ -1,5 +1,5 @@
 (function () {
-  let navigationVersion = 0;
+  const pendingCopies = new Map();
   function initChannel(page) {
     if (!(page instanceof HTMLElement) || page.dataset.subscriptionReady) return;
     const input = page.querySelector('.subscription-url');
@@ -10,22 +10,41 @@
     button.hidden = false;
 
     button.addEventListener('click', async function () {
-      const version = navigationVersion;
+      const attempt = { status, cancel: () => {} };
+      pendingCopies.set(button, attempt);
+      let timer = 0;
+      let focusMoved = false;
+      const rememberFocus = event => { if (event.target !== button && event.target !== document.body) focusMoved = true; };
+      const leaveWindow = () => { focusMoved = true; };
+      document.addEventListener('focusin', rememberFocus);
+      window.addEventListener('blur', leaveWindow);
       button.disabled = true;
       status.textContent = '正在复制…';
       try {
         if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('剪贴板不可用');
-        await navigator.clipboard.writeText(input.value);
-        if (!page.isConnected || version !== navigationVersion) return;
+        await new Promise((resolve, reject) => {
+          timer = window.setTimeout(() => reject(new Error('复制等待超时')), 3000);
+          attempt.cancel = () => { window.clearTimeout(timer); reject(new Error('复制等待已取消')); };
+          navigator.clipboard.writeText(input.value).then(resolve, reject);
+        });
+        if (!page.isConnected || pendingCopies.get(button) !== attempt) return;
         status.textContent = '已复制，可以粘贴到阅读器。';
       } catch {
-        // 复制权限不可用时，仍让访客通过输入框继续操作。
-        if (!page.isConnected || version !== navigationVersion) return;
+        if (!page.isConnected || pendingCopies.get(button) !== attempt) return;
         status.textContent = '复制未成功，可选中上方地址手动复制。';
-        input.focus();
-        input.select();
+        // 地址始终可手动复制，等待期间转去的输入和窗口不能被打断。
+        if (!focusMoved && !(document.activeElement instanceof HTMLIFrameElement)) {
+          input.focus();
+          input.select();
+        }
       } finally {
-        if (page.isConnected) button.disabled = false;
+        window.clearTimeout(timer);
+        document.removeEventListener('focusin', rememberFocus);
+        window.removeEventListener('blur', leaveWindow);
+        if (pendingCopies.get(button) === attempt) {
+          pendingCopies.delete(button);
+          if (page.isConnected) button.disabled = false;
+        }
       }
     });
   }
@@ -38,8 +57,16 @@
     else initChannel(page);
   }
 
-  // 慢切页时旧节点还在文档中，从导航启动起就忽略旧复制结果。
-  document.addEventListener('pjax:send', () => { navigationVersion++; });
+  document.addEventListener('pjax:send', () => {
+    pendingCopies.forEach((attempt, button) => {
+      attempt.cancel();
+      if (button.isConnected) {
+        button.disabled = false;
+        attempt.status.textContent = '复制等待已取消，可以重新复制。';
+      }
+    });
+    pendingCopies.clear();
+  });
   document.addEventListener('pjax:complete', init);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
