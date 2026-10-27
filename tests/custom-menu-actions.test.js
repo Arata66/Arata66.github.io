@@ -7,9 +7,15 @@ const { JSDOM } = require('jsdom');
 const script = fs.readFileSync(path.join(__dirname, '../source/js/custom-menu.js'), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
-function setup(t, writeText) {
+function setup(t, writeText, fakeClock = false) {
   const dom = new JSDOM('<head><link rel="canonical" href="https://example.test/article/"></head><body><button id="entry">入口</button><h2 id="blank" tabindex="0">正文</h2><div id="rightside"><button id="darkmode">主题</button></div><input id="outside"></body>', { url: 'https://example.test/article/?search=tag#heading', runScripts: 'outside-only' });
   const { window } = dom;
+  const timers = new Map();
+  let timerId = 0;
+  if (fakeClock) {
+    Object.defineProperty(window, 'setTimeout', { value: (callback, delay) => { const id = ++timerId; timers.set(id, { callback, delay }); return id; } });
+    Object.defineProperty(window, 'clearTimeout', { value: id => timers.delete(id) });
+  }
   Object.defineProperty(window, 'matchMedia', { value: () => ({ matches: true }) });
   Object.defineProperty(window.navigator, 'clipboard', { value: writeText ? { writeText } : undefined });
   window.eval(script);
@@ -31,8 +37,58 @@ function setup(t, writeText) {
     assert.ok(element instanceof window.HTMLInputElement);
     return element;
   }
-  return { window, document, open, action, status: () => document.querySelector('.ctx-feedback'), input };
+  return { window, document, open, action, status: () => document.querySelector('.ctx-feedback'), input, timerCount: () => timers.size,
+    advance(milliseconds) { for (const [id, timer] of [...timers]) if (timer.delay <= milliseconds) { timers.delete(id); timer.callback(); } }
+  };
 }
+
+test('当快捷菜单复制一直不返回时应该超时提供固定地址并可再次操作', async t => {
+  const app = setup(t, () => new Promise(() => {}), true);
+  const menu = app.open(); const button = app.action('copy');
+  app.advance(3000); await tick();
+  assert.equal(button.getAttribute('aria-disabled'), 'false');
+  assert.equal(menu.classList.contains('show'), true);
+  assert.equal(app.input().hidden, false);
+  assert.equal(app.input().value, 'https://example.test/article/');
+  assert.equal(app.document.activeElement, app.input());
+  assert.match(app.status().textContent, /手动复制/);
+  assert.equal(app.timerCount(), 0);
+});
+
+test('当关闭菜单后重新复制时应该取消旧定时器且旧结果不影响本次等待', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise(resolve => replies.push(resolve)), true);
+  app.open(); app.action('copy');
+  app.document.dispatchEvent(new app.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(app.timerCount(), 0);
+  app.open(); const button = app.action('copy');
+  replies[0](); await tick();
+  assert.equal(button.getAttribute('aria-disabled'), 'true');
+  assert.equal(app.input().hidden, true);
+  assert.match(app.status().textContent, /正在复制/);
+  replies[1](); await tick();
+  assert.equal(button.getAttribute('aria-disabled'), 'false');
+  assert.match(app.status().textContent, /已复制/);
+  assert.equal(app.timerCount(), 0);
+});
+
+test('当开始切页而响应尚未返回时应该立即收起快捷菜单并取消复制等待', async t => {
+  const replies = [];
+  const app = setup(t, () => new Promise(resolve => replies.push(resolve)), true);
+  const old = app.open(); app.action('copy');
+  app.document.dispatchEvent(new app.window.Event('pjax:send'));
+  assert.equal(old.classList.contains('show'), false);
+  assert.equal(old.hasAttribute('inert'), true);
+  assert.equal(app.timerCount(), 0);
+  app.document.dispatchEvent(new app.window.Event('pjax:complete'));
+  const next = app.open(); const button = app.action('copy');
+  replies[0](); await tick();
+  assert.equal(next.classList.contains('show'), true);
+  assert.equal(button.getAttribute('aria-disabled'), 'true');
+  replies[1](); await tick();
+  assert.match(app.status().textContent, /已复制/);
+  assert.equal(button.getAttribute('aria-disabled'), 'false');
+});
 
 test('当复制成功时应该复制规范地址并保留可见成功反馈', async t => {
   let copied;

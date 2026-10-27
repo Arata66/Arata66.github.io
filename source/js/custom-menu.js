@@ -5,6 +5,13 @@
   var previousFocus = null;
   var generation = 0;
   var position = { x: 0, y: 0 };
+  var copyCancel = null;
+
+  function stopCopy() {
+    var cancel = copyCancel;
+    copyCancel = null;
+    if (cancel) cancel();
+  }
 
   async function copyLink(item) {
     if (item.getAttribute('aria-disabled') === 'true') return;
@@ -22,9 +29,16 @@
     function isCurrent() {
       return currentMenu.isConnected && menu === currentMenu && generation === currentGeneration && currentMenu.classList.contains('show');
     }
+    var timer = 0;
+    var cancel = null;
     try {
       if (!navigator.clipboard?.writeText) throw new Error('剪贴板不可用');
-      await navigator.clipboard.writeText(input.value);
+      await new Promise(function (resolve, reject) {
+        timer = window.setTimeout(function () { reject(new Error('复制等待超时')); }, 3000);
+        cancel = function () { window.clearTimeout(timer); reject(new Error('复制等待已取消')); };
+        copyCancel = cancel;
+        navigator.clipboard.writeText(input.value).then(resolve, reject);
+      });
       if (!isCurrent()) return;
       status.textContent = '已复制，可以粘贴分享。';
       placeMenu();
@@ -39,6 +53,8 @@
         input.select();
       }
     } finally {
+      window.clearTimeout(timer);
+      if (copyCancel === cancel) copyCancel = null;
       if (isCurrent()) item.setAttribute('aria-disabled', 'false');
     }
   }
@@ -83,6 +99,7 @@
     createMenu();
     if (!menu.contains(document.activeElement)) previousFocus = document.activeElement;
     generation++;
+    stopCopy();
     position = { x: x, y: y };
     menu.querySelector('.ctx-feedback').textContent = '';
     menu.querySelector('.ctx-copy-url').hidden = true;
@@ -105,6 +122,7 @@
 
   function hideMenu(restoreFocus = false) {
     generation++;
+    stopCopy();
     if (!menu) return;
     if (restoreFocus && menu.contains(document.activeElement) && previousFocus instanceof HTMLElement && previousFocus.isConnected) {
       previousFocus.focus({ preventScroll: true });
@@ -150,8 +168,10 @@
       setTimeout(function () { if (menu && !menu.contains(document.activeElement)) hideMenu(); }, 0);
     }
   });
+  document.addEventListener('pjax:send', function () { hideMenu(); });
   document.addEventListener('pjax:complete', function () {
     generation++;
+    stopCopy();
     if (menu) { menu.remove(); menu = null; }
     previousFocus = null;
   });
