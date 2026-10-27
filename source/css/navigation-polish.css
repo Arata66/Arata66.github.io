@@ -11,6 +11,26 @@
   color: var(--accent);
 }
 
+#nav button#toggle-menu {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent !important;
+  color: inherit;
+  font: inherit;
+  box-shadow: none;
+  filter: none;
+  transform: none;
+  cursor: pointer;
+}
+
+#nav button#toggle-menu:focus-visible {
+  outline: 2px solid var(--scene-focus);
+  outline-offset: 2px;
+}
+
 :is(#nav, #sidebar-menus) details[data-site-menu] > summary {
   list-style: none;
   cursor: pointer;

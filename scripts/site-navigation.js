@@ -5,6 +5,18 @@ function enhanceSiteNavigation(html) {
   const dom = new JSDOM(html);
   const document = dom.window.document;
   const pathname = new URL(document.querySelector('link[rel="canonical"]')?.getAttribute('href') || '/', 'https://arata66.top').pathname;
+  const trigger = document.getElementById('toggle-menu');
+  if (trigger) {
+    const button = document.createElement('button');
+    for (const attribute of trigger.attributes) button.setAttribute(attribute.name, attribute.value);
+    button.type = 'button';
+    button.setAttribute('aria-label', '打开站点导航');
+    button.setAttribute('aria-controls', 'sidebar-menus');
+    button.setAttribute('aria-expanded', 'false');
+    button.innerHTML = trigger.innerHTML;
+    button.querySelectorAll('i').forEach(icon => icon.setAttribute('aria-hidden', 'true'));
+    trigger.replaceWith(button);
+  }
   for (const root of document.querySelectorAll('#nav .menus_items, #sidebar-menus .menus_items')) {
     for (const group of root.querySelectorAll('.menus_item > .group')) {
       const item = group.parentElement;
